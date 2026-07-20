@@ -1,0 +1,40 @@
+import streamlit as st
+import requests
+
+st.title("🚀 Mentor SatVantage")
+
+# Estado para controlar a missão atual
+if "missao_ativa" not in st.session_state:
+    st.session_state.missao_ativa = None
+
+# Interface
+mensagem = st.text_input("Como posso te ajudar hoje?")
+
+if st.button("Enviar"):
+    # Chamada para o seu backend FastAPI
+    # Certifique-se de que a URL corresponde à sua rota no FastAPI
+    url = "http://127.0.0.1:8000/api/interact"
+    
+    payload = {
+        "mensagem_usuario": mensagem,
+        "missao_id": st.session_state.missao_ativa,
+        "tema_atual": "carteira de bitcoin"
+    }
+    
+    try:
+        response = requests.post(url, json=payload).json()
+        
+        if response["status"] == "success":
+            st.success(response["message"])
+            st.session_state.missao_ativa = None # Limpa a missão após sucesso
+        elif response["status"] == "try_again":
+            st.warning(response["feedback"])
+        else:
+            st.write(response.get("resposta", "Algo deu errado."))
+    except Exception as e:
+        st.error(f"Erro ao conectar com o backend: {e}")
+
+# Botão para ativar uma missão de teste
+if st.button("Simular Missão: Tradução"):
+    st.session_state.missao_ativa = "traducao"
+    st.info("Missão ativada! Agora explique o conceito de carteira para mim.")

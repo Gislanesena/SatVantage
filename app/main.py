@@ -2,14 +2,14 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse # Adicione esta linha
 from dotenv import load_dotenv
-from app.api.endpoints.mentor import router as mentor_router
+from app.api.mentor.mentor_router import router as mentor_router
 import logging
 
 # 1. Configurações
 # Carrega as variáveis do seu .env (como o HF_TOKEN)
 load_dotenv()
 
-app = FastAPI(title="BTCVantage - AI Mentor API")
+app = FastAPI(title="SatVantage - AI Mentor API")
 
 # Adicione este bloco aqui:
 @app.get("/", include_in_schema=False)
@@ -17,11 +17,11 @@ async def redirect_to_docs():
     return RedirectResponse(url="/docs")
 
 # 2. App FastAPI
-app = FastAPI(title="BTCVantage - AI Mentor API")
+app = FastAPI(title="SatVantage - AI Mentor API")
 
 @app.get("/health")
 async def health_check():
-    return {"status": "ok", "mensagem": "BitcoinOS API está online!"}
+    return {"status": "ok", "mensagem": "SatVantage está online!"}
 
 app.add_middleware(
     CORSMiddleware,
@@ -31,7 +31,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(mentor_router, prefix="/api")
+app.include_router(mentor_router, prefix="/api/api", tags=["Mentor"])
 
 # Configuração básica: salva em um arquivo e mostra no terminal
 logging.basicConfig(
@@ -42,4 +42,4 @@ logging.basicConfig(
         logging.StreamHandler()          # Mostra no terminal também
     ]
 )
-logger = logging.getLogger("BitcoinOS")
+logger = logging.getLogger("SatVantage")

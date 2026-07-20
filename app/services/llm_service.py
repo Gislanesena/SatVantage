@@ -3,7 +3,7 @@ import time
 import logging
 from huggingface_hub import InferenceClient
 
-logger = logging.getLogger("BitcoinOS.LLMService")
+logger = logging.getLogger("SatVantage.LLMService")
 
 class LLMService:
     def __init__(self):
@@ -15,6 +15,9 @@ class LLMService:
         self.model = "meta-llama/Llama-3.1-8B-Instruct"
 
     def _eh_assunto_permitido(self, prompt: str) -> bool:
+        # Se for uma resposta curta de validação, deixamos passar para a IA decidir
+        if len(prompt) < 20:
+            return True
         # Palavras-chave simples para filtrar o escopo
         temas_permitidos = ["bitcoin", "cripto", "blockchain", "carteira", "satoshis", "investimento"]
         prompt_lower = prompt.lower()
