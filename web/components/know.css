@@ -1,0 +1,83 @@
+/* Dúvidas importantes — card no padrão BTC / corretoras */
+
+.sv-know {
+  padding: 22px 20px 18px;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background:
+    linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--accent) 12%, transparent),
+      transparent 50%
+    ),
+    var(--surface);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-family: var(--font-ui, "Figtree", system-ui, sans-serif);
+  min-width: 0;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.sv-know-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.sv-know-label {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+}
+
+.sv-know-list {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+  flex: 1 1 auto;
+  align-content: start;
+}
+
+.sv-know-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg) 40%, transparent);
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  color: var(--ink);
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.sv-know-item:hover {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+.sv-know-item-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.sv-know-item-go {
+  flex: 0 0 auto;
+  color: var(--accent);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
