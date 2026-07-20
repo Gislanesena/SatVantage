@@ -1,0 +1,1782 @@
+/*!********************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!./components/landing.css ***!
+  \********************************************************************************************************************************************************************************************************************************************************************/
+.sv-landing {
+  min-height: 100vh;
+}
+
+.sv-landing-body {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 48px 24px 28px;
+}
+
+.sv-landing-body--after {
+  padding-top: 40px;
+  padding-bottom: 80px;
+}
+
+/* Bitcoin ao vivo — faixa quase full-bleed, só margem das bordas */
+.sv-landing-btc {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 20px 20px;
+}
+
+.sv-landing-btc .sv-btc--wide {
+  width: 100%;
+  max-width: none;
+  min-height: 0;
+  padding: 22px 22px 18px;
+  border-radius: 18px;
+}
+
+@media (max-width: 640px) {
+  .sv-landing-btc {
+    padding: 8px 14px 16px;
+  }
+
+  .sv-landing-btc .sv-btc--wide {
+    padding: 16px 14px 14px;
+    border-radius: 14px;
+  }
+}
+
+.sv-hero {
+  min-height: min(78vh, 760px);
+  display: flex;
+  align-items: center;
+  padding: 24px 0 56px;
+  border-bottom: 1px solid var(--line);
+}
+
+.sv-hero-main {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(240px, 0.75fr);
+  grid-template-areas:
+    "intro actions"
+    "body actions"
+    "trust actions";
+  grid-column-gap: 48px;
+  column-gap: 48px;
+  grid-row-gap: 0;
+  row-gap: 0;
+  align-items: start;
+}
+
+.sv-hero-intro {
+  grid-area: intro;
+}
+
+.sv-hero-actions {
+  grid-area: actions;
+  display: grid;
+  grid-gap: 14px;
+  gap: 14px;
+  align-content: center;
+  align-self: center;
+}
+
+.sv-hero-body {
+  grid-area: body;
+}
+
+.sv-trust {
+  grid-area: trust;
+}
+
+.sv-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 22px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(59, 130, 246, 0.45);
+  color: var(--brand-gold);
+  font-size: 0.88rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.sv-hero h1 {
+  margin: 0;
+  font-family: var(--font-hero);
+  font-size: clamp(1.9rem, 2.2vw + 1.3rem, 4.55rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: var(--ink);
+  max-width: 22ch;
+}
+
+.sv-hero h1 em,
+.sv-lede em {
+  font-style: normal;
+  color: var(--brand-gold);
+}
+
+.sv-lede {
+  margin: 22px 0 0;
+  font-size: 1.08rem;
+  line-height: 1.6;
+  color: var(--ink-muted);
+  max-width: 54ch;
+}
+
+.sv-lede-line {
+  margin: 14px 0 0;
+  font-size: 1.08rem;
+  line-height: 1.5;
+  color: var(--ink-muted);
+  max-width: 54ch;
+}
+
+.sv-lede-note {
+  margin: 8px 0 0;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--ink-muted);
+  max-width: 54ch;
+  opacity: 0.9;
+}
+
+.sv-cta-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  width: 100%;
+  max-width: 320px;
+  margin: 0;
+}
+
+.sv-btn-primary,
+.sv-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px 22px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.98rem;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.sv-btn-primary {
+  border: 1px solid transparent;
+  background: var(--orange);
+  color: #fff;
+}
+
+.sv-btn-primary:hover:not(:disabled) {
+  background: var(--orange-deep);
+  color: #fff;
+}
+
+.sv-btn-ghost {
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--ink);
+}
+
+.sv-btn-ghost:hover:not(:disabled) {
+  background: var(--orange-soft);
+  border-color: rgba(59, 130, 246, 0.35);
+  color: var(--ink);
+}
+
+.sv-login-panel {
+  margin: 0;
+  max-width: 320px;
+  padding: 18px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  display: grid;
+  grid-gap: 14px;
+  gap: 14px;
+}
+
+.sv-login-notice {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--ink-muted);
+}
+
+.sv-login-actions {
+  display: grid;
+  grid-gap: 10px;
+  gap: 10px;
+}
+
+.sv-hero-error {
+  margin: 0;
+}
+
+.sv-trust {
+  list-style: none;
+  margin: 36px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px 28px;
+  color: var(--ink-muted);
+  font-size: 0.9rem;
+}
+
+.sv-trust li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sv-section {
+  padding: 64px 0 8px;
+  max-width: 720px;
+}
+
+.sv-section h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.45rem, 2.5vw, 1.85rem);
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+}
+
+.sv-section-lede {
+  margin: 12px 0 0;
+  color: var(--ink-muted);
+  font-size: 1.05rem;
+  line-height: 1.55;
+  max-width: 48ch;
+}
+
+.sv-security-list {
+  list-style: none;
+  margin: 28px 0 0;
+  padding: 0;
+  display: grid;
+  grid-gap: 22px;
+  gap: 22px;
+}
+
+.sv-security-list li {
+  display: grid;
+  grid-gap: 6px;
+  gap: 6px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+
+.sv-security-list strong {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
+}
+
+.sv-security-list span {
+  color: var(--ink-muted);
+  line-height: 1.5;
+}
+
+.sv-landing .sv-error {
+  margin: 0;
+}
+
+.sv-app {
+  max-width: 640px;
+  margin: 48px auto;
+  padding: 24px;
+  display: grid;
+  grid-gap: 24px;
+  gap: 24px;
+}
+
+.sv-app-head {
+  display: grid;
+  grid-gap: 8px;
+  gap: 8px;
+}
+
+.sv-app-brand {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.6rem;
+  letter-spacing: -0.03em;
+}
+
+.sv-app-head p,
+.sv-app-note {
+  margin: 0;
+  color: var(--ink-muted);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 860px) {
+  .sv-landing-body {
+    padding: 28px 20px 64px;
+  }
+
+  .sv-hero {
+    min-height: auto;
+    padding-top: 12px;
+    padding-bottom: 40px;
+  }
+
+  .sv-hero-main {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "intro"
+      "actions"
+      "body"
+      "trust";
+    gap: 22px;
+  }
+
+  .sv-hero-actions {
+    align-self: stretch;
+  }
+
+  .sv-hero h1 {
+    max-width: none;
+    font-size: clamp(2.15rem, 9vw, 2.85rem);
+    line-height: 1.12;
+  }
+
+  .sv-lede {
+    margin-top: 0;
+    font-size: 1rem;
+    max-width: none;
+  }
+
+  .sv-lede-line {
+    font-size: 1rem;
+    max-width: none;
+  }
+
+  .sv-lede-note {
+    font-size: 0.88rem;
+    max-width: none;
+  }
+
+  .sv-trust {
+    margin-top: 8px;
+    gap: 12px 18px;
+    font-size: 0.85rem;
+  }
+
+  .sv-cta-stack,
+  .sv-login-panel {
+    max-width: none;
+  }
+
+  .sv-btn-primary,
+  .sv-btn-ghost {
+    padding: 13px 18px;
+    font-size: 0.95rem;
+  }
+}
+
+/*!*****************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!./components/dash.css ***!
+  \*****************************************************************************************************************************************************************************************************************************************************************/
+/* Dashboard estilo banco */
+
+.sv-bank {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.sv-bank-top {
+  position: relative;
+  display: grid;
+}
+
+.sv-bank-top .sv-nav {
+  /* nav ocupa a barra; tema + avatar ficam por cima à direita */
+  padding-right: 128px;
+}
+
+.sv-bank-settings {
+  position: absolute;
+  top: 50%;
+  right: 18px;
+  transform: translateY(-50%);
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sv-bank-theme {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.sv-bank-theme:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.sv-bank-avatar-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+  padding: 0;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.sv-bank-avatar-btn:hover {
+  border-color: var(--accent);
+}
+
+.sv-bank-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.sv-bank-gear {
+  display: grid;
+  place-items: center;
+  color: var(--ink-muted);
+}
+
+.sv-bank-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  min-width: 220px;
+  padding: 8px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  box-shadow: 0 12px 36px rgba(15, 23, 42, 0.18);
+  display: grid;
+  grid-gap: 4px;
+  gap: 4px;
+}
+
+.sv-bank-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  padding: 11px 12px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-ui, inherit);
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sv-bank-menu-item:hover {
+  background: var(--orange-soft);
+}
+
+.sv-bank-menu-item--danger {
+  color: #e85d5d;
+  margin-top: 4px;
+  border-top: 1px solid var(--line);
+  border-radius: 0 0 10px 10px;
+}
+
+.sv-bank-menu-item--muted {
+  color: var(--ink-muted);
+}
+
+.sv-bank-menu-ico {
+  display: grid;
+  place-items: center;
+  color: var(--accent);
+}
+
+.sv-bank-menu-note {
+  margin: 4px 8px 8px;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--ink-muted);
+}
+
+.sv-bank-profile {
+  display: grid;
+  grid-gap: 10px;
+  gap: 10px;
+  justify-items: center;
+  padding: 8px 4px 4px;
+}
+
+.sv-bank-profile-preview {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 2px dashed color-mix(in srgb, var(--accent) 55%, transparent);
+  background: color-mix(in srgb, var(--orange-soft) 50%, transparent);
+  padding: 0;
+  overflow: hidden;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.sv-bank-profile-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.sv-bank-profile-placeholder {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.sv-bank-profile-btn {
+  width: 100%;
+  font-family: var(--font-ui, inherit);
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 11px 14px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  background: var(--accent);
+  color: #fff;
+}
+
+.sv-bank-profile-btn:hover {
+  filter: brightness(1.06);
+}
+
+.sv-bank-main {
+  flex: 1 1;
+  width: 100%;
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 20px 20px 96px;
+  display: grid;
+  grid-gap: 18px;
+  gap: 18px;
+  align-content: start;
+}
+
+.sv-bank-home-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-gap: 18px;
+  gap: 18px;
+  align-items: start;
+}
+
+.sv-bank-home-left {
+  display: grid;
+  grid-gap: 18px;
+  gap: 18px;
+  min-width: 0;
+}
+
+/* Bitcoin ao vivo (lado direito da home) */
+.sv-btc {
+  --btc-up: #1a9f6a;
+  --btc-down: #d64545;
+  padding: 22px 20px 18px;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background:
+    linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--accent) 12%, transparent),
+      transparent 50%
+    ),
+    var(--surface);
+  display: grid;
+  grid-gap: 6px;
+  gap: 6px;
+  min-height: 280px;
+  align-content: start;
+}
+
+.sv-btc-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.sv-btc-label {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+}
+
+.sv-btc-chg {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.sv-btc-chg.is-up {
+  color: var(--btc-up);
+}
+
+.sv-btc-chg.is-down {
+  color: var(--btc-down);
+}
+
+.sv-btc-price {
+  margin: 4px 0 0;
+  font-family: var(--font-display, "Space Grotesk", sans-serif);
+  font-size: clamp(1.55rem, 4vw, 2rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  line-height: 1.15;
+}
+
+.sv-btc-price-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px 16px;
+}
+
+.sv-btc-price-row .sv-btc-price {
+  margin: 0;
+}
+
+.sv-btc-price-row .sv-btc-sub {
+  margin: 0;
+}
+
+.sv-btc--wide .sv-btc-price {
+  font-size: clamp(1.85rem, 3.5vw, 2.6rem);
+}
+
+.sv-btc--wide .sv-btc-chart--wide .sv-btc-svg {
+  height: clamp(200px, 32vw, 280px);
+}
+
+.sv-btc-sub {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--ink-muted);
+}
+
+.sv-btc-ranges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.sv-btc-range {
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink-muted);
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.sv-btc-range:hover {
+  border-color: var(--accent);
+  color: var(--ink);
+}
+
+.sv-btc-range.is-on {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--orange-soft) 70%, var(--surface));
+  color: var(--ink);
+}
+
+.sv-btc-chart {
+  position: relative;
+  margin-top: 8px;
+  width: 100%;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
+  touch-action: none;
+}
+
+.sv-btc-svg {
+  width: 100%;
+  height: 148px;
+  display: block;
+  overflow: visible;
+}
+
+.sv-btc-grid {
+  stroke: color-mix(in srgb, var(--ink) 10%, transparent);
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+}
+
+.sv-btc-xlabels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+  font-size: 0.7rem;
+  color: var(--ink-muted);
+}
+
+.sv-btc-cross {
+  stroke: color-mix(in srgb, var(--ink) 35%, transparent);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+
+.sv-btc-tip {
+  position: absolute;
+  top: 4px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  z-index: 2;
+  display: grid;
+  grid-gap: 2px;
+  gap: 2px;
+  padding: 7px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.16);
+  white-space: nowrap;
+}
+
+.sv-btc-tip strong {
+  font-size: 0.88rem;
+  color: var(--ink);
+}
+
+.sv-btc-tip span {
+  font-size: 0.72rem;
+  color: var(--ink-muted);
+}
+
+.sv-btc-hint {
+  margin: 4px 0 0;
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+}
+
+.sv-bank-card {
+  padding: 22px 20px 20px;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--accent) 16%, transparent),
+      transparent 55%
+    ),
+    var(--surface);
+  display: grid;
+  grid-gap: 8px;
+  gap: 8px;
+}
+
+.sv-bank-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.sv-bank-label {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+}
+
+.sv-bank-eye {
+  border: none;
+  background: transparent;
+  color: var(--ink-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+}
+
+.sv-bank-eye:hover {
+  color: var(--ink);
+  background: var(--orange-soft);
+}
+
+.sv-bank-amount {
+  margin: 4px 0 0;
+  font-family: var(--font-display, "Space Grotesk", sans-serif);
+  font-size: clamp(1.85rem, 6vw, 2.35rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  line-height: 1.15;
+}
+
+.sv-bank-bolt {
+  color: var(--accent);
+}
+
+.sv-bank-sub {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--ink-muted);
+}
+
+.sv-bank-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 12px;
+  gap: 12px;
+}
+
+.sv-bank-action {
+  display: grid;
+  grid-gap: 6px;
+  gap: 6px;
+  justify-items: center;
+  padding: 18px 12px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-ui, inherit);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.sv-bank-action:hover,
+.sv-bank-action.is-active {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--orange-soft) 80%, var(--surface));
+}
+
+.sv-bank-action-ico {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--accent);
+  color: #fff;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.sv-bank-hint {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--ink-muted);
+}
+
+.sv-bank-panel {
+  min-width: 0;
+}
+
+.sv-bank-panel .sv-wallet {
+  border-radius: 16px;
+}
+
+/* Mentor FAB — canto inferior esquerdo */
+.sv-mentor-fab-wrap {
+  position: fixed;
+  left: 18px;
+  bottom: 18px;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.sv-mentor-fab {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 2px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  padding: 0;
+  overflow: hidden;
+  cursor: pointer;
+  background: var(--surface);
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.22);
+}
+
+.sv-mentor-fab img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.sv-mentor-fab:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.sv-mentor-sheet {
+  width: min(320px, calc(100vw - 36px));
+  max-height: min(70vh, 480px);
+  overflow-y: auto;
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.22);
+  display: grid;
+  grid-gap: 10px;
+  gap: 10px;
+}
+
+.sv-mentor-sheet--chat {
+  width: min(420px, calc(100vw - 28px));
+  height: min(74vh, 680px);
+  max-height: min(74vh, 680px);
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.sv-mentor-fab-wrap.is-chat {
+  z-index: 60;
+}
+
+.sv-bank-voucher-note {
+  margin-top: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  display: grid;
+  grid-gap: 6px;
+  gap: 6px;
+}
+
+.sv-bank-voucher-title {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.sv-bank-voucher-cta {
+  justify-self: start;
+  margin-top: 4px;
+  border: none;
+  background: transparent;
+  color: var(--accent);
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.sv-bank-voucher-cta:hover {
+  filter: brightness(1.08);
+}
+
+.sv-bank-voucher-note code {
+  font-size: 0.85em;
+  word-break: break-all;
+}
+
+.sv-mentor-sheet-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sv-mentor-sheet-head img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.sv-mentor-sheet-head strong {
+  display: block;
+  font-family: var(--font-hero);
+  font-size: 0.95rem;
+}
+
+.sv-mentor-sheet-head p {
+  margin: 2px 0 0;
+  font-size: 0.8rem;
+  color: var(--ink-muted);
+}
+
+.sv-mentor-sheet-label {
+  margin: 4px 0 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.sv-mentor-chips {
+  display: grid;
+  grid-gap: 8px;
+  gap: 8px;
+}
+
+.sv-mentor-chip {
+  text-align: left;
+  width: 100%;
+  padding: 11px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg) 40%, transparent);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+  line-height: 1.35;
+}
+
+.sv-mentor-chip:hover {
+  border-color: var(--accent);
+}
+
+.sv-mentor-chip--earn {
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  background: color-mix(in srgb, var(--orange-soft) 55%, transparent);
+  font-weight: 600;
+}
+
+@media (max-width: 800px) {
+  .sv-bank-home-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .sv-bank-settings {
+    right: 14px;
+    gap: 8px;
+  }
+
+  .sv-bank-top .sv-nav {
+    padding-right: 112px;
+  }
+
+  .sv-bank-theme,
+  .sv-bank-avatar-btn {
+    width: 40px;
+    height: 40px;
+  }
+
+  .sv-bank-main {
+    padding: 16px 14px 88px;
+  }
+
+  .sv-mentor-fab-wrap {
+    left: 14px;
+    bottom: 14px;
+  }
+}
+
+/*!*******************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!./components/mentor.css ***!
+  \*******************************************************************************************************************************************************************************************************************************************************************/
+.sv-mentor {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.sv-mentor-body {
+  flex: 1 1;
+  max-width: 720px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 12px 16px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+}
+
+.sv-mentor-head h1 {
+  margin: 0;
+  font-family: var(--font-hero);
+  font-size: clamp(1.1rem, 2.4vw, 1.35rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.sv-mentor-status {
+  margin: 0;
+  color: var(--ink-muted);
+  font-size: 0.95rem;
+}
+
+/* Painel de chat — “quadrado” azul-acinzentado claro */
+.sv-chat-panel {
+  flex: 1 1;
+  min-height: min(70vh, 640px);
+  display: flex;
+  flex-direction: column;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: var(--chat-panel, #c5d0e0);
+  overflow: hidden;
+  box-shadow: 0 8px 28px rgba(15, 23, 42, 0.08);
+}
+
+html[data-theme="dark"] .sv-chat-panel {
+  --chat-panel: #1e2a3d;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+}
+
+html[data-theme="light"] .sv-chat-panel,
+:root:not([data-theme="dark"]) .sv-chat-panel {
+  --chat-panel: #c5d0e0;
+}
+
+.sv-chat-scroll {
+  flex: 1 1;
+  overflow-y: auto;
+  padding: 16px 14px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  scroll-behavior: smooth;
+}
+
+.sv-bubble {
+  max-width: 88%;
+  padding: 11px 13px;
+  border-radius: 14px;
+  font-size: 0.96rem;
+  line-height: 1.55;
+  animation: sv-bubble-in 0.28s ease-out both;
+}
+
+@keyframes sv-bubble-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.sv-bubble--agent {
+  align-self: flex-start;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  color: #0f172a;
+}
+
+.sv-bubble-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  max-width: 100%;
+}
+
+.sv-bubble-row .sv-bubble--agent {
+  max-width: calc(92% - 44px);
+}
+
+.sv-mentor-face {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.sv-mentor-head-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sv-mentor-head-face {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--line);
+}
+
+.sv-mentor-practice-tag {
+  margin: 6px 0 0;
+  font-size: 0.8rem;
+  color: var(--ink-muted);
+}
+
+.sv-mentor-gate {
+  display: grid;
+  grid-gap: 14px;
+  gap: 14px;
+  justify-items: start;
+  padding: 24px 20px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  max-width: 440px;
+}
+
+.sv-mentor-gate h1 {
+  margin: 0;
+  font-family: var(--font-hero);
+  font-size: 1.25rem;
+}
+
+.sv-mentor-gate p {
+  margin: 0;
+  color: var(--ink-muted);
+  line-height: 1.55;
+}
+
+.sv-mentor-gate-face {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--line);
+}
+
+.sv-mentor-gate-actions {
+  display: grid;
+  grid-gap: 10px;
+  gap: 10px;
+  width: 100%;
+  max-width: 320px;
+}
+
+html[data-theme="dark"] .sv-bubble--agent {
+  background: rgba(15, 23, 42, 0.65);
+  border-color: rgba(232, 238, 248, 0.1);
+  color: var(--ink);
+}
+
+.sv-bubble--agent .sv-bubble-label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 5px;
+}
+
+.sv-bubble-text {
+  white-space: pre-wrap;
+}
+
+.sv-caret {
+  display: inline-block;
+  margin-left: 1px;
+  color: var(--accent);
+  animation: sv-blink 0.9s step-end infinite;
+}
+
+@keyframes sv-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.sv-bubble--user {
+  align-self: flex-end;
+  background: var(--accent, #2563eb);
+  color: #fff;
+  border: none;
+}
+
+.sv-chat-footer {
+  flex-shrink: 0;
+  border-top: 1px solid rgba(15, 23, 42, 0.1);
+  background: rgba(255, 255, 255, 0.28);
+  padding: 12px 14px 14px;
+}
+
+html[data-theme="dark"] .sv-chat-footer {
+  border-top-color: rgba(232, 238, 248, 0.1);
+  background: rgba(7, 11, 18, 0.45);
+}
+
+.sv-chat-actions {
+  display: grid;
+  grid-gap: 10px;
+  gap: 10px;
+}
+
+.sv-chat-options {
+  display: grid;
+  grid-gap: 8px;
+  gap: 8px;
+}
+
+.sv-chat-option {
+  text-align: left;
+  width: 100%;
+  padding: 11px 13px;
+  border-radius: 11px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: rgba(255, 255, 255, 0.85);
+  color: #0f172a;
+  font-weight: 500;
+  font-size: 0.92rem;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+html[data-theme="dark"] .sv-chat-option {
+  background: rgba(15, 23, 42, 0.75);
+  border-color: rgba(232, 238, 248, 0.12);
+  color: var(--ink);
+}
+
+.sv-chat-option:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+.sv-chat-option:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.sv-chat-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+}
+
+.sv-chat-row .linkish {
+  font-size: 0.86rem;
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--ink-muted);
+  text-decoration: underline;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.sv-chat-end {
+  display: grid;
+  grid-gap: 10px;
+  gap: 10px;
+}
+
+.sv-chat-end-note {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--ink-muted);
+}
+
+.sv-topic-list {
+  display: grid;
+  grid-gap: 8px;
+  gap: 8px;
+}
+
+.sv-topic-btn {
+  text-align: left;
+  width: 100%;
+  padding: 11px 13px;
+  border-radius: 11px;
+  border: 1px dashed color-mix(in srgb, var(--accent) 45%, transparent);
+  background: rgba(255, 255, 255, 0.55);
+  color: var(--ink);
+  font-weight: 600;
+  font-size: 0.92rem;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+html[data-theme="dark"] .sv-topic-btn {
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--ink);
+}
+
+.sv-topic-btn:hover:not(:disabled) {
+  border-style: solid;
+  border-color: var(--accent);
+}
+
+.sv-chat-cta {
+  font-family: var(--font-ui, inherit);
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  background: var(--accent, #2563eb);
+  color: #fff;
+}
+
+.sv-chat-cta--ghost {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid color-mix(in srgb, var(--ink) 22%, transparent);
+}
+
+.sv-chat-cta:hover:not(:disabled) {
+  filter: brightness(1.05);
+}
+
+.sv-error {
+  margin: 0;
+  color: #e85d5d;
+  font-size: 0.9rem;
+}
+
+.sv-dash {
+  min-height: 100vh;
+}
+
+.sv-dash-body {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 40px 24px 64px;
+  display: grid;
+  grid-gap: 16px;
+  gap: 16px;
+}
+
+.sv-dash-body h1 {
+  margin: 0;
+  font-family: var(--font-hero);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+}
+
+.sv-dash-body p {
+  margin: 0;
+  color: var(--ink-muted);
+  line-height: 1.55;
+  max-width: 48ch;
+}
+
+.sv-mentor--embedded {
+  min-height: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+}
+
+.sv-mentor-embed-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--ink);
+  flex-shrink: 0;
+}
+
+.sv-mentor--embedded .sv-mentor-body {
+  flex: 1 1;
+  min-height: 0;
+  max-width: none;
+  margin: 0;
+  padding: 8px 10px 10px;
+  gap: 8px;
+}
+
+.sv-mentor--embedded .sv-chat-panel {
+  min-height: 0;
+  flex: 1 1;
+  border-radius: 12px;
+  box-shadow: none;
+}
+
+.sv-mentor--embedded .sv-mentor-gate {
+  padding: 12px 8px;
+}
+
+.sv-mentor--embedded .sv-mentor-gate-face {
+  width: 56px;
+  height: 56px;
+}
+
+.sv-mentor--embedded .sv-bubble {
+  font-size: 0.9rem;
+}
+
+.sv-mentor--embedded .sv-chat-option,
+.sv-mentor--embedded .sv-chat-cta {
+  font-size: 0.88rem;
+}
+
+@media (max-width: 640px) {
+  .sv-mentor-body {
+    padding: 10px 12px 20px;
+  }
+
+  .sv-chat-panel {
+    min-height: min(78vh, 560px);
+    border-radius: 12px;
+  }
+
+  .sv-bubble {
+    max-width: 94%;
+  }
+
+  .sv-mentor--embedded .sv-chat-panel {
+    min-height: 0;
+  }
+}
+
+/*!*******************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!./components/wallet.css ***!
+  \*******************************************************************************************************************************************************************************************************************************************************************/
+/* Bloco de carteira NWC — alinhado ao tema SatVantage */
+
+.sv-wallet {
+  display: grid;
+  grid-gap: 14px;
+  gap: 14px;
+  padding: 20px 18px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  font-family: var(--font-ui, "Figtree", system-ui, sans-serif);
+}
+
+.sv-wallet--friction {
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  background: color-mix(in srgb, var(--orange-soft) 70%, var(--surface));
+}
+
+.sv-wallet-loading {
+  margin: 0;
+  color: var(--ink-muted);
+  font-size: 0.95rem;
+}
+
+.sv-wallet-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.sv-wallet-title {
+  margin: 0;
+  font-family: var(--font-hero, "Syne", sans-serif);
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.sv-wallet-balance {
+  font-family: var(--font-display, "Space Grotesk", sans-serif);
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--accent);
+}
+
+.sv-wallet-copy {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--ink-muted);
+  max-width: 52ch;
+}
+
+.sv-wallet-copy strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.sv-wallet-meta,
+.sv-wallet-footnote {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--ink-muted);
+}
+
+.sv-wallet-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg) 55%, transparent);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 0.92rem;
+}
+
+.sv-wallet-input::placeholder {
+  color: var(--ink-muted);
+  opacity: 0.75;
+}
+
+.sv-wallet-input:focus {
+  outline: 2px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  outline-offset: 1px;
+}
+
+.sv-wallet-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.sv-wallet-btn {
+  font-family: var(--font-ui, inherit);
+  font-weight: 600;
+  font-size: 0.92rem;
+  padding: 11px 16px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  background: var(--accent);
+  color: #fff;
+}
+
+.sv-wallet-btn:hover:not(:disabled) {
+  filter: brightness(1.06);
+}
+
+.sv-wallet-btn:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+.sv-wallet-btn--ghost {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid color-mix(in srgb, var(--ink) 22%, transparent);
+}
+
+.sv-wallet-notice {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--ink);
+}
+
+.sv-wallet-error {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #e85d5d;
+}
+
+.sv-wallet-status {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+}
+
+.sv-wallet-status.is-on {
+  color: #1a9f6a;
+  border-color: color-mix(in srgb, #1a9f6a 40%, transparent);
+}
+
+.sv-wallet-status.is-off {
+  color: #e85d5d;
+  border-color: color-mix(in srgb, #e85d5d 40%, transparent);
+}
+
+.sv-wallet-status.is-warn {
+  color: #c47a1a;
+  border-color: color-mix(in srgb, #c47a1a 45%, transparent);
+}
+
+.sv-wallet-reconnect {
+  display: grid;
+  grid-gap: 10px;
+  gap: 10px;
+}
+
+.sv-wallet-textarea {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  resize: vertical;
+  min-height: 88px;
+}
+
+.sv-wallet-voucher {
+  display: grid;
+  grid-gap: 10px;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.sv-wallet-voucher .linkish {
+  background: none;
+  border: none;
+  padding: 0;
+  text-align: left;
+  color: var(--accent);
+  text-decoration: underline;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.88rem;
+}
+

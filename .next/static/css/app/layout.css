@@ -1,3 +1,6 @@
+/*!*************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[12].use[3]!./app/globals.css ***!
+  \*************************************************************************************************************************************************************************************************************************************************************/
 :root,
 [data-theme="light"] {
   --bg: #c8d4e4;
@@ -175,10 +178,12 @@ code {
 
 /* —— Nav (foto de referência) —— */
 .sv-nav {
+  position: -webkit-sticky;
   position: sticky;
   top: 0;
   z-index: 40;
-  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+          backdrop-filter: blur(14px);
   background: var(--nav-bg);
   border-bottom: 1px solid var(--nav-border);
 }
@@ -190,6 +195,7 @@ code {
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
+  grid-gap: 24px;
   gap: 24px;
 }
 
@@ -376,11 +382,6 @@ code {
 .sv-nav-drawer .sv-nav-cta {
   margin-top: 8px;
   text-align: center;
-  color: #fff;
-}
-
-.sv-nav-drawer .sv-nav-cta:hover {
-  color: #fff;
 }
 
 @media (max-width: 980px) {
@@ -421,6 +422,7 @@ code {
 /* Auth forms */
 .sv-auth {
   display: grid;
+  grid-gap: 12px;
   gap: 12px;
   max-width: 400px;
   margin: 40px auto;
@@ -428,7 +430,8 @@ code {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--surface);
-  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+          backdrop-filter: blur(8px);
 }
 
 /* Contraste do texto nos inputs (claro e escuro) — só visual, não altera a lógica */
@@ -478,7 +481,9 @@ code {
   border-radius: 8px;
   font-size: 0.85rem;
   background: var(--orange-soft);
-  user-select: all;
+  -webkit-user-select: all;
+     -moz-user-select: all;
+          user-select: all;
 }
 
 .sv-check {
@@ -499,6 +504,7 @@ code {
 
 .sv-error-box {
   display: grid;
+  grid-gap: 10px;
   gap: 10px;
   padding: 12px;
   border-radius: 10px;
@@ -521,16 +527,3 @@ code {
   color: #fff;
 }
 
-.sv-inactivity-banner {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 999;
-  padding: 10px 16px;
-  text-align: center;
-  font-weight: 600;
-  font-size: 0.9rem;
-  color: #fff;
-  background: #b45309;
-}
