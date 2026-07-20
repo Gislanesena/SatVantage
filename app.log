@@ -1,0 +1,175 @@
+2026-07-14 20:44:52,632 - BitcoinOS - INFO - Nova requisição recebida: nível=iniciante, pergunta='O que é carteira de bitcoin?...'
+2026-07-14 20:44:55,993 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-14 20:44:55,994 - BitcoinOS - INFO - Resposta da IA gerada com sucesso.
+2026-07-14 20:52:48,020 - BitcoinOS - INFO - Nova requisição recebida: nível=iniciante, pergunta='o que é carteira em bitcoin?...'
+2026-07-14 20:52:51,056 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-14 20:52:51,057 - BitcoinOS - INFO - Resposta da IA gerada com sucesso.
+2026-07-14 20:53:05,902 - BitcoinOS - INFO - Nova requisição recebida: nível=iniciante, pergunta='o que é significa azul?...'
+2026-07-14 20:53:05,902 - BitcoinOS.LLMService - WARNING - Tentativa de assunto fora do escopo bloqueada: o que é significa azul?
+2026-07-14 20:53:05,908 - BitcoinOS - INFO - Resposta da IA gerada com sucesso.
+2026-07-14 20:55:03,072 - BitcoinOS - INFO - Nova requisição recebida: nível=iniciante, pergunta='o que é carteira no bitcoin?...'
+2026-07-14 20:55:06,486 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-14 20:55:06,487 - BitcoinOS - INFO - Resposta da IA gerada com sucesso.
+2026-07-14 20:55:24,537 - BitcoinOS - INFO - Nova requisição recebida: nível=intermediario, pergunta='o que é carteira no bitcoin?...'
+2026-07-14 20:55:27,961 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-14 20:55:27,963 - BitcoinOS - INFO - Resposta da IA gerada com sucesso.
+2026-07-14 20:55:47,511 - BitcoinOS - INFO - Nova requisição recebida: nível=intermediario, pergunta='o que significa azul?...'
+2026-07-14 20:55:47,511 - BitcoinOS.LLMService - WARNING - Tentativa de assunto fora do escopo bloqueada: o que significa azul?
+2026-07-14 20:55:47,511 - BitcoinOS - INFO - Resposta da IA gerada com sucesso.
+2026-07-15 10:02:43,582 - BitcoinOS - INFO - Nova requisição recebida: nível=iniciante, pergunta='Por que devo usar bitcoin?...'
+2026-07-15 10:02:48,122 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-15 10:02:48,123 - BitcoinOS - INFO - Resposta da IA gerada com sucesso.
+2026-07-15 10:53:43,534 - BitcoinOS - INFO - Nova requisição recebida: nível=iniciante, pergunta='O que é o bitcoin?...'
+2026-07-15 10:53:47,560 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-15 10:53:47,561 - BitcoinOS - INFO - Resposta da IA gerada com sucesso.
+2026-07-19 15:47:26,224 - SatVantageLLMService - INFO - Nova requisição recebida: nível=iniciante, pergunta='Quero saber sobre a carteira d...'
+2026-07-19 15:47:26,975 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/agent-harnesses "HTTP/1.1 200 OK"
+2026-07-19 15:47:57,931 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 15:47:57,934 - SatVantageLLMService - INFO - Resposta da IA gerada com sucesso.
+2026-07-19 15:49:19,559 - SatVantageLLMService - INFO - Nova requisição recebida: nível=iniciante, pergunta='cor azul...'
+2026-07-19 15:49:19,559 - SatVantage.LLMService - WARNING - Tentativa de assunto fora do escopo bloqueada: cor azul
+2026-07-19 15:49:19,559 - SatVantageLLMService - INFO - Resposta da IA gerada com sucesso.
+2026-07-19 16:14:16,945 - SatVantageLLMService - INFO - Nova requisição recebida: nível=iniciante, pergunta='O que é uma carteira de Bitcoi...'
+2026-07-19 16:14:31,688 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 16:14:56,433 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 16:15:53,321 - SatVantage.LLMService - WARNING - Tentativa de assunto fora do escopo bloqueada: Avalie a resposta: Eu não sei. Responda APROVADO ou REPROVADO.
+2026-07-19 16:18:37,171 - SatVantageLLMService - INFO - Nova requisição recebida: nível=iniciante, pergunta='O que é a carteira bitcoin?...'
+2026-07-19 16:19:00,755 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 16:19:28,666 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 16:32:34,482 - SatVantageLLMService - INFO - Nova requisição recebida: nível=iniciante, pergunta='O que é a carteira de bitcoin?...'
+2026-07-19 16:32:52,552 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 16:33:32,620 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 16:33:48,220 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 17:19:30,209 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 17:20:10,726 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 17:21:25,653 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 17:22:51,445 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 17:23:20,627 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 17:34:33,211 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 17:35:31,814 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 17:36:18,667 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 17:38:59,037 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 17:40:20,008 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 17:41:01,487 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 17:41:38,243 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 17:44:46,183 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 17:47:07,836 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 17:47:39,646 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 17:52:49,361 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 17:53:16,151 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 17:53:35,961 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 17:56:56,221 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 17:57:19,375 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 17:57:44,330 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 18:01:44,465 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 18:02:13,743 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 18:02:34,899 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 18:02:59,212 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 18:03:36,908 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 18:03:55,019 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 18:04:17,193 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 18:05:09,847 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 18:05:28,699 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 18:05:51,654 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 18:06:14,560 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 18:11:46,904 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 18:12:11,219 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 18:12:43,293 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 18:26:23,616 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 18:38:04,038 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 18:38:39,164 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 18:39:36,753 - SatVantageLLMService - INFO - Nova requisição recebida: nível=iniciante, pergunta='O que é a carteira no bitcoin?...'
+2026-07-19 18:39:58,109 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 18:57:06,515 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 19:01:40,672 - SatVantageLLMService - INFO - Nova requisição recebida: nível=iniciante, pergunta='O que é carteira bitcoin?...'
+2026-07-19 19:01:56,870 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 19:04:18,747 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 19:04:39,538 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 19:05:38,178 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 19:12:52,388 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 19:19:28,263 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 19:20:20,380 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 19:20:35,877 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 19:22:07,599 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 19:22:18,557 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 19:22:45,897 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 19:22:59,516 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 19:23:16,786 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-19 19:23:53,910 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-20 11:17:55,849 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-20 11:17:57,262 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-20 11:19:21,111 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-20 11:20:37,930 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-20 11:20:54,973 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-20 11:21:06,333 - SatVantage.LLMService - WARNING - Tentativa de assunto fora do escopo bloqueada: Eu sou nível intermediário
+2026-07-20 11:22:08,902 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-20 14:32:07,242 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-20 14:32:09,474 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-20 14:33:25,319 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-20 14:35:51,732 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-20 14:35:52,692 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-20 14:35:55,890 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-20 15:04:25,342 - SatVantageLLMService - INFO - Nova requisição recebida: nível=iniciante, pergunta='primeiros-passos...'
+2026-07-20 15:05:20,832 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-20 15:05:20,863 - SatVantageLLMService - INFO - Nova requisição recebida: nível=iniciante, pergunta='primeiros-passos...'
+2026-07-20 15:06:03,847 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-20 15:08:31,442 - SatVantageLLMService - INFO - Nova requisição recebida: nível=iniciante, pergunta='primeiros-passos...'
+2026-07-20 15:08:57,964 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-20 15:10:06,640 - SatVantageLLMService - INFO - Nova requisição recebida: nível=iniciante, pergunta='Iniciar...'
+2026-07-20 15:10:41,965 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-20 15:10:41,970 - SatVantageLLMService - INFO - Nova requisição recebida: nível=iniciante, pergunta='Iniciar...'
+2026-07-20 15:10:49,706 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-20 15:11:03,262 - SatVantageLLMService - INFO - Nova requisição recebida: nível=iniciante, pergunta='Iniciar...'
+2026-07-20 15:11:28,365 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-20 15:13:20,908 - SatVantageLLMService - INFO - Nova requisição recebida: nível=iniciante, pergunta='Iniciar...'
+2026-07-20 15:13:34,362 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-20 15:13:34,364 - SatVantageLLMService - INFO - Nova requisição recebida: nível=iniciante, pergunta='Iniciar...'
+2026-07-20 15:13:57,263 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-20 15:14:00,576 - SatVantageLLMService - INFO - Nova requisição recebida: nível=iniciante, pergunta='Iniciar...'
+2026-07-20 15:14:23,256 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-20 15:40:30,243 - SatVantageLLMService - INFO - Nova requisição recebida: nível=iniciante, pergunta='Iniciar...'
+2026-07-20 15:40:54,389 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-20 15:40:54,391 - SatVantageLLMService - INFO - Nova requisição recebida: nível=iniciante, pergunta='Iniciar...'
+2026-07-20 15:41:19,379 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-20 19:24:04,201 - SatVantageLLMService - INFO - Nova requisição recebida: nível=iniciante, pergunta='Iniciar...'
+2026-07-20 19:24:05,182 - httpx - INFO - HTTP Request: GET https://huggingface.co/api/agent-harnesses "HTTP/1.1 200 OK"
+2026-07-20 19:24:30,450 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-20 19:24:30,454 - SatVantageLLMService - INFO - Nova requisição recebida: nível=iniciante, pergunta='Iniciar...'
+2026-07-20 19:25:09,659 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-20 19:25:11,924 - SatVantageLLMService - INFO - Nova requisição recebida: nível=iniciante, pergunta='Iniciar...'
+2026-07-20 19:25:43,266 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-20 19:26:17,900 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-20 19:26:20,451 - SatVantageLLMService - INFO - Nova requisição recebida: nível=iniciante, pergunta='Finalizar missão...'
+2026-07-20 19:26:45,761 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-20 19:27:45,581 - SatVantageLLMService - INFO - Nova requisição recebida: nível=iniciante, pergunta='Iniciar...'
+2026-07-20 19:27:58,780 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-20 19:27:58,783 - SatVantageLLMService - INFO - Nova requisição recebida: nível=iniciante, pergunta='Iniciar...'
+2026-07-20 19:28:34,465 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-20 19:28:38,606 - SatVantageLLMService - INFO - Nova requisição recebida: nível=iniciante, pergunta='Iniciar...'
+2026-07-20 19:29:07,490 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-20 19:29:38,312 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-20 19:29:40,841 - SatVantageLLMService - INFO - Nova requisição recebida: nível=iniciante, pergunta='Finalizar missão...'
+2026-07-20 19:29:53,346 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-20 19:32:58,855 - SatVantageLLMService - INFO - Nova requisição recebida: nível=iniciante, pergunta='Iniciar...'
+2026-07-20 19:33:06,913 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-20 19:33:06,917 - SatVantageLLMService - INFO - Nova requisição recebida: nível=iniciante, pergunta='Iniciar...'
+2026-07-20 19:33:39,165 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-20 19:33:50,600 - SatVantageLLMService - INFO - Nova requisição recebida: nível=iniciante, pergunta='Iniciar...'
+2026-07-20 19:34:16,936 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-20 19:39:58,052 - SatVantageLLMService - INFO - Nova requisição recebida: nível=iniciante, pergunta='Iniciar...'
+2026-07-20 19:40:29,797 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-20 19:40:29,807 - SatVantageLLMService - INFO - Nova requisição recebida: nível=iniciante, pergunta='Iniciar...'
+2026-07-20 19:40:59,370 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-20 19:44:11,613 - SatVantageLLMService - INFO - Nova requisição recebida: nível=iniciante, pergunta='Iniciar...'
+2026-07-20 19:44:39,865 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-20 19:44:39,874 - SatVantageLLMService - INFO - Nova requisição recebida: nível=iniciante, pergunta='Iniciar...'
+2026-07-20 19:46:40,082 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 504 Gateway Time-out"
+2026-07-20 19:47:17,253 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-20 19:47:40,431 - SatVantageLLMService - INFO - Nova requisição recebida: nível=iniciante, pergunta='Iniciar...'
+2026-07-20 19:48:21,256 - httpx - INFO - HTTP Request: POST https://router.huggingface.co/v1/chat/completions "HTTP/1.1 200 OK"
+2026-07-20 19:49:27,284 - SatVantageLLMService - INFO - Nova requisição recebida: nível=iniciante, pergunta='Iniciar...'
+2026-07-20 19:49:27,295 - SatVantageLLMService - INFO - Nova requisição recebida: nível=iniciante, pergunta='Iniciar...'
+2026-07-20 19:49:28,694 - SatVantageLLMService - INFO - Nova requisição recebida: nível=iniciante, pergunta='Iniciar...'
+2026-07-20 19:55:07,857 - SatVantageLLMService - INFO - Nova requisição recebida: nível=iniciante, pergunta='Iniciar...'
+2026-07-20 19:55:07,864 - SatVantageLLMService - INFO - Nova requisição recebida: nível=iniciante, pergunta='Iniciar...'
+2026-07-20 19:55:09,174 - SatVantageLLMService - INFO - Nova requisição recebida: nível=iniciante, pergunta='Iniciar...'
