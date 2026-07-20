@@ -252,7 +252,7 @@ export default function MentorChat({
     setBusy(false);
   }
 
-  useEffect(() => {
+useEffect(() => {
     const runId = ++runIdRef.current;
 
     setLoading(true);
@@ -273,21 +273,35 @@ export default function MentorChat({
 
     (async () => {
       try {
-        const res = await fetch(`/api/missions?slug=${encodeURIComponent(slug)}`);
-        const data = await res.json();
+        const res = await fetch("http://127.0.0.1:8000/api/api/mentor", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            mensagem_usuario: "Iniciar",
+            nivel_conhecimento: "iniciante"
+          }),
+        });
+        
+const data = await res.json();
         if (!alive(runId)) return;
         if (!res.ok) throw new Error(data.error ?? "erro ao carregar");
 
-        const loaded: Lesson[] = data.lessons ?? [];
-        if (slug === MISSION_2_SLUG && loaded[0] && !String(loaded[0].id).startsWith("w")) {
-          throw new Error("conteúdo da mentoria 2 inválido — recarregue a página");
-        }
+        // Pega a resposta exata da IA que veio do back-end
+        const textResponse = data.resposta_ia ?? "Qual sua dúvida sobre bitcoin hj?";
+        
+        const loaded: Lesson[] = [
+          {
+            id: "w1",
+            teach: textResponse,
+            question: "O que você gostaria de explorar sobre isso?",
+            options: ["Quero entender os fundamentos", "Como funciona a segurança?", "Outra dúvida"],
+          }
+        ];
 
         setLessons(loaded);
         lessonsRef.current = loaded;
         setRewardEligible(!!data.rewardEligible);
 
-        // Já ganhou sats desta mentoria → portão (pode refazer sem prêmio)
         if (!data.rewardEligible && !forcePractice) {
           setShowGate(true);
           setLoading(false);
@@ -298,10 +312,18 @@ export default function MentorChat({
         if (!loaded.length) return;
 
         setBusy(true);
-        const intro = !data.rewardEligible
-          ? "Vamos praticar de novo. Lembre: os sats desta mentoria já foram creditados na sua conta — agora é só aprendizado."
-          : copy.intro;
-        await typeAgent(intro, runId);
+        await typeAgent(textResponse, runId);
+        if (!alive(runId)) return;
+        
+        // Mantém as opções abertas para o usuário interagir sem fechar o chat
+        setComposer({ type: "mission", options: loaded[0].options });
+        if (alive(runId)) setBusy(false);
+
+        setLoading(false);
+        if (!loaded.length) return;
+
+        setBusy(true);
+        await typeAgent(textResponse, runId);
         if (!alive(runId)) return;
         await sleep(320);
         await presentLesson(loaded[0], runId);
@@ -322,16 +344,19 @@ export default function MentorChat({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug, sessionKey, forcePractice]);
 
-  async function finish(payload: { responses: ResponseSlot[] } | { skipAll: true }) {
+async function finish(payload: { responses: ResponseSlot[] } | { skipAll: true }) {
     const runId = runIdRef.current;
     setBusy(true);
     setComposer({ type: "hidden" });
     setError(null);
     try {
-      const res = await fetch("/api/missions/submit", {
+      const res = await fetch("http://127.0.0.1:8000/api/api/mentor", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ slug, ...payload }),
+        body: JSON.stringify({
+          mensagem_usuario: "Finalizar missão",
+          nivel_conhecimento: "iniciante"
+        }),
       });
       const json = await res.json();
       if (!alive(runId)) return;
@@ -359,7 +384,7 @@ export default function MentorChat({
       if (!alive(runId)) return;
       await typeAgent("Pronto por aqui. Vou guardar o que você aprendeu nesta conversa.", runId);
       if (!alive(runId)) return;
-      const full = list.map((_, i) => nextResponses[i] ?? { answer: null, skipped: true });
+      const full = list.map((item: Lesson, i: number) => nextResponses[i] ?? { answer: null, skipped: true });
       await finish({ responses: full });
       return;
     }
@@ -371,7 +396,7 @@ export default function MentorChat({
     if (alive(runId)) setBusy(false);
   }
 
-  async function answerMission(optionIndex: number) {
+async function answerMission(optionIndex: number) {
     const runId = runIdRef.current;
     const lesson = lessonsRef.current[stepRef.current];
     if (!lesson || busy || composer.type !== "mission") return;
@@ -381,13 +406,13 @@ export default function MentorChat({
     pushUser(lesson.options[optionIndex]);
 
     try {
-      const checkRes = await fetch("/api/missions/check", {
+      const checkRes = await fetch("http://127.0.0.1:8000/api/api/interact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          slug,
-          lessonIndex: stepRef.current,
-          answer: optionIndex,
+          mensagem_usuario: lesson.options[optionIndex],
+          missao_id: slug,
+          tema_atual: "Bitcoin"
         }),
       });
       const check = await checkRes.json();
@@ -399,8 +424,9 @@ export default function MentorChat({
       setResponses(nextResponses);
       responsesRef.current = nextResponses;
 
+      const feedbackText = check.resposta_ia || check.feedback || "Continuando...";
       await sleep(180);
-      await typeAgent(check.feedback, runId);
+      await typeAgent(feedbackText, runId);
       if (!alive(runId)) return;
       await advance(nextResponses, stepRef.current + 1);
     } catch (e: any) {
