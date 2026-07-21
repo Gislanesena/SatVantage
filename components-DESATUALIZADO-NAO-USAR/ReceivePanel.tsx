@@ -4,11 +4,11 @@ import { useCallback, useEffect, useState } from "react";
 import "./wallet.css";
 
 type Props = {
+  connected: boolean;
   onChanged?: () => void;
 };
 
-export default function ReceivePanel({ onChanged }: Props) {
-  const [connected, setConnected] = useState(false);
+export default function ReceivePanel({ connected, onChanged }: Props) {
   const [reachable, setReachable] = useState(false);
   const [walletErr, setWalletErr] = useState<string | null>(null);
   const [voucher, setVoucher] = useState(0);
@@ -29,7 +29,6 @@ export default function ReceivePanel({ onChanged }: Props) {
     ]);
     if (w.ok || w.status === 200) {
       const j = await w.json();
-      setConnected(!!j.connected);
       setReachable(j.reachable !== false && !j.error);
       setWalletErr(j.error ?? null);
     }
@@ -56,7 +55,6 @@ export default function ReceivePanel({ onChanged }: Props) {
         setError(json.error ?? "carteira não respondeu — abra Enviar e reconecte");
         return;
       }
-      setConnected(true);
       setReachable(true);
       setWalletErr(null);
       setNotice("Carteira respondeu — pode gerar cobrança.");
@@ -230,6 +228,10 @@ export default function ReceivePanel({ onChanged }: Props) {
                 Gere cobrança de exatamente{" "}
                 <strong>{voucher.toLocaleString("pt-BR")} sats</strong> (<code>lntbs</code>) e
                 cole abaixo.
+              </p>
+              <p className="sv-wallet-meta">
+                Cole aqui uma cobrança Lightning da rede de teste (começa com lntbs) para
+                receber seus sats.
               </p>
               <input
                 className="sv-wallet-input"

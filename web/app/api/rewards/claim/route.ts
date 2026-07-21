@@ -47,12 +47,13 @@ export async function POST(req: NextRequest) {
   try {
     const decoded = decode(bolt11);
     const amountSection = decoded.sections.find((s: any) => s.name === "amount");
-    invoiceMsats = Number(amountSection?.value ?? 0);
+    invoiceMsats = Number((amountSection as any)?.value ?? 0);
   } catch {
     return NextResponse.json({ error: "cobrança inválida — copie o texto completo (ln...)" }, { status: 400 });
   }
 
   const expectedMsats = balance * 1000;
+  console.log("[rewards/claim] invoiceMsats decodificado:", invoiceMsats, "| expectedMsats (saldo):", expectedMsats);
   if (invoiceMsats !== expectedMsats) {
     return NextResponse.json(
       { error: `a cobrança deve ser de exatamente ${balance} sats (seu saldo atual)` },
