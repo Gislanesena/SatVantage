@@ -2,13 +2,12 @@
 
 import { useEffect, useState } from "react";
 
+const SUPPORT_EMAIL = "gislane.sena@icloud.com";
+
 const NAV_LINKS = [
-  { href: "#plataforma", label: "Plataforma" },
-  { href: "#lightning", label: "Lightning" },
-  { href: "#aprender", label: "Aprender" },
-  { href: "#mentoria", label: "Mentoria" },
+  { href: "#conheca", label: "Plataforma" },
   { href: "#sobre", label: "Sobre nós" },
-  { href: "#suporte", label: "Suporte" },
+  { href: `mailto:${SUPPORT_EMAIL}`, label: "Suporte" },
 ] as const;
 
 type Theme = "dark" | "light";
