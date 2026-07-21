@@ -102,11 +102,11 @@ export default function ReceivePanel({ connected, onChanged }: Props) {
     }
   }
 
-  async function resgatarVoucher() {
+  async function resgatarVoucher(boltOverride?: string) {
     setError(null);
     setNotice(null);
 
-    const bolt = claimBolt.trim();
+    const bolt = (boltOverride ?? claimBolt).trim();
     const lower = bolt.toLowerCase();
     if (lower.startsWith("lnbc")) {
       setError(
@@ -130,7 +130,7 @@ export default function ReceivePanel({ connected, onChanged }: Props) {
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error);
-      setClaimBolt("");
+      if (!boltOverride) setClaimBolt("");
       setNotice(`Voucher resgatado: ⚡ ${Number(json.satsPaid).toLocaleString("pt-BR")} sats.`);
       await load();
       onChanged?.();
@@ -139,6 +139,37 @@ export default function ReceivePanel({ connected, onChanged }: Props) {
     } finally {
       setBusy(null);
     }
+  }
+
+  async function resgatarAutomatico() {
+    setError(null);
+    setNotice(null);
+    setBusy("auto");
+
+    let invoiceGerado: string;
+    try {
+      const res = await fetch("/api/wallet/invoice", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amountSats: voucher,
+          description: "Resgate voucher SatVantage",
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.invoice) {
+        throw new Error(json.error ?? "sem detalhes");
+      }
+      invoiceGerado = json.invoice;
+    } catch (e: any) {
+      setError(
+        `Não foi possível gerar cobrança na sua carteira (${e.message ?? "erro desconhecido"}). Tente o resgate manual abaixo.`,
+      );
+      setBusy(null);
+      return;
+    }
+
+    await resgatarVoucher(invoiceGerado);
   }
 
   return (
@@ -240,10 +271,41 @@ export default function ReceivePanel({ connected, onChanged }: Props) {
                   ) : null}
                 </p>
               )}
+              {connected && reachable ? (
+                <>
+                  <p className="sv-wallet-copy">
+                    Resgate automático: geramos a cobrança de{" "}
+                    <strong>{voucher.toLocaleString("pt-BR")} sats</strong> direto na sua
+                    carteira conectada e resgatamos na hora.
+                  </p>
+                  <button
+                    type="button"
+                    className="sv-wallet-btn"
+                    disabled={busy === "auto" || busy === "claim"}
+                    onClick={() => void resgatarAutomatico()}
+                  >
+                    {busy === "auto"
+                      ? "Gerando cobrança…"
+                      : busy === "claim"
+                        ? "Resgatando…"
+                        : "Resgatar automaticamente"}
+                  </button>
+                  <p className="sv-wallet-meta">
+                    Se a sua carteira não conseguir gerar a cobrança (ex.: rede
+                    incompatível), use o resgate manual abaixo.
+                  </p>
+                </>
+              ) : (
+                <p className="sv-wallet-meta">
+                  Conecte sua carteira em <strong>Enviar</strong> para habilitar o resgate
+                  automático — por enquanto, use o campo manual abaixo.
+                </p>
+              )}
+
               <p className="sv-wallet-copy">
-                Gere cobrança de exatamente{" "}
-                <strong>{voucher.toLocaleString("pt-BR")} sats</strong> (<code>lntbs</code>) e
-                cole abaixo.
+                Ou gere cobrança de exatamente{" "}
+                <strong>{voucher.toLocaleString("pt-BR")} sats</strong> (<code>lntbs</code>) em
+                outra carteira e cole abaixo.
               </p>
               <p className="sv-wallet-meta">
                 Cole aqui uma cobrança Lightning da rede de teste (começa com lntbs) para
@@ -260,7 +322,7 @@ export default function ReceivePanel({ connected, onChanged }: Props) {
               <button
                 type="button"
                 className="sv-wallet-btn"
-                disabled={!claimBolt || busy === "claim"}
+                disabled={!claimBolt || busy === "claim" || busy === "auto"}
                 onClick={() => void resgatarVoucher()}
               >
                 {busy === "claim" ? "Resgatando…" : "Sacar voucher da mentoria"}

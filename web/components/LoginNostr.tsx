@@ -20,6 +20,43 @@ import { sealVault, openVault, hashAnswer, newSalt } from "@/lib/vault";
 
 const LOGIN_EVENT_KIND = 22242;
 
+type KeyGap = {
+  index: number;
+  expected: string;
+};
+
+type KeyPoolItem = {
+  id: string;
+  char: string;
+};
+
+function shuffleInPlace<T>(arr: T[]): T[] {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j]!, arr[i]!];
+  }
+  return arr;
+}
+
+/** Sorteia 3 posições distintas na parte secreta da nsec (após nsec1). */
+function pickKeyGaps(nsec: string): KeyGap[] {
+  const start = Math.min(5, Math.max(0, nsec.length - 3));
+  const pool = nsec.length - start;
+  const indices = new Set<number>();
+  while (indices.size < 3 && indices.size < pool) {
+    indices.add(start + Math.floor(Math.random() * pool));
+  }
+  return Array.from(indices)
+    .sort((a, b) => a - b)
+    .map((index) => ({ index, expected: nsec[index]! }));
+}
+
+function buildKeyPool(gaps: KeyGap[]): KeyPoolItem[] {
+  return shuffleInPlace(
+    gaps.map((g, i) => ({ id: `gap-${i}-${g.index}`, char: g.expected }))
+  );
+}
+
 declare global {
   interface Window {
     nostr?: {
@@ -132,7 +169,16 @@ export default function LoginNostr({
   );
 
   const [pendingKey, setPendingKey] = useState<{ nsec: string; user: any } | null>(null);
-  const [keySaved, setKeySaved] = useState(false);
+  const [keyBackupStep, setKeyBackupStep] = useState<"show" | "confirm">("show");
+  /** 3 lacunas sorteadas uma vez; persistem se a pessoa voltar para ver a chave. */
+  const [keyGaps, setKeyGaps] = useState<KeyGap[]>([]);
+  /** Os 3 caracteres que faltam, embaralhados (ids estáveis). */
+  const [keyPool, setKeyPool] = useState<KeyPoolItem[]>([]);
+  /** Preenchimento das lacunas, na ordem esquerda → direita. */
+  const [keyFilled, setKeyFilled] = useState<(string | null)[]>([null, null, null]);
+  /** Ids dos botões já usados (removidos/desabilitados). */
+  const [keyUsedIds, setKeyUsedIds] = useState<string[]>([]);
+  const [keyConfirmError, setKeyConfirmError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
   // Proteção contra criar conta nova por engano já estando logado:
@@ -191,6 +237,72 @@ export default function LoginNostr({
     } catch {}
   }
 
+  function resetKeyFill() {
+    setKeyFilled([null, null, null]);
+    setKeyUsedIds([]);
+  }
+
+  /** Entra na confirmação; sorteia as 3 posições só na primeira vez. */
+  function goToKeyConfirm() {
+    if (!pendingKey) return;
+    if (keyGaps.length === 0) {
+      const gaps = pickKeyGaps(pendingKey.nsec);
+      setKeyGaps(gaps);
+      setKeyPool(buildKeyPool(gaps));
+    }
+    resetKeyFill();
+    setKeyConfirmError(null);
+    setKeyBackupStep("confirm");
+  }
+
+  function goBackToKeyShow() {
+    setKeyBackupStep("show");
+    setKeyConfirmError(null);
+  }
+
+  function pickPoolChar(item: KeyPoolItem) {
+    if (keyUsedIds.includes(item.id) || keyGaps.length < 3) return;
+    const nextSlot = keyFilled.findIndex((v) => v === null);
+    if (nextSlot < 0) return;
+    const expected = keyGaps[nextSlot]!.expected;
+    if (item.char !== expected) {
+      setKeyConfirmError("Ordem errada — confira a chave e tente de novo");
+      resetKeyFill();
+      return;
+    }
+    setKeyConfirmError(null);
+    setKeyFilled((prev) => {
+      const next = [...prev];
+      next[nextSlot] = item.char;
+      return next;
+    });
+    setKeyUsedIds((prev) => [...prev, item.id]);
+  }
+
+  function finishKeyBackup() {
+    if (!pendingKey || keyGaps.length < 3) return;
+    const ok = keyGaps.every((g, i) => keyFilled[i] === g.expected);
+    if (!ok) {
+      setKeyConfirmError("Ordem errada — confira a chave e tente de novo");
+      resetKeyFill();
+      return;
+    }
+    const user = pendingKey.user;
+    setPendingKey(null);
+    setKeyBackupStep("show");
+    setKeyGaps([]);
+    setKeyPool([]);
+    resetKeyFill();
+    setKeyConfirmError(null);
+    setCopied(false);
+    onLogin?.(user);
+  }
+
+  const keyConfirmReady =
+    keyGaps.length === 3 && keyGaps.every((g, i) => keyFilled[i] === g.expected);
+
+  const gapOrderByIndex = new Map(keyGaps.map((g, i) => [g.index, i]));
+
   function go(m: AuthMode, opts?: { keepUsername?: boolean }) {
     const keepUser = opts?.keepUsername ? username : undefined;
     setMode(m);
@@ -238,6 +350,13 @@ export default function LoginNostr({
       });
       const { user } = await signAndLogin(sk);
       remember(username);
+      setKeyBackupStep("show");
+      setKeyGaps([]);
+      setKeyPool([]);
+      setKeyFilled([null, null, null]);
+      setKeyUsedIds([]);
+      setKeyConfirmError(null);
+      setCopied(false);
       setPendingKey({ nsec: nip19.nsecEncode(sk), user });
     } catch (e: any) {
       setError(e.message ?? "Falha ao criar conta");
@@ -315,6 +434,74 @@ export default function LoginNostr({
   }
 
   if (pendingKey) {
+    if (keyBackupStep === "confirm") {
+      const nextGapSlot = keyFilled.findIndex((v) => v === null);
+      return (
+        <div className="sv-auth">
+          <button type="button" className="linkish sv-back" onClick={goBackToKeyShow}>
+            Voltar para ver a chave
+          </button>
+          <h2>Confirme que anotou</h2>
+          <p>
+            Complete as lacunas na ordem (1 → 2 → 3), clicando nos caracteres abaixo.
+            As lacunas não mudam se você voltar para conferir a chave.
+          </p>
+          <code className="sv-nsec sv-nsec--gaps" aria-label="Chave com lacunas">
+            {pendingKey.nsec.split("").map((ch, i) => {
+              const gapSlot = gapOrderByIndex.get(i);
+              if (gapSlot === undefined) {
+                return <span key={i}>{ch}</span>;
+              }
+              const filled = keyFilled[gapSlot];
+              const isNext = gapSlot === nextGapSlot;
+              return (
+                <span
+                  key={i}
+                  className={
+                    filled
+                      ? "sv-nsec-gap sv-nsec-gap--filled"
+                      : isNext
+                        ? "sv-nsec-gap sv-nsec-gap--next"
+                        : "sv-nsec-gap"
+                  }
+                  title={`Lacuna ${gapSlot + 1}`}
+                >
+                  <span className="sv-nsec-gap-num" aria-hidden="true">
+                    {gapSlot + 1}
+                  </span>
+                  <span className="sv-nsec-gap-char">{filled ?? ""}</span>
+                </span>
+              );
+            })}
+          </code>
+          <div className="sv-key-options" role="group" aria-label="Caracteres que faltam">
+            {keyPool.map((item) => {
+              const used = keyUsedIds.includes(item.id);
+              if (used) return null;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  className="sv-key-option"
+                  onClick={() => pickPoolChar(item)}
+                >
+                  {item.char}
+                </button>
+              );
+            })}
+          </div>
+          {keyConfirmError && (
+            <p className="sv-error" role="alert">
+              {keyConfirmError}
+            </p>
+          )}
+          <button type="button" disabled={!keyConfirmReady} onClick={finishKeyBackup}>
+            Continuar para o SatVantage
+          </button>
+        </div>
+      );
+    }
+
     return (
       <div className="sv-auth">
         <h2>Guarde sua chave de recuperação</h2>
@@ -337,25 +524,8 @@ export default function LoginNostr({
         >
           {copied ? "Copiada" : "Copiar chave"}
         </button>
-        <label className="sv-check">
-          <input
-            type="checkbox"
-            checked={keySaved}
-            onChange={(e) => setKeySaved(e.target.checked)}
-          />
-          Anotei minha chave em local seguro e entendo que, sem ela e sem minha
-          senha, a conta não pode ser recuperada.
-        </label>
-        <button
-          type="button"
-          disabled={!keySaved}
-          onClick={() => {
-            const user = pendingKey.user;
-            setPendingKey(null);
-            onLogin?.(user);
-          }}
-        >
-          Continuar para o SatVantage
+        <button type="button" onClick={goToKeyConfirm}>
+          Já anotei, continuar
         </button>
       </div>
     );
