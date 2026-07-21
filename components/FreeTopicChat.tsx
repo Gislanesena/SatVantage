@@ -1,8 +1,9 @@
 "use client";
 // Chat educativo de tópico livre — SEM sats de missão.
+// Quiz (sugestões) ou conversa com dúvidas livres (Dúvidas importantes).
 import { useCallback, useEffect, useRef, useState } from "react";
 import SiteNav from "@/components/SiteNav";
-import type { OptionalTopic } from "@/lib/optional-topics";
+import { matchTopicAnswer, type OptionalTopic } from "@/lib/optional-topics";
 import "./mentor.css";
 
 type ChatLine = { kind: "agent" | "user"; text: string };
@@ -12,90 +13,127 @@ type Props = {
   onBack: () => void;
   /** Chat embutido no painel flutuante do dashboard */
   embedded?: boolean;
+  /** Cabeçalho/X ficam no sheet do Dashboard — não duplicar barra */
+  sheetHosted?: boolean;
 };
 
 function sleep(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
-export default function FreeTopicChat({ topic, onBack, embedded = false }: Props) {
+export default function FreeTopicChat({
+  topic,
+  onBack,
+  embedded = false,
+  sheetHosted = false,
+}: Props) {
+  const isConverse = topic.mode === "converse";
   const [lines, setLines] = useState<ChatLine[]>([]);
   const [busy, setBusy] = useState(true);
   const [typing, setTyping] = useState(false);
   const [showQ, setShowQ] = useState(false);
+  const [canAsk, setCanAsk] = useState(false);
   const [done, setDone] = useState(false);
+  const [draft, setDraft] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const runIdRef = useRef(0);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-  }, [lines, showQ, done, typing]);
+  }, [lines, showQ, canAsk, done, typing]);
+
+  useEffect(() => {
+    if (canAsk && !busy) inputRef.current?.focus();
+  }, [canAsk, busy]);
 
   const typeAgent = useCallback(async (text: string, runId: number) => {
     if (runIdRef.current !== runId) return;
+    await sleep(900);
+    if (runIdRef.current !== runId) return;
     setTyping(true);
     setLines((prev) => [...prev, { kind: "agent", text: "" }]);
-    const chunk = text.length > 120 ? 3 : 2;
     let i = 0;
     while (i < text.length) {
       if (runIdRef.current !== runId) return;
-      i = Math.min(i + chunk, text.length);
+      i += 1;
       const slice = text.slice(0, i);
       setLines((prev) => {
         const next = [...prev];
         next[next.length - 1] = { kind: "agent", text: slice };
         return next;
       });
-      await sleep(16);
+      const ch = text[i - 1];
+      const delay = ch === "\n" ? 280 : /[.!?]/.test(ch ?? "") ? 160 : 36;
+      await sleep(delay);
     }
     if (runIdRef.current === runId) setTyping(false);
+    await sleep(1400);
   }, []);
 
   useEffect(() => {
     const runId = ++runIdRef.current;
     setLines([]);
     setShowQ(false);
+    setCanAsk(false);
     setDone(false);
+    setDraft("");
     setBusy(true);
 
     (async () => {
-      await typeAgent(
-        "Esse assunto é só aprendizado — sem sats de missão. Vamos com calma.",
-        runId,
-      );
+      setLines([{ kind: "user", text: topic.label }]);
+      await sleep(800);
+      if (runIdRef.current !== runId) return;
+      await typeAgent("Boa pergunta. Vou te explicar com calma.", runId);
       if (runIdRef.current !== runId) return;
       for (const msg of topic.teach) {
-        await sleep(220);
-        await typeAgent(msg, runId);
         if (runIdRef.current !== runId) return;
+        await typeAgent(msg, runId);
       }
-      await sleep(260);
-      await typeAgent(topic.question, runId);
       if (runIdRef.current !== runId) return;
-      setShowQ(true);
+
+      if (isConverse) {
+        await typeAgent(
+          topic.inviteDoubt ??
+            "Ficou alguma dúvida? Pode perguntar com suas palavras.",
+          runId,
+        );
+        if (runIdRef.current !== runId) return;
+        setCanAsk(true);
+        setBusy(false);
+        return;
+      }
+
+      if (topic.question) {
+        await typeAgent(topic.question, runId);
+        if (runIdRef.current !== runId) return;
+        setShowQ(true);
+      }
       setBusy(false);
     })();
 
     return () => {
       runIdRef.current++;
     };
-  }, [topic, typeAgent]);
+  }, [topic, typeAgent, isConverse]);
 
-  async function answer(i: number) {
-    if (busy || !showQ) return;
+  async function answerQuiz(i: number) {
+    if (busy || !showQ || !topic.options || topic.correct == null) return;
     const runId = runIdRef.current;
     setBusy(true);
     setShowQ(false);
-    setLines((p) => [...p, { kind: "user", text: topic.options[i] }]);
+    setLines((p) => [...p, { kind: "user", text: topic.options![i] }]);
     const ok = i === topic.correct;
-    await sleep(180);
-    await typeAgent(ok ? topic.feedbackCorrect : topic.feedbackWrong, runId);
+    await sleep(800);
+    await typeAgent(
+      ok ? (topic.feedbackCorrect ?? "Isso.") : (topic.feedbackWrong ?? "Quase — pense de novo."),
+      runId,
+    );
     if (runIdRef.current !== runId) return;
-    await sleep(200);
     await typeAgent(
       embedded
-        ? "Pode fechar o chat ou abrir outro assunto no mentor — o dashboard continua aí."
-        : "Pode voltar ao dashboard quando quiser — ou abrir outro assunto no mentor.",
+        ? "Pode fechar o chat ou abrir outro assunto no NagAI — o dashboard continua aí."
+        : "Pode voltar ao dashboard quando quiser — ou abrir outro assunto no NagAI.",
       runId,
     );
     if (runIdRef.current !== runId) return;
@@ -103,20 +141,38 @@ export default function FreeTopicChat({ topic, onBack, embedded = false }: Props
     setBusy(false);
   }
 
+  async function sendDoubt() {
+    const text = draft.trim();
+    if (!text || busy || !canAsk) return;
+    const runId = runIdRef.current;
+    setDraft("");
+    setBusy(true);
+    setLines((p) => [...p, { kind: "user", text }]);
+    await sleep(500);
+    if (runIdRef.current !== runId) return;
+
+    const reply = matchTopicAnswer(topic, text);
+    await typeAgent(reply, runId);
+    if (runIdRef.current !== runId) return;
+    await typeAgent("Quer perguntar mais alguma coisa sobre este assunto?", runId);
+    if (runIdRef.current !== runId) return;
+    setBusy(false);
+  }
+
   const shellClass = embedded ? "sv-mentor sv-mentor--embedded" : "sv-mentor";
 
   return (
     <div className={shellClass}>
-      {embedded ? (
+      {embedded && !sheetHosted ? (
         <div className="sv-mentor-embed-bar">
           <span>{topic.label}</span>
           <button type="button" className="linkish" onClick={onBack}>
             Fechar
           </button>
         </div>
-      ) : (
+      ) : !embedded ? (
         <SiteNav variant="mentor" onExitMentor={onBack} />
-      )}
+      ) : null}
       <div className="sv-mentor-body">
         {!embedded && (
           <header className="sv-mentor-head">
@@ -130,11 +186,7 @@ export default function FreeTopicChat({ topic, onBack, embedded = false }: Props
               />
               <h1>{topic.label}</h1>
             </div>
-            <p className="sv-mentor-practice-tag">Assunto livre · sem sats de missão</p>
           </header>
-        )}
-        {embedded && (
-          <p className="sv-mentor-practice-tag">Assunto livre · sem sats de missão</p>
         )}
 
         <div className="sv-chat-panel">
@@ -150,7 +202,7 @@ export default function FreeTopicChat({ topic, onBack, embedded = false }: Props
                     height={36}
                   />
                   <div className="sv-bubble sv-bubble--agent">
-                    <span className="sv-bubble-label">Mentor</span>
+                    <span className="sv-bubble-label">NagAI</span>
                     <span className="sv-bubble-text">
                       {line.text}
                       {typing && idx === lines.length - 1 ? (
@@ -171,7 +223,7 @@ export default function FreeTopicChat({ topic, onBack, embedded = false }: Props
           </div>
 
           <div className="sv-chat-footer">
-            {showQ && (
+            {showQ && topic.options && (
               <div className="sv-chat-options">
                 {topic.options.map((opt, oi) => (
                   <button
@@ -179,15 +231,44 @@ export default function FreeTopicChat({ topic, onBack, embedded = false }: Props
                     type="button"
                     className="sv-chat-option"
                     disabled={busy}
-                    onClick={() => void answer(oi)}
+                    onClick={() => void answerQuiz(oi)}
                   >
                     {opt}
                   </button>
                 ))}
               </div>
             )}
-            {done && (
-              <button type="button" className="sv-chat-cta" onClick={onBack}>
+
+            {canAsk && (
+              <form
+                className="sv-chat-ask"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  void sendDoubt();
+                }}
+              >
+                <input
+                  ref={inputRef}
+                  className="sv-chat-ask-input"
+                  type="text"
+                  value={draft}
+                  disabled={busy}
+                  placeholder="Digite sua dúvida…"
+                  autoComplete="off"
+                  onChange={(e) => setDraft(e.target.value)}
+                />
+                <button
+                  type="submit"
+                  className="sv-chat-ask-send"
+                  disabled={busy || !draft.trim()}
+                >
+                  Enviar
+                </button>
+              </form>
+            )}
+
+            {(done || canAsk) && (
+              <button type="button" className="sv-chat-cta sv-chat-cta--ghost" onClick={onBack}>
                 {embedded ? "Voltar aos assuntos" : "Voltar ao dashboard"}
               </button>
             )}

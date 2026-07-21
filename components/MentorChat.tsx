@@ -40,10 +40,14 @@ type MentorChatProps = {
   onExitToHome: () => void;
   onContinueMentor?: () => void;
   onGoDashboard: () => void;
+  /** Recarrega saldo/XP após submit (fonte: /api/rewards/balance) */
+  onBalanceChanged?: () => void;
   /** Se true, “sair” volta ao dash (em vez da homepage) */
   fromDashboard?: boolean;
   /** Chat embutido no painel flutuante do dashboard */
   embedded?: boolean;
+  /** Cabeçalho/X ficam no sheet do Dashboard */
+  sheetHosted?: boolean;
 };
 
 const COPY: Record<
@@ -51,16 +55,16 @@ const COPY: Record<
   { title: string; intro: string; skipAllAgent: string }
 > = {
   [MISSION_1_SLUG]: {
-    title: "Mentoria 1 · Primeiros passos",
+    title: "NagAI · Primeiros passos",
     intro:
-      "Oi! Eu sou seu mentor SatVantage. Vou te explicar um ponto de cada vez e depois te perguntar se fez sentido. Pode pular uma pergunta ou a mentoria inteira quando quiser.",
+      "Oi! Eu sou a NagAI, do SatVantage. Vou te explicar um ponto de cada vez e depois te perguntar se fez sentido. Pode pular uma pergunta ou a conversa inteira quando quiser.",
     skipAllAgent:
       "Tudo bem. Na próxima você pode aprender carteira e Lightning — ou ir direto ao dashboard.",
   },
   [MISSION_2_SLUG]: {
-    title: "Mentoria 2 · Carteira e Lightning",
+    title: "NagAI · Carteira e Lightning",
     intro:
-      "Agora o básico pra quem nunca abriu uma carteira: o que ela guarda, como proteger a frase de recuperação, e o que é Lightning no dia a dia. Pode pular pergunta ou a mentoria toda.",
+      "Agora o básico pra quem nunca abriu uma carteira: o que ela guarda, como proteger a frase de recuperação, e o que é Lightning no dia a dia. Pode pular pergunta ou a conversa toda.",
     skipAllAgent:
       "Sem problema. Se quiser, depois a gente fala de corretora, transferência e carteira fria — ou você vai direto ao dashboard.",
   },
@@ -75,8 +79,10 @@ export default function MentorChat({
   onExitToHome,
   onContinueMentor,
   onGoDashboard,
+  onBalanceChanged,
   fromDashboard = false,
   embedded = false,
+  sheetHosted = false,
 }: MentorChatProps) {
   const copy = COPY[slug];
   const [lessons, setLessons] = useState<Lesson[]>([]);
@@ -170,7 +176,14 @@ export default function MentorChat({
   );
 
   function remainingTopics(exclude: string[] = doneTopicsRef.current) {
-    return OPTIONAL_TOPICS.filter((t) => !exclude.includes(t.id));
+    // No fim da mentoria só oferecemos tópicos em quiz (com opções).
+    return OPTIONAL_TOPICS.filter(
+      (t) =>
+        !exclude.includes(t.id) &&
+        (t.mode ?? "quiz") === "quiz" &&
+        t.question &&
+        t.options,
+    );
   }
 
   async function showEndMenu(
@@ -189,8 +202,8 @@ export default function MentorChat({
     if (opts.alreadyDone) {
       await typeAgent(
         opts.skipAll
-          ? "Você já tinha pulado esta mentoria. Pode reler o que quiser acima ou seguir em frente."
-          : "Você já tinha concluído esta mentoria. A conversa fica aqui se quiser reler.",
+          ?         "Você já tinha pulado esta conversa. Pode reler o que quiser acima ou seguir em frente."
+          : "Você já tinha concluído esta conversa. A conversa fica aqui se quiser reler.",
         runId,
       );
       if (typeof opts.satsBalance === "number") {
@@ -198,7 +211,7 @@ export default function MentorChat({
       }
     } else if (opts.skipAll) {
       await typeAgent(
-        "Mentoria pulada — sem problema. Enquanto você só pular, ainda pode voltar depois e ganhar sats na primeira conclusão de verdade.",
+        "Conversa pulada — sem problema. Enquanto você só pular, ainda pode voltar depois e ganhar sats na primeira conclusão de verdade.",
         runId,
       );
     } else if (typeof opts.satsCredited === "number" && opts.satsCredited > 0) {
@@ -215,7 +228,7 @@ export default function MentorChat({
       }
     } else if (opts.practiceOnly) {
       await typeAgent(
-        "Prática concluída. Nesta conta os sats desta mentoria já foram creditados antes — refazer não gera saldo novo nem a diferença do que errou.",
+        "Prática concluída. Nesta conta os sats desta conversa já foram creditados antes — refazer não gera saldo novo nem a diferença do que errou.",
         runId,
       );
     } else if (typeof opts.satsCredited === "number") {
@@ -252,7 +265,7 @@ export default function MentorChat({
     setBusy(false);
   }
 
-useEffect(() => {
+  useEffect(() => {
     const runId = ++runIdRef.current;
 
     setLoading(true);
@@ -273,35 +286,21 @@ useEffect(() => {
 
     (async () => {
       try {
-        const res = await fetch("http://127.0.0.1:8000/api/api/mentor", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            mensagem_usuario: "Iniciar",
-            nivel_conhecimento: "iniciante"
-          }),
-        });
-        
-const data = await res.json();
+        const res = await fetch(`/api/missions?slug=${encodeURIComponent(slug)}`);
+        const data = await res.json();
         if (!alive(runId)) return;
         if (!res.ok) throw new Error(data.error ?? "erro ao carregar");
 
-        // Pega a resposta exata da IA que veio do back-end
-        const textResponse = data.resposta_ia ?? "Qual sua dúvida sobre bitcoin hj?";
-        
-        const loaded: Lesson[] = [
-          {
-            id: "w1",
-            teach: textResponse,
-            question: "O que você gostaria de explorar sobre isso?",
-            options: ["Quero entender os fundamentos", "Como funciona a segurança?", "Outra dúvida"],
-          }
-        ];
+        const loaded: Lesson[] = data.lessons ?? [];
+        if (slug === MISSION_2_SLUG && loaded[0] && !String(loaded[0].id).startsWith("w")) {
+          throw new Error("conteúdo da mentoria 2 inválido — recarregue a página");
+        }
 
         setLessons(loaded);
         lessonsRef.current = loaded;
         setRewardEligible(!!data.rewardEligible);
 
+        // Já ganhou sats desta mentoria → portão (pode refazer sem prêmio)
         if (!data.rewardEligible && !forcePractice) {
           setShowGate(true);
           setLoading(false);
@@ -312,18 +311,10 @@ const data = await res.json();
         if (!loaded.length) return;
 
         setBusy(true);
-        await typeAgent(textResponse, runId);
-        if (!alive(runId)) return;
-        
-        // Mantém as opções abertas para o usuário interagir sem fechar o chat
-        setComposer({ type: "mission", options: loaded[0].options });
-        if (alive(runId)) setBusy(false);
-
-        setLoading(false);
-        if (!loaded.length) return;
-
-        setBusy(true);
-        await typeAgent(textResponse, runId);
+        const intro = !data.rewardEligible
+          ? "Vamos praticar de novo. Lembre: os sats desta conversa já foram creditados na sua conta — agora é só aprendizado."
+          : copy.intro;
+        await typeAgent(intro, runId);
         if (!alive(runId)) return;
         await sleep(320);
         await presentLesson(loaded[0], runId);
@@ -344,29 +335,39 @@ const data = await res.json();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug, sessionKey, forcePractice]);
 
-async function finish(payload: { responses: ResponseSlot[] } | { skipAll: true }) {
+  async function finish(payload: { responses: ResponseSlot[] } | { skipAll: true }) {
     const runId = runIdRef.current;
     setBusy(true);
     setComposer({ type: "hidden" });
     setError(null);
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/api/mentor", {
+      const res = await fetch("/api/missions/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          mensagem_usuario: "Finalizar missão",
-          nivel_conhecimento: "iniciante"
-        }),
+        body: JSON.stringify({ slug, ...payload }),
       });
       const json = await res.json();
       if (!alive(runId)) return;
       if (!res.ok) throw new Error(json.error);
 
+      // Saldo canônico vem de /api/rewards/balance (não só do JSON do submit)
+      let satsBalance = typeof json.satsBalance === "number" ? json.satsBalance : undefined;
+      try {
+        const balRes = await fetch("/api/rewards/balance");
+        if (balRes.ok) {
+          const bal = await balRes.json();
+          if (typeof bal.satsBalance === "number") satsBalance = bal.satsBalance;
+        }
+      } catch {
+        /* mantém satsBalance do submit */
+      }
+      onBalanceChanged?.();
+
       await sleep(300);
       await showEndMenu(runId, {
         skipAll: !!json.skipAll,
         satsCredited: json.satsCredited ?? 0,
-        satsBalance: json.satsBalance,
+        satsBalance,
         practiceOnly: !!json.practiceOnly || !!json.alreadyRewarded,
       });
     } catch (e: any) {
@@ -384,7 +385,7 @@ async function finish(payload: { responses: ResponseSlot[] } | { skipAll: true }
       if (!alive(runId)) return;
       await typeAgent("Pronto por aqui. Vou guardar o que você aprendeu nesta conversa.", runId);
       if (!alive(runId)) return;
-      const full = list.map((item: Lesson, i: number) => nextResponses[i] ?? { answer: null, skipped: true });
+      const full = list.map((_, i) => nextResponses[i] ?? { answer: null, skipped: true });
       await finish({ responses: full });
       return;
     }
@@ -396,7 +397,7 @@ async function finish(payload: { responses: ResponseSlot[] } | { skipAll: true }
     if (alive(runId)) setBusy(false);
   }
 
-async function answerMission(optionIndex: number) {
+  async function answerMission(optionIndex: number) {
     const runId = runIdRef.current;
     const lesson = lessonsRef.current[stepRef.current];
     if (!lesson || busy || composer.type !== "mission") return;
@@ -406,13 +407,13 @@ async function answerMission(optionIndex: number) {
     pushUser(lesson.options[optionIndex]);
 
     try {
-      const checkRes = await fetch("http://127.0.0.1:8000/api/api/interact", {
+      const checkRes = await fetch("/api/missions/check", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          mensagem_usuario: lesson.options[optionIndex],
-          missao_id: slug,
-          tema_atual: "Bitcoin"
+          slug,
+          lessonIndex: stepRef.current,
+          answer: optionIndex,
         }),
       });
       const check = await checkRes.json();
@@ -424,9 +425,8 @@ async function answerMission(optionIndex: number) {
       setResponses(nextResponses);
       responsesRef.current = nextResponses;
 
-      const feedbackText = check.resposta_ia || check.feedback || "Continuando...";
       await sleep(180);
-      await typeAgent(feedbackText, runId);
+      await typeAgent(check.feedback, runId);
       if (!alive(runId)) return;
       await advance(nextResponses, stepRef.current + 1);
     } catch (e: any) {
@@ -460,7 +460,7 @@ async function answerMission(optionIndex: number) {
     if (busy) return;
     setBusy(true);
     setComposer({ type: "hidden" });
-    pushUser("Quero pular a mentoria");
+    pushUser("Quero pular a conversa");
     await typeAgent(copy.skipAllAgent, runId);
     if (!alive(runId)) return;
     await finish({ skipAll: true });
@@ -479,6 +479,10 @@ async function answerMission(optionIndex: number) {
       await typeAgent(msg, runId);
     }
     if (!alive(runId)) return;
+    if (!topic.question || !topic.options) {
+      setBusy(false);
+      return;
+    }
     await sleep(260);
     await typeAgent(topic.question, runId);
     if (!alive(runId)) return;
@@ -490,7 +494,7 @@ async function answerMission(optionIndex: number) {
     const runId = runIdRef.current;
     if (composer.type !== "topic-q" || busy) return;
     const topic = OPTIONAL_TOPICS.find((t) => t.id === composer.topicId);
-    if (!topic) return;
+    if (!topic?.options || topic.correct == null) return;
 
     setBusy(true);
     setComposer({ type: "hidden" });
@@ -498,7 +502,12 @@ async function answerMission(optionIndex: number) {
 
     const ok = optionIndex === topic.correct;
     await sleep(180);
-    await typeAgent(ok ? topic.feedbackCorrect : topic.feedbackWrong, runId);
+    await typeAgent(
+      ok
+        ? (topic.feedbackCorrect ?? "Certo.")
+        : (topic.feedbackWrong ?? "Não foi essa."),
+      runId,
+    );
     if (!alive(runId)) return;
 
     const nextDone = [...doneTopicsRef.current, topic.id];
@@ -554,6 +563,7 @@ async function answerMission(optionIndex: number) {
   const shellClass = embedded ? "sv-mentor sv-mentor--embedded" : "sv-mentor";
 
   function shellNav() {
+    if (sheetHosted) return null;
     if (embedded) {
       return (
         <div className="sv-mentor-embed-bar">
@@ -593,7 +603,7 @@ async function answerMission(optionIndex: number) {
             />
             <h1>{copy.title}</h1>
             <p>
-              Nesta conta os sats desta mentoria <strong>já foram creditados</strong>. Você pode
+              Nesta conta os sats desta conversa <strong>já foram creditados</strong>. Você pode
               refazer para praticar, mas não ganha de novo — nem a diferença se tiver errado
               antes.
             </p>
@@ -658,7 +668,7 @@ async function answerMission(optionIndex: number) {
                     height={36}
                   />
                   <div className="sv-bubble sv-bubble--agent">
-                    <span className="sv-bubble-label">Mentor</span>
+                    <span className="sv-bubble-label">NagAI</span>
                     <span className="sv-bubble-text">
                       {line.text}
                       {typing && i === lines.length - 1 ? (
@@ -709,7 +719,7 @@ async function answerMission(optionIndex: number) {
                     disabled={busy}
                     onClick={() => void skipAll()}
                   >
-                    Pular mentoria
+                    Pular conversa
                   </button>
                 </div>
               </div>

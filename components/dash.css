@@ -203,13 +203,31 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 18px;
-  align-items: start;
+  align-items: stretch;
 }
 
 .sv-bank-home-left {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 18px;
   min-width: 0;
+  min-height: 100%;
+}
+
+.sv-bank-home-left > .sv-exch {
+  flex: 1 1 auto;
+}
+
+.sv-bank-home-right {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+  min-height: 100%;
+}
+
+.sv-bank-home-right > .sv-know {
+  flex: 1 1 auto;
 }
 
 /* Bitcoin ao vivo (lado direito da home) */
@@ -567,6 +585,27 @@
   box-shadow: 0 16px 40px rgba(15, 23, 42, 0.22);
   display: grid;
   gap: 10px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent) color-mix(in srgb, var(--surface) 92%, var(--bg));
+}
+
+.sv-mentor-sheet::-webkit-scrollbar {
+  width: 8px;
+}
+
+.sv-mentor-sheet::-webkit-scrollbar-track {
+  background: color-mix(in srgb, var(--surface) 92%, var(--bg));
+  border-radius: 8px;
+}
+
+.sv-mentor-sheet::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border-radius: 8px;
+  border: 2px solid color-mix(in srgb, var(--surface) 92%, var(--bg));
+}
+
+.sv-mentor-sheet::-webkit-scrollbar-thumb:hover {
+  filter: brightness(1.08);
 }
 
 .sv-mentor-sheet--chat {
@@ -577,6 +616,11 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
+}
+
+.sv-mentor-sheet--chat .sv-mentor {
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .sv-mentor-fab-wrap.is-chat {
@@ -628,6 +672,23 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  flex: 0 0 auto;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.sv-mentor-sheet--chat .sv-mentor-sheet-head {
+  padding: 12px 14px;
+}
+
+.sv-mentor-sheet:not(.sv-mentor-sheet--chat) .sv-mentor-sheet-head {
+  padding: 0 0 4px;
+  border-bottom: none;
+}
+
+.sv-mentor-sheet-titles {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .sv-mentor-sheet-head img {
@@ -635,6 +696,7 @@
   height: 40px;
   border-radius: 50%;
   object-fit: cover;
+  flex: 0 0 auto;
 }
 
 .sv-mentor-sheet-head strong {
@@ -647,6 +709,31 @@
   margin: 2px 0 0;
   font-size: 0.8rem;
   color: var(--ink-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sv-mentor-sheet-close {
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  margin: -4px -4px -4px 0;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: color-mix(in srgb, var(--ink) 55%, transparent);
+  font-size: 1.55rem;
+  line-height: 1;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+
+.sv-mentor-sheet-close:hover {
+  background: color-mix(in srgb, var(--ink) 8%, transparent);
+  color: var(--ink);
 }
 
 .sv-mentor-sheet-label {
