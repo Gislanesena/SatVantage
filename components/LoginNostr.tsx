@@ -135,6 +135,11 @@ export default function LoginNostr({
   const [keySaved, setKeySaved] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  // Proteção contra criar conta nova por engano já estando logado:
+  // se existir sessão válida, avisa antes de gerar chaves novas.
+  const [existingSession, setExistingSession] = useState<any>(null);
+  const [forceCreate, setForceCreate] = useState(false);
+
   useEffect(() => {
     setMode(initialMode);
     setError(null);
@@ -144,6 +149,7 @@ export default function LoginNostr({
     setQuestion("");
     setAnswer("");
     setNsecInput("");
+    setForceCreate(false);
     if (initialMode === "create") {
       setUsername("");
     } else if (initialMode === "login") {
@@ -154,6 +160,30 @@ export default function LoginNostr({
       }
     }
   }, [initialMode]);
+
+  useEffect(() => {
+    if (mode !== "create") {
+      setExistingSession(null);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/auth/session");
+        const data = await res.json().catch(() => ({ user: null }));
+        if (!cancelled) setExistingSession(data.user ?? null);
+      } catch {
+        if (!cancelled) setExistingSession(null);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [mode]);
+
+  function npubShort(npub: string) {
+    return npub.length > 16 ? `${npub.slice(0, 10)}…${npub.slice(-6)}` : npub;
+  }
 
   function remember(u: string) {
     try {
@@ -360,37 +390,57 @@ export default function LoginNostr({
         style={inputStyle}
       />
 
-      {mode === "create" && (
-        <>
-          <input
-            placeholder="senha (mínimo 8 caracteres)"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            autoComplete="new-password"
-            style={inputStyle}
-          />
-          <input
-            placeholder="pergunta de segurança (só você sabe a resposta)"
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-            style={inputStyle}
-          />
-          <input
-            placeholder="resposta"
-            value={answer}
-            onChange={(e) => setAnswer(e.target.value)}
-            style={inputStyle}
-          />
-          <p className="sv-hint">Evite respostas que estejam nas suas redes sociais.</p>
+      {mode === "create" && existingSession && !forceCreate ? (
+        <div className="sv-error-box" role="alert">
+          <p className="sv-error" style={{ color: "var(--ink)" }}>
+            Você já está conectado como {npubShort(existingSession.npub)}. Criar uma conta
+            nova gera uma identidade Nostr diferente — o saldo e o progresso da conta atual
+            ficam nela, não passam para a nova.
+          </p>
           <button
             type="button"
-            onClick={criarConta}
-            disabled={busy !== null || !username || !password}
+            className="sv-error-action"
+            onClick={() => onLogin?.(existingSession)}
           >
-            {busy === "create" ? "Criando cofre…" : "Criar conta"}
+            Ir para minha conta
           </button>
-        </>
+          <button type="button" className="ghost" onClick={() => setForceCreate(true)}>
+            Criar conta nova mesmo assim
+          </button>
+        </div>
+      ) : (
+        mode === "create" && (
+          <>
+            <input
+              placeholder="senha (mínimo 8 caracteres)"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="new-password"
+              style={inputStyle}
+            />
+            <input
+              placeholder="pergunta de segurança (só você sabe a resposta)"
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              style={inputStyle}
+            />
+            <input
+              placeholder="resposta"
+              value={answer}
+              onChange={(e) => setAnswer(e.target.value)}
+              style={inputStyle}
+            />
+            <p className="sv-hint">Evite respostas que estejam nas suas redes sociais.</p>
+            <button
+              type="button"
+              onClick={criarConta}
+              disabled={busy !== null || !username || !password}
+            >
+              {busy === "create" ? "Criando cofre…" : "Criar conta"}
+            </button>
+          </>
+        )
       )}
 
       {mode === "login" && (

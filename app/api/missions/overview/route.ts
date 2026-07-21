@@ -28,7 +28,9 @@ async function missionState(userId: string, slug: MissionSlug) {
       ? "disponivel"
       : progress.lnurl_withdraw === "internal:skipped"
         ? "pulada"
-        : "concluida",
+        : rewarded
+          ? "concluida"
+          : "em_andamento",
   };
 }
 

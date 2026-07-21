@@ -55,7 +55,9 @@ export async function GET(req: NextRequest) {
     ? "disponivel"
     : progress.lnurl_withdraw === "internal:skipped"
       ? "pulada"
-      : "concluida";
+      : rewarded
+        ? "concluida"
+        : "em_andamento"; // já respondeu algo (crédito incremental) mas ainda não terminou
 
   return NextResponse.json({
     mission: {
