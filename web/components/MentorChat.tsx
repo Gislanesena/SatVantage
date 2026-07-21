@@ -472,6 +472,10 @@ export default function MentorChat({
       await typeAgent(msg, runId);
     }
     if (!alive(runId)) return;
+    if (!topic.question || !topic.options) {
+      setBusy(false);
+      return;
+    }
     await sleep(260);
     await typeAgent(topic.question, runId);
     if (!alive(runId)) return;
@@ -483,7 +487,7 @@ export default function MentorChat({
     const runId = runIdRef.current;
     if (composer.type !== "topic-q" || busy) return;
     const topic = OPTIONAL_TOPICS.find((t) => t.id === composer.topicId);
-    if (!topic) return;
+    if (!topic?.options || topic.correct == null) return;
 
     setBusy(true);
     setComposer({ type: "hidden" });
@@ -491,7 +495,12 @@ export default function MentorChat({
 
     const ok = optionIndex === topic.correct;
     await sleep(180);
-    await typeAgent(ok ? topic.feedbackCorrect : topic.feedbackWrong, runId);
+    await typeAgent(
+      ok
+        ? (topic.feedbackCorrect ?? "Certo.")
+        : (topic.feedbackWrong ?? "Não foi essa."),
+      runId,
+    );
     if (!alive(runId)) return;
 
     const nextDone = [...doneTopicsRef.current, topic.id];

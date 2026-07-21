@@ -494,7 +494,10 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
 
             {panel === "receber" && (
               <div className="sv-bank-panel">
-                <ReceivePanel onChanged={() => void refreshBalances()} />
+                <ReceivePanel
+                  connected={walletConnected}
+                  onChanged={() => void refreshBalances()}
+                />
               </div>
             )}
 

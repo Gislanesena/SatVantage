@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
   try {
     const decoded = decode(bolt11);
     const amountSection = decoded.sections.find((s: any) => s.name === "amount");
-    amountSats = Math.floor(Number(amountSection?.value ?? 0) / 1000);
+    amountSats = Math.floor(Number((amountSection as any)?.value ?? 0) / 1000);
   } catch {
     return NextResponse.json({ error: "cobrança inválida" }, { status: 400 });
   }
