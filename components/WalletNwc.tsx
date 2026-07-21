@@ -241,9 +241,7 @@ export default function WalletNwc({ embedded, onChanged }: Props) {
           {embedded ? "Conectar para enviar" : "Conectar minha carteira"}
         </h2>
         <p className="sv-wallet-copy">
-          Cole a credencial <strong>Nostr Wallet Connect</strong>. Ela fica salva cifrada —
-          não some a cada refresh. O que às vezes falha é o <em>relay</em> (rede da
-          carteira), não a sua conta SatVantage.
+          Cole a credencial <strong>Nostr Wallet Connect</strong>. Ela fica salva cifrada.
         </p>
         <input
           className="sv-wallet-input"

@@ -125,7 +125,7 @@ function Chart({
   const active = hover ? geo.xy[hover.i] : null;
   const tipLeft =
     hover == null ? 0 : Math.min(Math.max((hover.x / W) * 100, 12), 88);
-  const strokeW = variant === "wide" ? 2.8 : 2.4;
+  const strokeW = variant === "wide" ? 1.15 : 1.05;
 
   return (
     <div
@@ -146,7 +146,7 @@ function Chart({
       >
         <defs>
           <linearGradient id={`btc-fill-${gradId}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={stroke} stopOpacity="0.35" />
+            <stop offset="0%" stopColor={stroke} stopOpacity="0.22" />
             <stop offset="100%" stopColor={stroke} stopOpacity="0.02" />
           </linearGradient>
         </defs>
@@ -171,7 +171,9 @@ function Chart({
           fill="none"
           stroke={stroke}
           strokeWidth={strokeW}
+          strokeLinecap="round"
           strokeLinejoin="round"
+          vectorEffect="non-scaling-stroke"
         />
 
         {hover && active && (
@@ -186,10 +188,11 @@ function Chart({
             <circle
               cx={hover.x}
               cy={hover.y}
-              r={variant === "wide" ? 5.5 : 4.5}
+              r={variant === "wide" ? 3.5 : 3}
               fill={stroke}
               stroke="var(--surface)"
-              strokeWidth="2"
+              strokeWidth="1.5"
+              vectorEffect="non-scaling-stroke"
             />
           </>
         )}
@@ -298,7 +301,7 @@ export default function BtcMarket({ variant = "card" }: BtcMarketProps) {
           </div>
 
           <Chart series={data.series} range={data.range} up={up} variant={variant} />
-          <p className="sv-btc-hint">Passe o mouse (ou o dedo) no gráfico para ver o valor</p>
+          <p className="sv-btc-hint">Através do gráfico, você pode consultar os valores em tempo real</p>
         </>
       ) : (
         <p className="sv-btc-sub">

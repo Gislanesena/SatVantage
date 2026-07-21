@@ -3,12 +3,15 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import SiteNav from "@/components/SiteNav";
 import ReceivePanel from "@/components/ReceivePanel";
+import ExchangesPanel from "@/components/ExchangesPanel";
+import KnowPanel from "@/components/KnowPanel";
 import WalletNwc from "@/components/WalletNwc";
 import BtcMarket from "@/components/BtcMarket";
 import MentorChat from "@/components/MentorChat";
 import FreeTopicChat from "@/components/FreeTopicChat";
 import { MISSION_1_SLUG, MISSION_2_SLUG } from "@/lib/missions";
 import {
+  KNOW_QUESTIONS,
   MENTOR_SUGGESTIONS,
   topicById,
   type OptionalTopic,
@@ -183,6 +186,14 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
         : `${fmt(satsBalance)} sats`;
 
   const chatActive = mentorStep !== null || freeTopic !== null;
+
+  function openGuideTopic(id: string) {
+    const t = topicById(id);
+    if (!t) return;
+    setMentorStep(null);
+    setFreeTopic(t);
+    setMentorOpen(true);
+  }
 
   function closeMentorChat() {
     setMentorStep(null);
@@ -492,9 +503,14 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
                 <WalletNwc embedded onChanged={() => void refreshBalances()} />
               </div>
             )}
+
+            <ExchangesPanel />
           </div>
 
-          <BtcMarket />
+          <div className="sv-bank-home-right">
+            <BtcMarket />
+            <KnowPanel onAsk={openGuideTopic} />
+          </div>
         </div>
       </main>
 
@@ -503,18 +519,45 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
           <div
             className={`sv-mentor-sheet${chatActive ? " sv-mentor-sheet--chat" : ""}`}
             role="dialog"
-            aria-label="Mentor SatVantage"
+            aria-label="NagAI SatVantage"
           >
+            <div className="sv-mentor-sheet-head">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/satvantage-mentor.png" alt="" width={40} height={40} />
+              <div className="sv-mentor-sheet-titles">
+                <strong>NagAI</strong>
+                <p>
+                  {freeTopic
+                    ? freeTopic.label
+                    : mentorStep === "m1"
+                      ? "Primeiros passos no Bitcoin"
+                      : mentorStep === "m2"
+                        ? "Carteira e Lightning"
+                        : "Em que posso te ajudar?"}
+                </p>
+              </div>
+              <button
+                type="button"
+                className="sv-mentor-sheet-close"
+                aria-label="Fechar NagAI"
+                onClick={endMentorChat}
+              >
+                <span aria-hidden="true">×</span>
+              </button>
+            </div>
+
             {chatActive ? (
               freeTopic ? (
                 <FreeTopicChat
                   embedded
+                  sheetHosted
                   topic={freeTopic}
                   onBack={closeMentorChat}
                 />
               ) : mentorStep === "m1" || mentorStep === "m2" ? (
                 <MentorChat
                   embedded
+                  sheetHosted
                   slug={mentorStep === "m1" ? MISSION_1_SLUG : MISSION_2_SLUG}
                   fromDashboard
                   onExitToHome={onExitToHome}
@@ -523,17 +566,23 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
                     setMentorStep("m2");
                   }}
                   onGoDashboard={endMentorChat}
+                  onBalanceChanged={() => void refreshBalances()}
                 />
               ) : null
             ) : (
               <>
-                <div className="sv-mentor-sheet-head">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/satvantage-mentor.png" alt="" width={40} height={40} />
-                  <div>
-                    <strong>Mentor</strong>
-                    <p>Em que posso te ajudar?</p>
-                  </div>
+                <p className="sv-mentor-sheet-label">Dúvidas importantes</p>
+                <div className="sv-mentor-chips">
+                  {KNOW_QUESTIONS.map((s) => (
+                    <button
+                      key={s.id}
+                      type="button"
+                      className="sv-mentor-chip"
+                      onClick={() => openGuideTopic(s.id)}
+                    >
+                      {s.label}
+                    </button>
+                  ))}
                 </div>
 
                 <p className="sv-mentor-sheet-label">Sugestões</p>
@@ -543,13 +592,7 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
                       key={s.id}
                       type="button"
                       className="sv-mentor-chip"
-                      onClick={() => {
-                        const t = topicById(s.id);
-                        if (t) {
-                          setMentorOpen(true);
-                          setFreeTopic(t);
-                        }
-                      }}
+                      onClick={() => openGuideTopic(s.id)}
                     >
                       {s.label}
                     </button>
@@ -557,28 +600,30 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
                 </div>
 
                 <p className="sv-mentor-sheet-label">
-                  Mentorias com sats {canEarn ? "" : "(já creditados nesta conta)"}
+                  Com NagAI · sats {canEarn ? "" : "(já creditados nesta conta)"}
                 </p>
                 <div className="sv-mentor-chips">
                   <button
                     type="button"
                     className="sv-mentor-chip sv-mentor-chip--earn"
                     onClick={() => {
+                      setFreeTopic(null);
                       setMentorOpen(true);
                       setMentorStep("m1");
                     }}
                   >
-                    Mentoria · Bitcoin {m1Eligible ? "· ganha sats" : "· prática"}
+                    NagAI · Bitcoin {m1Eligible ? "· ganha sats" : "· prática"}
                   </button>
                   <button
                     type="button"
                     className="sv-mentor-chip sv-mentor-chip--earn"
                     onClick={() => {
+                      setFreeTopic(null);
                       setMentorOpen(true);
                       setMentorStep("m2");
                     }}
                   >
-                    Mentoria · Carteira e Lightning {m2Eligible ? "· ganha sats" : "· prática"}
+                    NagAI · Carteira e Lightning {m2Eligible ? "· ganha sats" : "· prática"}
                   </button>
                 </div>
               </>
@@ -589,9 +634,16 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
         <button
           type="button"
           className="sv-mentor-fab"
-          aria-label={mentorOpen ? "Minimizar mentor" : "Abrir mentor"}
+          aria-label={mentorOpen ? "Fechar NagAI" : "Abrir NagAI"}
           aria-expanded={mentorOpen}
-          onClick={() => setMentorOpen((o) => !o)}
+          onClick={() => {
+            if (mentorOpen) endMentorChat();
+            else {
+              setMentorStep(null);
+              setFreeTopic(null);
+              setMentorOpen(true);
+            }
+          }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/satvantage-mentor.png" alt="" width={56} height={56} />
