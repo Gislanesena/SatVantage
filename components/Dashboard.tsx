@@ -147,6 +147,7 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
   const [satsBalance, setSatsBalance] = useState<number | null>(null);
   const [walletSats, setWalletSats] = useState<number | null>(null);
   const [walletConnected, setWalletConnected] = useState(false);
+  const [walletLabel, setWalletLabel] = useState<string | null>(null);
   const [hideBalance, setHideBalance] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -182,8 +183,16 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
       .then((r) => (r.ok ? r.json() : null))
       .then((j) => {
         if (!j) return;
-        setWalletConnected(!!j.connected);
-        setWalletSats(j.connected ? (j.balanceSats ?? 0) : null);
+        const connected = !!j.connected;
+        setWalletConnected(connected);
+        setWalletSats(connected ? (j.balanceSats ?? 0) : null);
+        setWalletLabel(
+          connected
+            ? typeof j.label === "string" && j.label.trim()
+              ? j.label.trim()
+              : null
+            : null,
+        );
       })
       .catch(() => {});
 
@@ -227,6 +236,10 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
     }, 900);
     return () => window.clearTimeout(id);
   }, []);
+
+  useEffect(() => {
+    if (!walletConnected) setPanel("home");
+  }, [walletConnected]);
 
   useEffect(() => {
     function onDoc(e: MouseEvent) {
@@ -531,7 +544,13 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
                       : t.dash.availableBalance}
                   </p>
                   {cardView === "balance" && walletConnected && (
-                    <span className="sv-bank-connected">{t.dash.walletConnected}</span>
+                    <span className="sv-bank-connected">
+                      🟢{" "}
+                      {t.dash.connectedNamed.replace(
+                        "{name}",
+                        walletLabel || t.dash.lightningWallet,
+                      )}
+                    </span>
                   )}
                 </div>
                 {cardView === "balance" ? (
@@ -644,7 +663,9 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
                         type="button"
                         className="sv-bank-voucher-cta"
                         onClick={() => {
-                          setPanel("receber");
+                          if (walletConnected) {
+                            setPanel("receber");
+                          }
                           void refreshBalances();
                         }}
                       >
@@ -677,45 +698,53 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
               )}
             </section>
 
-            <div className="sv-bank-actions" role="group" aria-label={t.dash.move}>
-              <button
-                type="button"
-                className={`sv-bank-action${panel === "receber" ? " is-active" : ""}`}
-                onClick={() => {
-                  setPanel((p) => (p === "receber" ? "home" : "receber"));
-                  void refreshBalances();
-                }}
-              >
-                <span className="sv-bank-action-ico" aria-hidden>
-                  ↓
-                </span>
-                {t.dash.receive}
-              </button>
-              <button
-                type="button"
-                className={`sv-bank-action${panel === "enviar" ? " is-active" : ""}`}
-                onClick={() => {
-                  setPanel((p) => (p === "enviar" ? "home" : "enviar"));
-                  void refreshBalances();
-                }}
-              >
-                <span className="sv-bank-action-ico" aria-hidden>
-                  ↑
-                </span>
-                {t.dash.send}
-              </button>
-            </div>
+            {walletConnected ? (
+              <>
+                <div className="sv-bank-actions" role="group" aria-label={t.dash.move}>
+                  <button
+                    type="button"
+                    className={`sv-bank-action${panel === "receber" ? " is-active" : ""}`}
+                    onClick={() => {
+                      setPanel((p) => (p === "receber" ? "home" : "receber"));
+                      void refreshBalances();
+                    }}
+                  >
+                    <span className="sv-bank-action-ico" aria-hidden>
+                      ↓
+                    </span>
+                    {t.dash.receive}
+                  </button>
+                  <button
+                    type="button"
+                    className={`sv-bank-action${panel === "enviar" ? " is-active" : ""}`}
+                    onClick={() => {
+                      setPanel((p) => (p === "enviar" ? "home" : "enviar"));
+                      void refreshBalances();
+                    }}
+                  >
+                    <span className="sv-bank-action-ico" aria-hidden>
+                      ↑
+                    </span>
+                    {t.dash.send}
+                  </button>
+                </div>
 
-            {panel === "receber" && (
-              <div className="sv-bank-panel">
-                <ReceivePanel
-                  connected={walletConnected}
-                  onChanged={() => void refreshBalances()}
-                />
-              </div>
-            )}
+                {panel === "receber" && (
+                  <div className="sv-bank-panel">
+                    <ReceivePanel
+                      connected={walletConnected}
+                      onChanged={() => void refreshBalances()}
+                    />
+                  </div>
+                )}
 
-            {panel === "enviar" && (
+                {panel === "enviar" && (
+                  <div className="sv-bank-panel">
+                    <WalletNwc embedded onChanged={() => void refreshBalances()} />
+                  </div>
+                )}
+              </>
+            ) : (
               <div className="sv-bank-panel">
                 <WalletNwc embedded onChanged={() => void refreshBalances()} />
               </div>

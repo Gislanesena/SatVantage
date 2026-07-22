@@ -38,6 +38,13 @@ export type Dict = {
     hideBalance: string;
     lightningWallet: string;
     walletConnected: string;
+    connectedNamed: string;
+    connectWalletTitle: string;
+    connectWalletBody: string;
+    connectWalletBtn: string;
+    receiveBody: string;
+    sendBody: string;
+    generateInvoice: string;
     voucherTitle: string;
     voucherBody: string;
     withdrawReceive: string;
@@ -212,6 +219,14 @@ const dictionaries: Record<Locale, Dict> = {
       hideBalance: "Ocultar saldo",
       lightningWallet: "Carteira Lightning",
       walletConnected: "Carteira conectada",
+      connectedNamed: "Conectado: {name}",
+      connectWalletTitle: "Conectar carteira",
+      connectWalletBody:
+        "Cole a credencial da sua carteira Lightning (Nostr Wallet Connect) para começar.",
+      connectWalletBtn: "Conectar",
+      receiveBody: "Gere um link de cobrança (invoice) para receber.",
+      sendBody: "Cole a cobrança que você recebeu.",
+      generateInvoice: "Gerar",
       voucherTitle: "Crédito SatVantage (voucher)",
       voucherBody:
         "Ainda não está na carteira Lightning — está garantido na sua conta",
@@ -426,6 +441,14 @@ const dictionaries: Record<Locale, Dict> = {
       hideBalance: "Hide balance",
       lightningWallet: "Lightning wallet",
       walletConnected: "Wallet connected",
+      connectedNamed: "Connected: {name}",
+      connectWalletTitle: "Connect wallet",
+      connectWalletBody:
+        "Paste your Lightning wallet credential (Nostr Wallet Connect) to get started.",
+      connectWalletBtn: "Connect",
+      receiveBody: "Generate a payment request (invoice) to receive.",
+      sendBody: "Paste the payment request you received.",
+      generateInvoice: "Generate",
       voucherTitle: "SatVantage credit (voucher)",
       voucherBody:
         "Not yet in your Lightning wallet — guaranteed on your account",
@@ -640,6 +663,14 @@ const dictionaries: Record<Locale, Dict> = {
       hideBalance: "Ocultar saldo",
       lightningWallet: "Cartera Lightning",
       walletConnected: "Cartera conectada",
+      connectedNamed: "Conectado: {name}",
+      connectWalletTitle: "Conectar cartera",
+      connectWalletBody:
+        "Pega la credencial de tu cartera Lightning (Nostr Wallet Connect) para empezar.",
+      connectWalletBtn: "Conectar",
+      receiveBody: "Genera un enlace de cobro (invoice) para recibir.",
+      sendBody: "Pega el cobro que recibiste.",
+      generateInvoice: "Generar",
       voucherTitle: "Crédito SatVantage (voucher)",
       voucherBody:
         "Aún no está en tu cartera Lightning — está garantizado en tu cuenta",

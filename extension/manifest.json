@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "SatVantage Copiloto",
+  "version": "0.1.0",
+  "description": "Analisa a página aberta sob a ótica de Bitcoin e segurança cripto. Não acessa sua conta SatVantage.",
+  "permissions": ["activeTab", "scripting"],
+  "host_permissions": ["http://localhost:3000/*"],
+  "action": {
+    "default_title": "SatVantage Copiloto",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

@@ -1,6 +1,7 @@
 "use client";
 // Receber Lightning (qualquer origem via NWC) + resgate opcional do voucher.
 import { useCallback, useEffect, useState } from "react";
+import { useI18n } from "@/lib/i18n";
 import "./wallet.css";
 
 type Props = {
@@ -9,6 +10,7 @@ type Props = {
 };
 
 export default function ReceivePanel({ connected, onChanged }: Props) {
+  const { t } = useI18n();
   const [reachable, setReachable] = useState(false);
   const [walletErr, setWalletErr] = useState<string | null>(null);
   const [voucher, setVoucher] = useState(0);
@@ -52,12 +54,11 @@ export default function ReceivePanel({ connected, onChanged }: Props) {
       if (!json.ok) {
         setReachable(false);
         setWalletErr(json.error ?? "sem resposta");
-        setError(json.error ?? "carteira não respondeu — abra Enviar e reconecte");
+        setError(json.error ?? "carteira não respondeu");
         return;
       }
       setReachable(true);
       setWalletErr(null);
-      setNotice("Carteira respondeu — pode gerar cobrança.");
       onChanged?.();
     } catch (e: any) {
       setError(e.message ?? "falha ao testar");
@@ -83,7 +84,7 @@ export default function ReceivePanel({ connected, onChanged }: Props) {
       const json = await res.json();
       if (!res.ok) throw new Error(json.error);
       setInvoice(json.invoice);
-      setNotice("Cobrança pronta — copie e cole em qualquer carteira/app Lightning que for te pagar.");
+      setNotice(null);
       onChanged?.();
     } catch (e: any) {
       setError(e.message ?? "falha ao gerar cobrança");
@@ -175,20 +176,13 @@ export default function ReceivePanel({ connected, onChanged }: Props) {
   return (
     <section className="sv-wallet" aria-labelledby="sv-receive-title">
       <h2 id="sv-receive-title" className="sv-wallet-title">
-        Receber
+        {t.dash.receive}
       </h2>
-      <p className="sv-wallet-copy">
-        Gere uma cobrança Lightning na sua carteira conectada. Qualquer pessoa ou plataforma
-        pode pagar — Coinos, Alby, corretora, etc.
-      </p>
+      <p className="sv-wallet-copy">{t.dash.receiveBody}</p>
 
-      {!connected ? (
-        <p className="sv-wallet-meta">
-          Conecte a carteira em <strong>Enviar</strong> (NWC) para poder gerar cobranças aqui.
-        </p>
-      ) : !reachable ? (
+      {!connected ? null : !reachable ? (
         <div className="sv-wallet-reconnect">
-          <p className="sv-wallet-copy">
+          <p className="sv-wallet-meta">
             Credencial salva, mas a carteira não respondeu agora.
             {walletErr ? ` (${walletErr})` : ""}
           </p>
@@ -198,11 +192,8 @@ export default function ReceivePanel({ connected, onChanged }: Props) {
             disabled={busy === "test"}
             onClick={() => void testarCarteira()}
           >
-            {busy === "test" ? "Testando…" : "Testar conexão de novo"}
+            {busy === "test" ? "…" : "Testar de novo"}
           </button>
-          <p className="sv-wallet-meta">
-            Se continuar falhando, abra <strong>Enviar</strong> e cole uma credencial nova.
-          </p>
         </div>
       ) : (
         <>
@@ -224,7 +215,7 @@ export default function ReceivePanel({ connected, onChanged }: Props) {
               disabled={busy === "inv" || !amount}
               onClick={() => void gerar()}
             >
-              {busy === "inv" ? "Gerando…" : "Gerar cobrança"}
+              {busy === "inv" ? "…" : t.dash.generateInvoice}
             </button>
             {invoice && (
               <button type="button" className="sv-wallet-btn sv-wallet-btn--ghost" onClick={() => void copiar()}>
@@ -256,61 +247,31 @@ export default function ReceivePanel({ connected, onChanged }: Props) {
           </button>
           {showVoucher && (
             <>
-              <p className="sv-wallet-copy">
-                Isso <strong>não</strong> caiu sozinho na carteira Lightning — ficou como
-                voucher na sua conta. A plataforma paga quando você cola a cobrança MutinyNet.
-              </p>
-              {(claimRef || npubShort) && (
-                <p className="sv-wallet-meta">
-                  Garantia · conta {npubShort ?? "—"}
-                  {claimRef ? (
-                    <>
-                      {" "}
-                      · ref. <code>{claimRef}</code>
-                    </>
-                  ) : null}
-                </p>
-              )}
-              {connected && reachable ? (
-                <>
-                  <p className="sv-wallet-copy">
-                    Resgate automático: geramos a cobrança de{" "}
-                    <strong>{voucher.toLocaleString("pt-BR")} sats</strong> direto na sua
-                    carteira conectada e resgatamos na hora.
-                  </p>
-                  <button
-                    type="button"
-                    className="sv-wallet-btn"
-                    disabled={busy === "auto" || busy === "claim"}
-                    onClick={() => void resgatarAutomatico()}
-                  >
-                    {busy === "auto"
-                      ? "Gerando cobrança…"
-                      : busy === "claim"
-                        ? "Resgatando…"
-                        : "Resgatar automaticamente"}
-                  </button>
-                  <p className="sv-wallet-meta">
-                    Se a sua carteira não conseguir gerar a cobrança (ex.: rede
-                    incompatível), use o resgate manual abaixo.
-                  </p>
-                </>
-              ) : (
-                <p className="sv-wallet-meta">
-                  Conecte sua carteira em <strong>Enviar</strong> para habilitar o resgate
-                  automático — por enquanto, use o campo manual abaixo.
-                </p>
-              )}
-
-              <p className="sv-wallet-copy">
-                Ou gere cobrança de exatamente{" "}
-                <strong>{voucher.toLocaleString("pt-BR")} sats</strong> (<code>lntbs</code>) em
-                outra carteira e cole abaixo.
-              </p>
               <p className="sv-wallet-meta">
-                Cole aqui uma cobrança Lightning da rede de teste (começa com lntbs) para
-                receber seus sats.
+                Voucher na conta
+                {npubShort ? ` (${npubShort})` : ""}
+                {claimRef ? (
+                  <>
+                    {" "}
+                    · ref. <code>{claimRef}</code>
+                  </>
+                ) : null}
+                . Rede de teste: cobrança <code>lntbs</code>.
               </p>
+              {connected && reachable ? (
+                <button
+                  type="button"
+                  className="sv-wallet-btn"
+                  disabled={busy === "auto" || busy === "claim"}
+                  onClick={() => void resgatarAutomatico()}
+                >
+                  {busy === "auto"
+                    ? "…"
+                    : busy === "claim"
+                      ? "…"
+                      : "Resgatar automaticamente"}
+                </button>
+              ) : null}
               <input
                 className="sv-wallet-input"
                 placeholder="lntbs1…"
@@ -325,7 +286,7 @@ export default function ReceivePanel({ connected, onChanged }: Props) {
                 disabled={!claimBolt || busy === "claim" || busy === "auto"}
                 onClick={() => void resgatarVoucher()}
               >
-                {busy === "claim" ? "Resgatando…" : "Sacar voucher da mentoria"}
+                {busy === "claim" ? "…" : "Sacar voucher"}
               </button>
             </>
           )}

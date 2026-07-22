@@ -2,20 +2,25 @@
 // components/LoginNostr.tsx — formulários de acesso (criar / entrar / recuperar).
 // A landing com os dois caminhos vive em Landing.tsx.
 //
-// Caminho senha: identidade Nostr real, chave cifrada no navegador
-//   ("guardamos o cofre, nunca a chave").
+// Caminho senha: identidade Nostr real (NIP-06 / BIP-39), chave cifrada no
+//   navegador ("guardamos o cofre, nunca a chave").
 // Caminho extensão: ver loginWithExtension — a chave nunca sai da extensão.
 //
-// Recuperação: chave de recuperação (prova por assinatura) + pergunta de
-// segurança. As duas juntas. Zero e-mail.
+// Recuperação: 12 palavras BIP-39 (prova por assinatura) + pergunta de
+// segurança. As duas juntas. Zero e-mail. Contas antigas (só nsec) ainda
+// aceitam nsec1… no mesmo campo, só para não travar recuperação legada.
 import { useEffect, useState } from "react";
 import {
-  generateSecretKey,
   getPublicKey,
   finalizeEvent,
   nip19,
   type EventTemplate,
 } from "nostr-tools";
+import {
+  generateSeedWords,
+  privateKeyFromSeedWords,
+  validateWords,
+} from "nostr-tools/nip06";
 import { sealVault, openVault, hashAnswer, newSalt } from "@/lib/vault";
 
 const LOGIN_EVENT_KIND = 22242;
@@ -27,7 +32,7 @@ type KeyGap = {
 
 type KeyPoolItem = {
   id: string;
-  char: string;
+  word: string;
 };
 
 function shuffleInPlace<T>(arr: T[]): T[] {
@@ -38,23 +43,49 @@ function shuffleInPlace<T>(arr: T[]): T[] {
   return arr;
 }
 
-/** Sorteia 3 posições distintas na parte secreta da nsec (após nsec1). */
-function pickKeyGaps(nsec: string): KeyGap[] {
-  const start = Math.min(5, Math.max(0, nsec.length - 3));
-  const pool = nsec.length - start;
+/** Sorteia 3 posições distintas entre as 12 palavras (índices 0–11). */
+function pickWordGaps(words: string[]): KeyGap[] {
   const indices = new Set<number>();
-  while (indices.size < 3 && indices.size < pool) {
-    indices.add(start + Math.floor(Math.random() * pool));
+  while (indices.size < 3) {
+    indices.add(Math.floor(Math.random() * words.length));
   }
   return Array.from(indices)
     .sort((a, b) => a - b)
-    .map((index) => ({ index, expected: nsec[index]! }));
+    .map((index) => ({ index, expected: words[index]! }));
 }
 
-function buildKeyPool(gaps: KeyGap[]): KeyPoolItem[] {
+function buildWordPool(gaps: KeyGap[]): KeyPoolItem[] {
   return shuffleInPlace(
-    gaps.map((g, i) => ({ id: `gap-${i}-${g.index}`, char: g.expected }))
+    gaps.map((g, i) => ({ id: `gap-${i}-${g.index}`, word: g.expected }))
   );
+}
+
+function normalizeMnemonic(input: string): string {
+  return input.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+/** Deriva a sk das 12 palavras (NIP-06). Aceita nsec1… só para contas legadas. */
+function secretFromRecoveryInput(input: string): Uint8Array {
+  const trimmed = input.trim();
+  if (trimmed.toLowerCase().startsWith("nsec1")) {
+    try {
+      const decoded = nip19.decode(trimmed);
+      if (decoded.type !== "nsec") throw new Error();
+      return decoded.data as Uint8Array;
+    } catch {
+      throw new Error("chave de recuperação inválida");
+    }
+  }
+
+  const mnemonic = normalizeMnemonic(trimmed);
+  const parts = mnemonic.split(" ").filter(Boolean);
+  if (parts.length !== 12) {
+    throw new Error("informe exatamente as 12 palavras de recuperação");
+  }
+  if (!validateWords(mnemonic)) {
+    throw new Error("frase de recuperação inválida — confira as 12 palavras");
+  }
+  return privateKeyFromSeedWords(mnemonic);
 }
 
 declare global {
@@ -159,7 +190,7 @@ export default function LoginNostr({
   const [password, setPassword] = useState("");
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
-  const [nsecInput, setNsecInput] = useState("");
+  const [mnemonicInput, setMnemonicInput] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -168,13 +199,17 @@ export default function LoginNostr({
     null
   );
 
-  const [pendingKey, setPendingKey] = useState<{ nsec: string; user: any } | null>(null);
+  const [pendingKey, setPendingKey] = useState<{
+    words: string[];
+    mnemonic: string;
+    user: any;
+  } | null>(null);
   const [keyBackupStep, setKeyBackupStep] = useState<"show" | "confirm">("show");
-  /** 3 lacunas sorteadas uma vez; persistem se a pessoa voltar para ver a chave. */
+  /** 3 lacunas sorteadas uma vez; persistem se a pessoa voltar para ver as palavras. */
   const [keyGaps, setKeyGaps] = useState<KeyGap[]>([]);
-  /** Os 3 caracteres que faltam, embaralhados (ids estáveis). */
+  /** As 3 palavras que faltam, embaralhadas (ids estáveis). */
   const [keyPool, setKeyPool] = useState<KeyPoolItem[]>([]);
-  /** Preenchimento das lacunas, na ordem esquerda → direita. */
+  /** Preenchimento das lacunas, na ordem esquerda → direita (posições sorteadas). */
   const [keyFilled, setKeyFilled] = useState<(string | null)[]>([null, null, null]);
   /** Ids dos botões já usados (removidos/desabilitados). */
   const [keyUsedIds, setKeyUsedIds] = useState<string[]>([]);
@@ -194,7 +229,7 @@ export default function LoginNostr({
     setPassword("");
     setQuestion("");
     setAnswer("");
-    setNsecInput("");
+    setMnemonicInput("");
     setForceCreate(false);
     if (initialMode === "create") {
       setUsername("");
@@ -246,9 +281,9 @@ export default function LoginNostr({
   function goToKeyConfirm() {
     if (!pendingKey) return;
     if (keyGaps.length === 0) {
-      const gaps = pickKeyGaps(pendingKey.nsec);
+      const gaps = pickWordGaps(pendingKey.words);
       setKeyGaps(gaps);
-      setKeyPool(buildKeyPool(gaps));
+      setKeyPool(buildWordPool(gaps));
     }
     resetKeyFill();
     setKeyConfirmError(null);
@@ -260,20 +295,20 @@ export default function LoginNostr({
     setKeyConfirmError(null);
   }
 
-  function pickPoolChar(item: KeyPoolItem) {
+  function pickPoolWord(item: KeyPoolItem) {
     if (keyUsedIds.includes(item.id) || keyGaps.length < 3) return;
     const nextSlot = keyFilled.findIndex((v) => v === null);
     if (nextSlot < 0) return;
     const expected = keyGaps[nextSlot]!.expected;
-    if (item.char !== expected) {
-      setKeyConfirmError("Ordem errada — confira a chave e tente de novo");
+    if (item.word !== expected) {
+      setKeyConfirmError("Ordem errada — confira as palavras e tente de novo");
       resetKeyFill();
       return;
     }
     setKeyConfirmError(null);
     setKeyFilled((prev) => {
       const next = [...prev];
-      next[nextSlot] = item.char;
+      next[nextSlot] = item.word;
       return next;
     });
     setKeyUsedIds((prev) => [...prev, item.id]);
@@ -283,7 +318,7 @@ export default function LoginNostr({
     if (!pendingKey || keyGaps.length < 3) return;
     const ok = keyGaps.every((g, i) => keyFilled[i] === g.expected);
     if (!ok) {
-      setKeyConfirmError("Ordem errada — confira a chave e tente de novo");
+      setKeyConfirmError("Ordem errada — confira as palavras e tente de novo");
       resetKeyFill();
       return;
     }
@@ -312,7 +347,7 @@ export default function LoginNostr({
     setPassword("");
     setQuestion("");
     setAnswer("");
-    setNsecInput("");
+    setMnemonicInput("");
     if (m === "create") {
       setUsername(keepUser ?? "");
     } else if (m === "login") {
@@ -336,7 +371,9 @@ export default function LoginNostr({
     if (answer.trim().length < 2) return setError("Escreva a resposta da sua pergunta.");
     setBusy("create");
     try {
-      const sk = generateSecretKey();
+      const mnemonic = generateSeedWords();
+      const words = mnemonic.split(" ");
+      const sk = privateKeyFromSeedWords(mnemonic);
       const { blob, salt } = await sealVault(sk, password);
       const qaSalt = newSalt();
       await postJson("/api/auth/register", {
@@ -357,7 +394,7 @@ export default function LoginNostr({
       setKeyUsedIds([]);
       setKeyConfirmError(null);
       setCopied(false);
-      setPendingKey({ nsec: nip19.nsecEncode(sk), user });
+      setPendingKey({ words, mnemonic, user });
     } catch (e: any) {
       setError(e.message ?? "Falha ao criar conta");
     } finally {
@@ -400,14 +437,7 @@ export default function LoginNostr({
     if (password.length < 8) return setError("A senha nova precisa de pelo menos 8 caracteres.");
     setBusy("recover");
     try {
-      let sk: Uint8Array;
-      try {
-        const decoded = nip19.decode(nsecInput.trim());
-        if (decoded.type !== "nsec") throw new Error();
-        sk = decoded.data as Uint8Array;
-      } catch {
-        throw new Error("chave de recuperação inválida (deve começar com nsec1)");
-      }
+      const sk = secretFromRecoveryInput(mnemonicInput);
 
       const challenge = await fetchChallenge();
       const signed = finalizeEvent(buildLoginEvent(challenge), sk);
@@ -423,7 +453,7 @@ export default function LoginNostr({
 
       const { user } = await signAndLogin(sk);
       remember(username);
-      setNsecInput("");
+      setMnemonicInput("");
       setAnswer("");
       onLogin?.(user);
     } catch (e: any) {
@@ -439,42 +469,50 @@ export default function LoginNostr({
       return (
         <div className="sv-auth">
           <button type="button" className="linkish sv-back" onClick={goBackToKeyShow}>
-            Voltar para ver a chave
+            Voltar para ver as palavras
           </button>
           <h2>Confirme que anotou</h2>
           <p>
-            Complete as lacunas na ordem (1 → 2 → 3), clicando nos caracteres abaixo.
-            As lacunas não mudam se você voltar para conferir a chave.
+            Complete as lacunas na ordem (1 → 2 → 3), clicando nas palavras abaixo.
+            As lacunas não mudam se você voltar para conferir a frase.
           </p>
-          <code className="sv-nsec sv-nsec--gaps" aria-label="Chave com lacunas">
-            {pendingKey.nsec.split("").map((ch, i) => {
+          <ol className="sv-mnemonic sv-mnemonic--gaps" aria-label="Frase com lacunas">
+            {pendingKey.words.map((word, i) => {
               const gapSlot = gapOrderByIndex.get(i);
               if (gapSlot === undefined) {
-                return <span key={i}>{ch}</span>;
+                return (
+                  <li key={i} className="sv-mnemonic-item">
+                    <span className="sv-mnemonic-num">{i + 1}</span>
+                    <span className="sv-mnemonic-word">{word}</span>
+                  </li>
+                );
               }
               const filled = keyFilled[gapSlot];
               const isNext = gapSlot === nextGapSlot;
               return (
-                <span
+                <li
                   key={i}
                   className={
                     filled
-                      ? "sv-nsec-gap sv-nsec-gap--filled"
+                      ? "sv-mnemonic-item sv-mnemonic-gap sv-mnemonic-gap--filled"
                       : isNext
-                        ? "sv-nsec-gap sv-nsec-gap--next"
-                        : "sv-nsec-gap"
+                        ? "sv-mnemonic-item sv-mnemonic-gap sv-mnemonic-gap--next"
+                        : "sv-mnemonic-item sv-mnemonic-gap"
                   }
                   title={`Lacuna ${gapSlot + 1}`}
                 >
-                  <span className="sv-nsec-gap-num" aria-hidden="true">
-                    {gapSlot + 1}
+                  <span className="sv-mnemonic-num">{i + 1}</span>
+                  <span className="sv-mnemonic-gap-slot">
+                    <span className="sv-mnemonic-gap-num" aria-hidden="true">
+                      {gapSlot + 1}
+                    </span>
+                    <span className="sv-mnemonic-word">{filled ?? ""}</span>
                   </span>
-                  <span className="sv-nsec-gap-char">{filled ?? ""}</span>
-                </span>
+                </li>
               );
             })}
-          </code>
-          <div className="sv-key-options" role="group" aria-label="Caracteres que faltam">
+          </ol>
+          <div className="sv-key-options" role="group" aria-label="Palavras que faltam">
             {keyPool.map((item) => {
               const used = keyUsedIds.includes(item.id);
               if (used) return null;
@@ -482,10 +520,10 @@ export default function LoginNostr({
                 <button
                   key={item.id}
                   type="button"
-                  className="sv-key-option"
-                  onClick={() => pickPoolChar(item)}
+                  className="sv-key-option sv-key-option--word"
+                  onClick={() => pickPoolWord(item)}
                 >
-                  {item.char}
+                  {item.word}
                 </button>
               );
             })}
@@ -504,25 +542,32 @@ export default function LoginNostr({
 
     return (
       <div className="sv-auth">
-        <h2>Guarde sua chave de recuperação</h2>
+        <h2>Guarde suas 12 palavras</h2>
         <p>
-          Esta chave é o documento de posse da sua conta. Você não vai usá-la no
+          Esta frase é o documento de posse da sua conta. Você não vai usá-la no
           dia a dia — só se esquecer a senha (junto com a pergunta de segurança).
           Anote fora do computador. Ela não será mostrada de novo.
         </p>
-        <code className="sv-nsec">{pendingKey.nsec}</code>
+        <ol className="sv-mnemonic" aria-label="Frase de recuperação">
+          {pendingKey.words.map((word, i) => (
+            <li key={i} className="sv-mnemonic-item">
+              <span className="sv-mnemonic-num">{i + 1}</span>
+              <span className="sv-mnemonic-word">{word}</span>
+            </li>
+          ))}
+        </ol>
         <button
           type="button"
           className="ghost"
           onClick={async () => {
             try {
-              await navigator.clipboard.writeText(pendingKey.nsec);
+              await navigator.clipboard.writeText(pendingKey.mnemonic);
               setCopied(true);
               setTimeout(() => setCopied(false), 2000);
             } catch {}
           }}
         >
-          {copied ? "Copiada" : "Copiar chave"}
+          {copied ? "Copiada" : "Copiar palavras"}
         </button>
         <button type="button" onClick={goToKeyConfirm}>
           Já anotei, continuar
@@ -549,7 +594,7 @@ export default function LoginNostr({
           ? "Usuário e senha. Por baixo, uma identidade Nostr real — a chave fica cifrada com a sua senha."
           : mode === "login"
             ? "Abra o cofre da sua conta SatVantage."
-            : "Duas provas: pergunta de segurança e chave de recuperação."}
+            : "Duas provas: pergunta de segurança e as 12 palavras de recuperação."}
       </p>
 
       <input
@@ -639,8 +684,8 @@ export default function LoginNostr({
       {mode === "recover" && recoverStep === 1 && (
         <>
           <p className="sv-hint">
-            Vamos verificar a posse da conta: pergunta de segurança e chave de
-            recuperação.
+            Vamos verificar a posse da conta: pergunta de segurança e as 12
+            palavras de recuperação.
           </p>
           <button
             type="button"
@@ -663,10 +708,14 @@ export default function LoginNostr({
             onChange={(e) => setAnswer(e.target.value)}
             style={inputStyle}
           />
-          <input
-            placeholder="chave de recuperação (nsec1...)"
-            value={nsecInput}
-            onChange={(e) => setNsecInput(e.target.value)}
+          <textarea
+            className="sv-mnemonic-input"
+            placeholder="12 palavras de recuperação (separadas por espaço)"
+            value={mnemonicInput}
+            onChange={(e) => setMnemonicInput(e.target.value)}
+            rows={3}
+            autoComplete="off"
+            spellCheck={false}
             style={inputStyle}
           />
           <input
@@ -680,7 +729,7 @@ export default function LoginNostr({
           <button
             type="button"
             onClick={concluirRecuperacao}
-            disabled={busy !== null || !answer || !nsecInput || !password}
+            disabled={busy !== null || !answer || !mnemonicInput.trim() || !password}
           >
             {busy === "recover" ? "Verificando posse…" : "Redefinir senha"}
           </button>
