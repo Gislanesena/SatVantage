@@ -946,6 +946,7 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
                   embedded
                   sheetHosted
                   slug={mentorStep === "m1" ? MISSION_1_SLUG : MISSION_2_SLUG}
+                  level={(user?.knowledgeLevel as string | undefined) || "iniciante"}
                   fromDashboard
                   onExitToHome={onExitToHome}
                   onContinueMentor={() => {
