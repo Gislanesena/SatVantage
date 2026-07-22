@@ -48,6 +48,7 @@ export type Dict = {
     voucherTitle: string;
     voucherBody: string;
     withdrawReceive: string;
+    withdrawSats: string;
     receive: string;
     send: string;
     move: string;
@@ -87,6 +88,20 @@ export type Dict = {
     typeIn: string;
     typeOut: string;
     typeTransfer: string;
+    estateHowTitle: string;
+    estateHowClose: string;
+    estateHowKeysTitle: string;
+    estateHowKeysBody: string;
+    estateHowDocTitle: string;
+    estateHowDocBody: string;
+    estateHowPlatformTitle: string;
+    estateHowPlatformBody: string;
+    estateHowHeirTitle: string;
+    estateHowHeirBody: string;
+    estateHowContactsTitle: string;
+    estateHowContactsBody: string;
+    estateHowTimeline: string;
+    estateHowExtTip: string;
   };
   btc: {
     live: string;
@@ -222,15 +237,18 @@ const dictionaries: Record<Locale, Dict> = {
       connectedNamed: "Conectado: {name}",
       connectWalletTitle: "Conectar carteira",
       connectWalletBody:
-        "Cole a credencial da sua carteira Lightning (Nostr Wallet Connect) para começar.",
+        "Cole a credencial NWC de uma carteira MutinyNet (rede de teste). Nesta demo não usamos cobranças reais (mainnet).",
       connectWalletBtn: "Conectar",
-      receiveBody: "Gere um link de cobrança (invoice) para receber.",
-      sendBody: "Cole a cobrança que você recebeu.",
+      receiveBody:
+        "Gere uma cobrança MutinyNet (lntbs) para receber sats de teste. Não gera cobrança real.",
+      sendBody:
+        "Cole ou escaneie uma cobrança MutinyNet (começa com lntbs). Cobranças reais (lnbc) não são aceitas.",
       generateInvoice: "Gerar",
       voucherTitle: "Crédito SatVantage (voucher)",
       voucherBody:
         "Ainda não está na carteira Lightning — está garantido na sua conta",
-      withdrawReceive: "Sacar em Receber",
+      withdrawReceive: "Sacar Sat recebidos",
+      withdrawSats: "Sacar Sat recebidos",
       receive: "Receber",
       send: "Enviar",
       move: "Movimentar",
@@ -238,14 +256,14 @@ const dictionaries: Record<Locale, Dict> = {
       settings: "Configurações e perfil",
       profile: "Perfil",
       emergency: "Modo emergência",
-      estate: "Patrimônio",
+      estate: "Herança",
       logout: "Sair",
       comingSoon: "Em breve",
       back: "Voltar",
       choosePhoto: "Escolher foto",
       removePhoto: "Remover",
       pickPhotoAria: "Escolher foto de perfil",
-      estateSoon: "Patrimônio chega em breve — ainda estamos montando.",
+      estateSoon: "Herança chega em breve — ainda estamos montando.",
       emergencySoon:
         "Modo Emergência chega em breve — a base NWC já está pronta.",
       emergencyModalTitle: "Confirme sua identidade",
@@ -274,6 +292,27 @@ const dictionaries: Record<Locale, Dict> = {
       typeIn: "Entrada",
       typeOut: "Saída",
       typeTransfer: "Transferência",
+      estateHowTitle: "Como funciona a herança?",
+      estateHowClose: "Fechar",
+      estateHowKeysTitle: "🔒 Nunca custodiamos suas chaves",
+      estateHowKeysBody:
+        "Só organizamos e provamos. Seus bitcoins continuam sob o seu controle.",
+      estateHowDocTitle: "📜 Documento + blockchain",
+      estateHowDocBody:
+        "Seu plano vira um documento. Provamos com matemática (hash) e a blockchain do Bitcoin que ele existe e não foi alterado — de forma permanente e verificável.",
+      estateHowPlatformTitle: "E se eu trocar o uso de plataforma?",
+      estateHowPlatformBody:
+        "Parar de usar o app não significa que você não está mais vivo. Antes de qualquer coisa, mandamos lembretes por e-mail com chances de confirmar que está tudo bem.",
+      estateHowHeirTitle: "📬 Vários caminhos até o herdeiro",
+      estateHowHeirBody:
+        "E-mail, telefone e (se ele usar Nostr) uma mensagem cifrada — para reduzir o risco de um contato antigo não funcionar.",
+      estateHowContactsTitle: "🔄 Contatos vivos",
+      estateHowContactsBody:
+        "A cada confirmação sua, também perguntamos se os dados do herdeiro continuam corretos — nada fica esquecido.",
+      estateHowTimeline:
+        "Linha do tempo (demo para testes): sem confirmar por 30 minutos → pedimos prova de vida por e-mail. Sem resposta por mais 20 minutos → enviamos ao e-mail do herdeiro as informações de como acessar a herança.",
+      estateHowExtTip:
+        "Dica: use nossa extensão SatVantage para te auxiliar como guia no processo — ela ajuda a explicar passos e dúvidas enquanto você configura o plano.",
     },
     btc: {
       live: "Bitcoin ao vivo",
@@ -444,15 +483,18 @@ const dictionaries: Record<Locale, Dict> = {
       connectedNamed: "Connected: {name}",
       connectWalletTitle: "Connect wallet",
       connectWalletBody:
-        "Paste your Lightning wallet credential (Nostr Wallet Connect) to get started.",
+        "Paste an NWC credential from a MutinyNet (testnet) wallet. This demo does not use real mainnet invoices.",
       connectWalletBtn: "Connect",
-      receiveBody: "Generate a payment request (invoice) to receive.",
-      sendBody: "Paste the payment request you received.",
+      receiveBody:
+        "Generate a MutinyNet (lntbs) invoice to receive test sats. No real invoices.",
+      sendBody:
+        "Paste or scan a MutinyNet invoice (starts with lntbs). Real invoices (lnbc) are not accepted.",
       generateInvoice: "Generate",
       voucherTitle: "SatVantage credit (voucher)",
       voucherBody:
         "Not yet in your Lightning wallet — guaranteed on your account",
-      withdrawReceive: "Withdraw in Receive",
+      withdrawReceive: "Withdraw received sats",
+      withdrawSats: "Withdraw received sats",
       receive: "Receive",
       send: "Send",
       move: "Move funds",
@@ -460,14 +502,14 @@ const dictionaries: Record<Locale, Dict> = {
       settings: "Settings and profile",
       profile: "Profile",
       emergency: "Emergency mode",
-      estate: "Estate",
+      estate: "Inheritance",
       logout: "Log out",
       comingSoon: "Coming soon",
       back: "Back",
       choosePhoto: "Choose photo",
       removePhoto: "Remove",
       pickPhotoAria: "Choose profile photo",
-      estateSoon: "Estate is coming soon — we’re still building it.",
+      estateSoon: "Inheritance is coming soon — we’re still building it.",
       emergencySoon:
         "Emergency mode is coming soon — the NWC foundation is ready.",
       emergencyModalTitle: "Confirm your identity",
@@ -496,6 +538,27 @@ const dictionaries: Record<Locale, Dict> = {
       typeIn: "Incoming",
       typeOut: "Outgoing",
       typeTransfer: "Transfer",
+      estateHowTitle: "How does inheritance work?",
+      estateHowClose: "Close",
+      estateHowKeysTitle: "🔒 We never custody your keys",
+      estateHowKeysBody:
+        "We only organize and prove. Your bitcoin stays under your control.",
+      estateHowDocTitle: "📜 Document + blockchain",
+      estateHowDocBody:
+        "Your plan becomes a document. We prove with math (hash) and the Bitcoin blockchain that it exists and was not altered — permanently and verifiably.",
+      estateHowPlatformTitle: "What if I stop using the platform?",
+      estateHowPlatformBody:
+        "Stopping using the app does not mean you are no longer alive. First we send email reminders with chances to confirm that everything is fine.",
+      estateHowHeirTitle: "📬 Several paths to the heir",
+      estateHowHeirBody:
+        "Email, phone, and (if they use Nostr) an encrypted message — to reduce the risk that an old contact no longer works.",
+      estateHowContactsTitle: "🔄 Living contacts",
+      estateHowContactsBody:
+        "On each confirmation, we also ask if the heir's details are still correct — nothing is left forgotten.",
+      estateHowTimeline:
+        "Timeline (demo for testing): no confirmation for 30 minutes → we ask for a life check by email. No reply for another 20 minutes → we send the heir's email the information on how to access the inheritance.",
+      estateHowExtTip:
+        "Tip: use our SatVantage extension as a guide through the process — it helps explain steps and questions while you set up the plan.",
     },
     btc: {
       live: "Live Bitcoin",
@@ -666,15 +729,18 @@ const dictionaries: Record<Locale, Dict> = {
       connectedNamed: "Conectado: {name}",
       connectWalletTitle: "Conectar cartera",
       connectWalletBody:
-        "Pega la credencial de tu cartera Lightning (Nostr Wallet Connect) para empezar.",
+        "Pega una credencial NWC de una cartera MutinyNet (red de prueba). Esta demo no usa cobros reales (mainnet).",
       connectWalletBtn: "Conectar",
-      receiveBody: "Genera un enlace de cobro (invoice) para recibir.",
-      sendBody: "Pega el cobro que recibiste.",
+      receiveBody:
+        "Genera un cobro MutinyNet (lntbs) para recibir sats de prueba. No genera cobros reales.",
+      sendBody:
+        "Pega o escanea un cobro MutinyNet (empieza con lntbs). Los cobros reales (lnbc) no se aceptan.",
       generateInvoice: "Generar",
       voucherTitle: "Crédito SatVantage (voucher)",
       voucherBody:
         "Aún no está en tu cartera Lightning — está garantizado en tu cuenta",
-      withdrawReceive: "Retirar en Recibir",
+      withdrawReceive: "Retirar sats recibidos",
+      withdrawSats: "Retirar sats recibidos",
       receive: "Recibir",
       send: "Enviar",
       move: "Movimientos",
@@ -682,14 +748,14 @@ const dictionaries: Record<Locale, Dict> = {
       settings: "Configuración y perfil",
       profile: "Perfil",
       emergency: "Modo emergencia",
-      estate: "Patrimonio",
+      estate: "Herencia",
       logout: "Salir",
       comingSoon: "Pronto",
       back: "Volver",
       choosePhoto: "Elegir foto",
       removePhoto: "Quitar",
       pickPhotoAria: "Elegir foto de perfil",
-      estateSoon: "Patrimonio llega pronto — aún lo estamos armando.",
+      estateSoon: "Herencia llega pronto — aún lo estamos armando.",
       emergencySoon:
         "Modo emergencia llega pronto — la base NWC ya está lista.",
       emergencyModalTitle: "Confirma tu identidad",
@@ -718,6 +784,27 @@ const dictionaries: Record<Locale, Dict> = {
       typeIn: "Entrada",
       typeOut: "Salida",
       typeTransfer: "Transferencia",
+      estateHowTitle: "¿Cómo funciona la herencia?",
+      estateHowClose: "Cerrar",
+      estateHowKeysTitle: "🔒 Nunca custodiamos tus claves",
+      estateHowKeysBody:
+        "Solo organizamos y probamos. Tus bitcoins siguen bajo tu control.",
+      estateHowDocTitle: "📜 Documento + blockchain",
+      estateHowDocBody:
+        "Tu plan se convierte en un documento. Probamos con matemática (hash) y la blockchain de Bitcoin que existe y no fue alterado — de forma permanente y verificable.",
+      estateHowPlatformTitle: "¿Y si dejo de usar la plataforma?",
+      estateHowPlatformBody:
+        "Dejar de usar la app no significa que ya no estés vivo. Antes de cualquier cosa, enviamos recordatorios por correo con oportunidades de confirmar que todo está bien.",
+      estateHowHeirTitle: "📬 Varios caminos hasta el heredero",
+      estateHowHeirBody:
+        "Correo, teléfono y (si usa Nostr) un mensaje cifrado — para reducir el riesgo de que un contacto antiguo no funcione.",
+      estateHowContactsTitle: "🔄 Contactos vivos",
+      estateHowContactsBody:
+        "En cada confirmación tuya, también preguntamos si los datos del heredero siguen correctos — nada queda olvidado.",
+      estateHowTimeline:
+        "Línea de tiempo (demo para pruebas): sin confirmar por 30 minutos → pedimos prueba de vida por correo. Sin respuesta por otros 20 minutos → enviamos al correo del heredero la información de cómo acceder a la herencia.",
+      estateHowExtTip:
+        "Consejo: usa nuestra extensión SatVantage como guía en el proceso — ayuda a explicar pasos y dudas mientras configuras el plan.",
     },
     btc: {
       live: "Bitcoin en vivo",

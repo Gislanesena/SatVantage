@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         error: dup
-          ? "Esse usuário já está em uso. Escolha outro nome ou entre na conta existente."
+          ? "Esse usuário já está em uso. Escolha outro nome."
           : "erro ao criar conta",
       },
       { status: dup ? 409 : 500 }

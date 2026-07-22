@@ -3,6 +3,7 @@
 // Sem autenticação SatVantage: a extensão é ferramenta isolada.
 import { NextRequest, NextResponse } from "next/server";
 import { analisarPagina } from "@/lib/extension-analisar";
+import { isSatVantageOfficialUrl } from "@/lib/extension-satvantage-site";
 
 export const dynamic = "force-dynamic";
 
@@ -34,26 +35,26 @@ export async function POST(req: NextRequest) {
   }
 
   const pergunta = typeof body.pergunta === "string" ? body.pergunta.trim() : "";
-  if (!pergunta) {
-    return NextResponse.json(
-      { error: "informe a pergunta" },
-      { status: 400, headers: corsHeaders },
-    );
-  }
+  // pergunta vazia = resumo da página (Analisar página sem digitar)
+
+  const paginaUrl = typeof body.paginaUrl === "string" ? body.paginaUrl : undefined;
 
   const result = await analisarPagina({
     paginaTexto: typeof body.paginaTexto === "string" ? body.paginaTexto : "",
     pergunta,
     paginaTitulo:
       typeof body.paginaTitulo === "string" ? body.paginaTitulo : undefined,
-    paginaUrl: typeof body.paginaUrl === "string" ? body.paginaUrl : undefined,
+    paginaUrl,
   });
 
   return NextResponse.json(
     {
+      tipo: result.tipo,
       risco: result.risco,
       explicacao: result.explicacao,
       proximosPassos: result.proximosPassos,
+      siteOficial: isSatVantageOfficialUrl(paginaUrl),
+      paginaUrl: paginaUrl ?? null,
     },
     { headers: corsHeaders },
   );

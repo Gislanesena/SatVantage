@@ -193,6 +193,10 @@ export default function LoginNostr({
   const [mnemonicInput, setMnemonicInput] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  /** null = ainda não checou / inválido curto; true/false = resultado do servidor */
+  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
+  const [usernameCheckMsg, setUsernameCheckMsg] = useState<string | null>(null);
+  const [checkingUsername, setCheckingUsername] = useState(false);
 
   const [recoverStep, setRecoverStep] = useState<1 | 2>(1);
   const [recoverInfo, setRecoverInfo] = useState<{ question: string; qaSalt: string } | null>(
@@ -231,6 +235,8 @@ export default function LoginNostr({
     setAnswer("");
     setMnemonicInput("");
     setForceCreate(false);
+    setUsernameAvailable(null);
+    setUsernameCheckMsg(null);
     if (initialMode === "create") {
       setUsername("");
     } else if (initialMode === "login") {
@@ -245,6 +251,8 @@ export default function LoginNostr({
   useEffect(() => {
     if (mode !== "create") {
       setExistingSession(null);
+      setUsernameAvailable(null);
+      setUsernameCheckMsg(null);
       return;
     }
     let cancelled = false;
@@ -261,6 +269,70 @@ export default function LoginNostr({
       cancelled = true;
     };
   }, [mode]);
+
+  // Verifica disponibilidade do usuário ao digitar (criar conta).
+  useEffect(() => {
+    if (mode !== "create") return;
+
+    const raw = username.trim().toLowerCase();
+    setUsernameAvailable(null);
+    setUsernameCheckMsg(null);
+
+    if (!raw) {
+      setCheckingUsername(false);
+      return;
+    }
+    if (!/^[a-z0-9_]{3,20}$/.test(raw)) {
+      setCheckingUsername(false);
+      setUsernameAvailable(false);
+      setUsernameCheckMsg(
+        "Usuário inválido (3-20 caracteres: letras minúsculas, números, _).",
+      );
+      return;
+    }
+
+    let cancelled = false;
+    setCheckingUsername(true);
+    const t = setTimeout(() => {
+      void (async () => {
+        try {
+          const res = await fetch("/api/auth/check-username", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username: raw }),
+          });
+          const data = await res.json().catch(() => ({}));
+          if (cancelled) return;
+          if (!res.ok) {
+            setUsernameAvailable(null);
+            setUsernameCheckMsg("Não foi possível verificar o usuário agora.");
+            return;
+          }
+          if (data.available) {
+            setUsernameAvailable(true);
+            setUsernameCheckMsg("Usuário disponível.");
+          } else {
+            setUsernameAvailable(false);
+            setUsernameCheckMsg(
+              data.reason ||
+                "Esse usuário já está em uso. Escolha outro nome.",
+            );
+          }
+        } catch {
+          if (cancelled) return;
+          setUsernameAvailable(null);
+          setUsernameCheckMsg("Não foi possível verificar o usuário agora.");
+        } finally {
+          if (!cancelled) setCheckingUsername(false);
+        }
+      })();
+    }, 400);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+    };
+  }, [username, mode]);
 
   function npubShort(npub: string) {
     return npub.length > 16 ? `${npub.slice(0, 10)}…${npub.slice(-6)}` : npub;
@@ -348,6 +420,8 @@ export default function LoginNostr({
     setQuestion("");
     setAnswer("");
     setMnemonicInput("");
+    setUsernameAvailable(null);
+    setUsernameCheckMsg(null);
     if (m === "create") {
       setUsername(keepUser ?? "");
     } else if (m === "login") {
@@ -365,19 +439,41 @@ export default function LoginNostr({
 
   async function criarConta() {
     setError(null);
+    const userNorm = username.trim().toLowerCase();
+    if (!/^[a-z0-9_]{3,20}$/.test(userNorm)) {
+      return setError("Usuário inválido (3-20 caracteres: letras minúsculas, números, _).");
+    }
     if (password.length < 8) return setError("A senha precisa de pelo menos 8 caracteres.");
     if (question.trim().length < 8)
       return setError("Escreva uma pergunta de segurança (mínimo 8 caracteres).");
     if (answer.trim().length < 2) return setError("Escreva a resposta da sua pergunta.");
+
     setBusy("create");
     try {
+      // Checagem final no servidor antes de gerar chaves
+      const check = await fetch("/api/auth/check-username", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: userNorm }),
+      });
+      const checkData = await check.json().catch(() => ({}));
+      if (!check.ok) throw new Error(checkData.error ?? "erro ao verificar usuário");
+      if (!checkData.available) {
+        setUsernameAvailable(false);
+        setUsernameCheckMsg(checkData.reason || "Esse usuário já está em uso.");
+        throw new Error(
+          checkData.reason ||
+            "Esse usuário já está em uso. Escolha outro nome.",
+        );
+      }
+
       const mnemonic = generateSeedWords();
       const words = mnemonic.split(" ");
       const sk = privateKeyFromSeedWords(mnemonic);
       const { blob, salt } = await sealVault(sk, password);
       const qaSalt = newSalt();
       await postJson("/api/auth/register", {
-        username,
+        username: userNorm,
         pubkey: getPublicKey(sk),
         vaultBlob: blob,
         vaultSalt: salt,
@@ -386,7 +482,7 @@ export default function LoginNostr({
         qaSalt,
       });
       const { user } = await signAndLogin(sk);
-      remember(username);
+      remember(userNorm);
       setKeyBackupStep("show");
       setKeyGaps([]);
       setKeyPool([]);
@@ -600,10 +696,31 @@ export default function LoginNostr({
       <input
         placeholder="usuário"
         value={username}
-        onChange={(e) => setUsername(e.target.value)}
+        onChange={(e) => {
+          setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""));
+          if (error) setError(null);
+        }}
         autoComplete="username"
         style={inputStyle}
+        aria-invalid={mode === "create" && usernameAvailable === false}
       />
+      {mode === "create" && (checkingUsername || usernameCheckMsg) && (
+        <p
+          className="sv-hint"
+          role="status"
+          style={{
+            color:
+              usernameAvailable === false
+                ? "var(--danger, #ef4444)"
+                : usernameAvailable === true
+                  ? "var(--ok, #0f766e)"
+                  : undefined,
+            marginTop: -4,
+          }}
+        >
+          {checkingUsername ? "Verificando usuário…" : usernameCheckMsg}
+        </p>
+      )}
 
       {mode === "create" && existingSession && !forceCreate ? (
         <div className="sv-error-box" role="alert">
@@ -650,7 +767,13 @@ export default function LoginNostr({
             <button
               type="button"
               onClick={criarConta}
-              disabled={busy !== null || !username || !password}
+              disabled={
+                busy !== null ||
+                !username ||
+                !password ||
+                checkingUsername ||
+                usernameAvailable === false
+              }
             >
               {busy === "create" ? "Criando cofre…" : "Criar conta"}
             </button>
@@ -743,15 +866,6 @@ export default function LoginNostr({
       {error && (
         <div role="alert" className="sv-error-box">
           <p className="sv-error">{error}</p>
-          {(error.includes("já está em uso") || error.includes("já existe")) && mode === "create" && (
-            <button
-              type="button"
-              className="sv-error-action"
-              onClick={() => go("login", { keepUsername: true })}
-            >
-              Acessar conta
-            </button>
-          )}
         </div>
       )}
     </div>

@@ -13,6 +13,11 @@ import { getSession } from "@/lib/session";
 import { decryptSecret } from "@/lib/crypto";
 import { payInvoiceViaNwc } from "@/lib/nwc";
 import { checkBehavior, recordSend } from "@/lib/comportamental";
+import {
+  isMutinyNetBolt11,
+  MUTINYNET_ONLY_MSG,
+  normalizeBolt11,
+} from "@/lib/mutinynet";
 
 export async function POST(req: NextRequest) {
   const session = await getSession();
@@ -25,8 +30,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "JSON inválido" }, { status: 400 });
   }
 
-  const bolt11 = body.bolt11?.trim();
+  const bolt11 = normalizeBolt11(body.bolt11 ?? "");
   if (!bolt11) return NextResponse.json({ error: "cole a cobrança a pagar" }, { status: 400 });
+
+  if (!isMutinyNetBolt11(bolt11)) {
+    return NextResponse.json({ error: MUTINYNET_ONLY_MSG }, { status: 400 });
+  }
 
   // Valor do invoice
   let amountSats: number;

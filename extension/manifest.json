@@ -1,13 +1,26 @@
 {
   "manifest_version": 3,
   "name": "SatVantage Copiloto",
-  "version": "0.1.0",
-  "description": "Analisa a página aberta sob a ótica de Bitcoin e segurança cripto. Não acessa sua conta SatVantage.",
+  "version": "0.3.2",
+  "description": "Guia empático no site oficial SatVantage e análise Bitcoin/segurança em outras páginas.",
   "permissions": ["activeTab", "scripting"],
-  "host_permissions": ["http://localhost:3000/*"],
+  "host_permissions": [
+    "http://localhost:3000/*",
+    "https://sat-vantage-iau60jdhv-gislanesena.vercel.app/*"
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
   "action": {
     "default_title": "SatVantage Copiloto",
-    "default_popup": "popup.html"
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
   },
   "content_scripts": [
     {

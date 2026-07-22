@@ -4,6 +4,7 @@ import { supabaseAdmin } from "@/lib/supabase";
 import { getSession } from "@/lib/session";
 import { decryptSecret } from "@/lib/crypto";
 import { makeInvoiceViaNwc } from "@/lib/nwc";
+import { isMutinyNetBolt11, MUTINYNET_WALLET_MSG } from "@/lib/mutinynet";
 
 export async function POST(req: NextRequest) {
   const session = await getSession();
@@ -37,11 +38,22 @@ export async function POST(req: NextRequest) {
   const result = await makeInvoiceViaNwc(
     decryptSecret(conn.connection_secret_enc),
     Math.floor(amountSats),
-    body.description?.trim() || "Recebimento SatVantage",
+    body.description?.trim() || "Recebimento SatVantage (MutinyNet)",
   );
 
   if (!result.ok) {
     return NextResponse.json({ error: result.error ?? "falha ao gerar cobrança" }, { status: 502 });
+  }
+
+  if (!result.invoice || !isMutinyNetBolt11(result.invoice)) {
+    return NextResponse.json(
+      {
+        error:
+          MUTINYNET_WALLET_MSG +
+          " A cobrança gerada não é MutinyNet (lntbs). Conecte uma carteira de teste.",
+      },
+      { status: 400 },
+    );
   }
 
   return NextResponse.json({ ok: true, invoice: result.invoice, amountSats: Math.floor(amountSats) });

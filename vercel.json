@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/heranca/verificar-inatividade",
+      "schedule": "0 9 * * *"
+    }
+  ]
+}
