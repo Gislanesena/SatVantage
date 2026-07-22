@@ -2,6 +2,7 @@
 // Carteira NWC: conectar → testar → saldo → enviar COM FRICÇÃO.
 // Credencial salva ≠ “sempre online no relay”. UI mantém envio mesmo com relay lento.
 import { useEffect, useState } from "react";
+import { useI18n } from "@/lib/i18n";
 import "./wallet.css";
 
 type Props = {
@@ -42,6 +43,7 @@ function looksLikeBan(msg: string) {
 }
 
 export default function WalletNwc({ embedded, onChanged }: Props) {
+  const { t } = useI18n();
   const [wallet, setWallet] = useState<WalletState | null>(null);
   const [connStr, setConnStr] = useState("");
   const [bolt11, setBolt11] = useState("");
@@ -100,7 +102,7 @@ export default function WalletNwc({ embedded, onChanged }: Props) {
       if (!res.ok) throw new Error(json.error);
       setConnStr("");
       setShowReplace(false);
-      setNotice("Carteira salva. A credencial fica aqui — o relay que às vezes oscila.");
+      setNotice(null);
       await load();
     } catch (e: any) {
       const msg = e.message ?? "falha ao conectar";
@@ -188,7 +190,7 @@ export default function WalletNwc({ embedded, onChanged }: Props) {
     await fetch("/api/wallet/disconnect", { method: "POST" });
     setBusy(null);
     setShowReplace(false);
-    setNotice("Conexão revogada.");
+    setNotice(null);
     await load();
   }
 
@@ -238,13 +240,9 @@ export default function WalletNwc({ embedded, onChanged }: Props) {
     return (
       <section className="sv-wallet" aria-labelledby="sv-wallet-connect-title">
         <h2 id="sv-wallet-connect-title" className="sv-wallet-title">
-          {embedded ? "Conectar para enviar" : "Conectar minha carteira"}
+          {t.dash.connectWalletTitle}
         </h2>
-        <p className="sv-wallet-copy">
-          Cole a credencial <strong>Nostr Wallet Connect</strong>. Ela fica salva cifrada —
-          não some a cada refresh. O que às vezes falha é o <em>relay</em> (rede da
-          carteira), não a sua conta SatVantage.
-        </p>
+        <p className="sv-wallet-copy">{t.dash.connectWalletBody}</p>
         <input
           className="sv-wallet-input"
           placeholder="nostr+walletconnect://…"
@@ -261,10 +259,10 @@ export default function WalletNwc({ embedded, onChanged }: Props) {
             disabled={!connStr || busy === "connect" || cooling}
           >
             {busy === "connect"
-              ? "Testando…"
+              ? "…"
               : cooling
                 ? `Aguarde ${cooldownLeft}s`
-                : "Conectar e testar"}
+                : t.dash.connectWalletBtn}
           </button>
         </div>
         {notice && <p className="sv-wallet-notice">{notice}</p>}
@@ -283,33 +281,19 @@ export default function WalletNwc({ embedded, onChanged }: Props) {
     <section className="sv-wallet" aria-labelledby="sv-wallet-label">
       <div className="sv-wallet-head">
         <h2 id="sv-wallet-label" className="sv-wallet-title">
-          {embedded ? "Enviar pagamento" : wallet.label || "Minha carteira"}
+          {embedded ? t.dash.send : wallet.label || t.dash.lightningWallet}
         </h2>
         <span className={`sv-wallet-status${relaySlow ? " is-warn" : " is-on"}`}>
-          {relaySlow ? "Salva · relay lento" : "Conectada"}
+          {relaySlow ? "Salva · relay lento" : t.exch.connected}
         </span>
       </div>
 
-      {wallet.balanceSats != null && (
-        <p className="sv-wallet-balance">
-          ⚡ {wallet.balanceSats.toLocaleString("pt-BR")} sats
-          {wallet.stale || relaySlow ? (
-            <span className="sv-wallet-meta"> · último saldo conhecido</span>
-          ) : null}
-        </p>
-      )}
-
       {relaySlow && (
         <div className="sv-wallet-reconnect">
-          <p className="sv-wallet-copy">
-            Sua carteira continua vinculada. O relay só não respondeu agora — comum e
-            temporário. Pode tentar enviar mesmo assim, ou testar de novo daqui a pouco.
+          <p className="sv-wallet-meta">
+            Relay lento — pode tentar enviar mesmo assim.
+            {wallet.error || error ? ` (${error || wallet.error})` : ""}
           </p>
-          {(wallet.error || error) && (
-            <p className="sv-wallet-error" role="status">
-              {error || wallet.error}
-            </p>
-          )}
           <div className="sv-wallet-actions">
             <button
               type="button"
@@ -318,10 +302,10 @@ export default function WalletNwc({ embedded, onChanged }: Props) {
               disabled={busy === "test" || cooling}
             >
               {busy === "test"
-                ? "Testando…"
+                ? "…"
                 : cooling
                   ? `Aguarde ${cooldownLeft}s`
-                  : "Testar relay"}
+                  : "Testar"}
             </button>
             <button
               type="button"
@@ -331,7 +315,7 @@ export default function WalletNwc({ embedded, onChanged }: Props) {
                 setError(null);
               }}
             >
-              {showReplace ? "Cancelar" : "Trocar credencial"}
+              {showReplace ? "Cancelar" : "Trocar"}
             </button>
           </div>
           {showReplace && (
@@ -350,14 +334,14 @@ export default function WalletNwc({ embedded, onChanged }: Props) {
                 onClick={() => void conectar()}
                 disabled={!connStr || busy === "connect" || cooling}
               >
-                {busy === "connect" ? "Salvando…" : "Salvar nova credencial"}
+                {busy === "connect" ? "…" : t.dash.connectWalletBtn}
               </button>
             </>
           )}
         </div>
       )}
 
-      <p className="sv-wallet-copy">Cole a cobrança Lightning de quem vai receber:</p>
+      <p className="sv-wallet-copy">{t.dash.sendBody}</p>
       <input
         className="sv-wallet-input"
         placeholder="lnbc… / lntbs…"
@@ -373,18 +357,8 @@ export default function WalletNwc({ embedded, onChanged }: Props) {
           onClick={() => void enviar(false)}
           disabled={!bolt11 || busy === "pay"}
         >
-          {busy === "pay" ? "Verificando…" : "Enviar"}
+          {busy === "pay" ? "…" : t.dash.send}
         </button>
-        {!relaySlow && (
-          <button
-            type="button"
-            className="sv-wallet-btn sv-wallet-btn--ghost"
-            onClick={() => void testar()}
-            disabled={busy === "test" || cooling}
-          >
-            {busy === "test" ? "Testando…" : "Atualizar saldo"}
-          </button>
-        )}
         <button
           type="button"
           className="sv-wallet-btn sv-wallet-btn--ghost"

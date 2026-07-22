@@ -1,0 +1,179 @@
+/* SatVantage Copiloto — popup simples */
+:root {
+  --bg: #0f1724;
+  --surface: #162033;
+  --ink: #e8eef7;
+  --muted: #9aabbf;
+  --line: #2a3a52;
+  --accent: #f7931a;
+  --ok: #22c55e;
+  --warn: #eab308;
+  --bad: #ef4444;
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  width: 360px;
+  padding: 14px;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.sv-head strong {
+  display: block;
+  font-size: 1rem;
+  letter-spacing: -0.01em;
+}
+
+.sv-head p {
+  margin: 4px 0 12px;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: var(--muted);
+}
+
+.sv-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 72px;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.sv-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 10px 0;
+}
+
+.sv-chip {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.sv-chip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.sv-btn {
+  width: 100%;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: var(--accent);
+  color: #111;
+  font-weight: 700;
+  font-size: 0.92rem;
+  cursor: pointer;
+}
+
+.sv-btn:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+.sv-status {
+  margin: 10px 0 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.sv-status.is-error {
+  color: var(--bad);
+}
+
+.sv-result {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.sv-risco {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.sv-risco[data-nivel="baixo"] {
+  background: color-mix(in srgb, var(--ok) 22%, transparent);
+  color: var(--ok);
+  border: 1px solid color-mix(in srgb, var(--ok) 45%, transparent);
+}
+
+.sv-risco[data-nivel="medio"] {
+  background: color-mix(in srgb, var(--warn) 22%, transparent);
+  color: var(--warn);
+  border: 1px solid color-mix(in srgb, var(--warn) 45%, transparent);
+}
+
+.sv-risco[data-nivel="alto"] {
+  background: color-mix(in srgb, var(--bad) 22%, transparent);
+  color: var(--bad);
+  border: 1px solid color-mix(in srgb, var(--bad) 45%, transparent);
+}
+
+.sv-explicacao {
+  margin: 0 0 12px;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: var(--ink);
+}
+
+.sv-passos-title {
+  margin: 0 0 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.sv-passos {
+  margin: 0;
+  padding-left: 1.2em;
+  font-size: 0.84rem;
+  line-height: 1.4;
+  color: var(--ink);
+}
+
+.sv-passos li + li {
+  margin-top: 4px;
+}
+
+.sv-foot {
+  margin-top: 14px;
+  font-size: 0.68rem;
+  line-height: 1.35;
+  color: var(--muted);
+}

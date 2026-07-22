@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SatVantage Copiloto</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header class="sv-head">
+      <strong>SatVantage Copiloto</strong>
+      <p>Ajuda rápida sobre Bitcoin e segurança nesta página. Não acessa sua conta.</p>
+    </header>
+
+    <label class="sv-label" for="pergunta">Sua pergunta</label>
+    <textarea
+      id="pergunta"
+      rows="3"
+      placeholder="Ex.: este site parece seguro para comprar Bitcoin?"
+    ></textarea>
+
+    <div class="sv-suggestions" role="group" aria-label="Sugestões">
+      <button type="button" class="sv-chip" data-q="Isso é golpe?">Isso é golpe?</button>
+      <button type="button" class="sv-chip" data-q="Como crio uma carteira aqui?">
+        Como crio uma carteira aqui?
+      </button>
+    </div>
+
+    <button type="button" id="enviar" class="sv-btn">Analisar página</button>
+    <p id="status" class="sv-status" hidden></p>
+
+    <section id="resultado" class="sv-result" hidden>
+      <div id="risco" class="sv-risco"></div>
+      <p id="explicacao" class="sv-explicacao"></p>
+      <p class="sv-passos-title">Próximos passos</p>
+      <ol id="passos" class="sv-passos"></ol>
+    </section>
+
+    <footer class="sv-foot">
+      Envia só o texto da página e a pergunta ao backend SatVantage.
+    </footer>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
