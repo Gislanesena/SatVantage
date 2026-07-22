@@ -1,53 +1,40 @@
 "use client";
-// Chat de mentoria: painel único, histórico permanente, tópicos opcionais no fim.
 import { useCallback, useEffect, useRef, useState } from "react";
 import SiteNav from "@/components/SiteNav";
+import LearningModePicker from "@/components/LearningModePicker";
+import InvestTutorial from "@/components/InvestTutorial";
+import ProTraderSimulator from "@/components/ProTraderSimulator";
 import {
   MISSION_1_SLUG,
   MISSION_2_SLUG,
   type MissionSlug,
 } from "@/lib/missions";
-import { OPTIONAL_TOPICS, type OptionalTopic } from "@/lib/optional-topics";
 import "./mentor.css";
-
-type Lesson = {
-  id: string;
-  teach: string;
-  question: string;
-  options: string[];
-};
+import { useI18n, type Locale } from "@/lib/i18n";
+import { quizTriggerMessage, speechLocale } from "@/lib/lang";
 
 type ChatLine =
   | { kind: "agent"; text: string }
   | { kind: "user"; text: string };
 
-type ResponseSlot = { answer: number | null; skipped: boolean };
-
 type ComposerMode =
   | { type: "hidden" }
-  | { type: "mission"; options: string[] }
-  | { type: "topic-q"; topicId: string; options: string[] }
-  | {
-      type: "end";
-      /** mentoria 1: continuar · mentoria 2 / fim: tópicos */
-      showContinue?: boolean;
-      topics: OptionalTopic[];
-      satsLine: string | null;
-    };
+  | { type: "free-input" }
+  | { type: "learning-pick" }
+  | { type: "tutorial" }
+  | { type: "simulator" };
 
 type MentorChatProps = {
   slug: MissionSlug;
+  level?: string;
   onExitToHome: () => void;
   onContinueMentor?: () => void;
   onGoDashboard: () => void;
-  /** Recarrega saldo/XP após submit (fonte: /api/rewards/balance) */
   onBalanceChanged?: () => void;
-  /** Se true, “sair” volta ao dash (em vez da homepage) */
   fromDashboard?: boolean;
-  /** Chat embutido no painel flutuante do dashboard */
   embedded?: boolean;
-  /** Cabeçalho/X ficam no sheet do Dashboard */
   sheetHosted?: boolean;
+  [key: string]: any;
 };
 
 const COPY: Record<
@@ -56,17 +43,13 @@ const COPY: Record<
 > = {
   [MISSION_1_SLUG]: {
     title: "NagAI · Primeiros passos",
-    intro:
-      "Oi! Eu sou a NagAI, do SatVantage. Vou te explicar um ponto de cada vez e depois te perguntar se fez sentido. Pode pular uma pergunta ou a conversa inteira quando quiser.",
-    skipAllAgent:
-      "Tudo bem. Na próxima você pode aprender carteira e Lightning — ou ir direto ao dashboard.",
+    intro: "Oi! Eu sou a NagAI, sua mentora de Bitcoin. Para negociar com facilidade, contamos com as corretoras conectadas para você comprar seus ativos. Qual sua dúvida sobre Bitcoin hoje?",
+    skipAllAgent: "Tudo bem. Vamos direto ao dashboard.",
   },
   [MISSION_2_SLUG]: {
     title: "NagAI · Carteira e Lightning",
-    intro:
-      "Agora o básico pra quem nunca abriu uma carteira: o que ela guarda, como proteger a frase de recuperação, e o que é Lightning no dia a dia. Pode pular pergunta ou a conversa toda.",
-    skipAllAgent:
-      "Sem problema. Se quiser, depois a gente fala de corretora, transferência e carteira fria — ou você vai direto ao dashboard.",
+    intro: "Oi! Eu sou a NagAI, sua mentora de Bitcoin. Para negociar com facilidade, contamos com as corretoras Mercado Bitcoin, Binance e Blink integradas. Qual sua dúvida sobre Bitcoin hoje?",
+    skipAllAgent: "Sem problema. Vamos ao dashboard.",
   },
 };
 
@@ -74,8 +57,44 @@ function sleep(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
+/** Remove Markdown residual para bolhas de texto puro. */
+function toPlainChatText(text: string): string {
+  return text
+    .replace(/```[\s\S]*?```/g, (block) => block.replace(/```/g, ""))
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/\*\*([^*]+)\*\*/g, "$1")
+    .replace(/__([^_]+)__/g, "$1")
+    .replace(/(?<!\w)\*([^*]+)\*(?!\w)/g, "$1")
+    .replace(/^#{1,6}\s*/gm, "")
+    .replace(/^\s*[-*•]\s+/gm, "")
+    .replace(/\*\*/g, "")
+    .replace(/\[DESAFIO\]\s*/g, "")
+    .trim();
+}
+
+type SpeechRecognitionLike = {
+  lang: string;
+  continuous: boolean;
+  interimResults: boolean;
+  start: () => void;
+  stop: () => void;
+  abort: () => void;
+  onresult: ((event: any) => void) | null;
+  onerror: ((event: any) => void) | null;
+  onend: (() => void) | null;
+};
+
+function getSpeechRecognitionCtor():
+  | (new () => SpeechRecognitionLike)
+  | null {
+  if (typeof window === "undefined") return null;
+  const w = window as any;
+  return w.SpeechRecognition || w.webkitSpeechRecognition || null;
+}
+
 export default function MentorChat({
   slug,
+  level = "iniciante",
   onExitToHome,
   onContinueMentor,
   onGoDashboard,
@@ -84,50 +103,102 @@ export default function MentorChat({
   embedded = false,
   sheetHosted = false,
 }: MentorChatProps) {
-  const copy = COPY[slug];
-  const [lessons, setLessons] = useState<Lesson[]>([]);
+  const { locale } = useI18n();
+  const safeSlug = COPY[slug] ? slug : MISSION_1_SLUG;
+  const copy = COPY[safeSlug];
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showGate, setShowGate] = useState(false);
   const [forcePractice, setForcePractice] = useState(false);
   const [rewardEligible, setRewardEligible] = useState(true);
   const [sessionKey, setSessionKey] = useState(0);
+  const [satsNotification, setSatsNotification] = useState<number | null>(null);
 
-  const [step, setStep] = useState(0);
   const [lines, setLines] = useState<ChatLine[]>([]);
-  const [responses, setResponses] = useState<ResponseSlot[]>([]);
   const [busy, setBusy] = useState(false);
   const [typing, setTyping] = useState(false);
   const [composer, setComposer] = useState<ComposerMode>({ type: "hidden" });
-  const [doneTopics, setDoneTopics] = useState<string[]>([]);
+  const [userInputText, setUserInputText] = useState("");
+  const [listening, setListening] = useState(false);
+  const [speechSupported, setSpeechSupported] = useState(false);
+  const [ttsSupported, setTtsSupported] = useState(false);
+  const [speakingIndex, setSpeakingIndex] = useState<number | null>(null);
+  const [satsBalance, setSatsBalance] = useState<number | null>(null);
+
+  const lang: Locale = locale;
+  const prevLocaleRef = useRef<Locale>(locale);
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const runIdRef = useRef(0);
-  const responsesRef = useRef<ResponseSlot[]>([]);
-  const lessonsRef = useRef<Lesson[]>([]);
-  const stepRef = useRef(0);
-  const doneTopicsRef = useRef<string[]>([]);
+  const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
+  const sendFreeTextRef = useRef<(textToSend?: string) => Promise<void>>(
+    async () => {},
+  );
 
   const leave = fromDashboard ? onGoDashboard : onExitToHome;
+
+  const refreshSatsBalance = useCallback(async () => {
+    try {
+      // Mesma fonte do Dashboard: GET /api/rewards/balance → satsBalance
+      const res = await fetch("/api/rewards/balance");
+      if (!res.ok) return;
+      const j = await res.json();
+      setSatsBalance(typeof j.satsBalance === "number" ? j.satsBalance : 0);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const stopSpeaking = useCallback(() => {
+    if (typeof window !== "undefined" && window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+    setSpeakingIndex(null);
+  }, []);
+
+  useEffect(() => {
+    setSpeechSupported(!!getSpeechRecognitionCtor());
+    setTtsSupported(
+      typeof window !== "undefined" && "speechSynthesis" in window,
+    );
+  }, []);
+
+  useEffect(() => {
+    void refreshSatsBalance();
+  }, [refreshSatsBalance, sessionKey]);
+
+  useEffect(() => {
+    return () => {
+      try {
+        recognitionRef.current?.abort();
+      } catch {
+        /* ignore */
+      }
+      recognitionRef.current = null;
+      if (typeof window !== "undefined" && window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (busy && listening) {
+      try {
+        recognitionRef.current?.stop();
+      } catch {
+        /* ignore */
+      }
+      setListening(false);
+    }
+  }, [busy, listening]);
 
   useEffect(() => {
     setForcePractice(false);
   }, [slug]);
 
   useEffect(() => {
-    responsesRef.current = responses;
-  }, [responses]);
-  useEffect(() => {
-    lessonsRef.current = lessons;
-  }, [lessons]);
-  useEffect(() => {
-    stepRef.current = step;
-  }, [step]);
-  useEffect(() => {
-    doneTopicsRef.current = doneTopics;
-  }, [doneTopics]);
-
-  useEffect(() => {
+    // No simulador/tutorial o auto-scroll do chat briga com o spotlight.
+    if (composer.type === "simulator" || composer.type === "tutorial") return;
     bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [lines, composer, typing]);
 
@@ -157,106 +228,227 @@ export default function MentorChat({
     [alive],
   );
 
-  function pushUser(text: string) {
-    setLines((prev) => [...prev, { kind: "user", text }]);
-  }
+const sendFreeText = useCallback(
+    async (textToSend?: string) => {
+      const runId = runIdRef.current;
+      const text = textToSend || userInputText;
+      if (!text.trim() || busy) return;
 
-  const presentLesson = useCallback(
-    async (lesson: Lesson, runId: number) => {
-      if (!alive(runId)) return;
+      const newUserLine: ChatLine = { kind: "user", text };
+      // Já criamos a lista atualizada incluindo a mensagem atual do usuário imediatamente
+      const updatedLines = [...lines, newUserLine];
+
+      setBusy(true);
       setComposer({ type: "hidden" });
-      await typeAgent(lesson.teach, runId);
-      if (!alive(runId)) return;
-      await sleep(260);
-      await typeAgent(lesson.question, runId);
-      if (!alive(runId)) return;
-      setComposer({ type: "mission", options: lesson.options });
+      setUserInputText("");
+      setError(null);
+      setLines(updatedLines);
+
+      try {
+        // Envia o array atualizado com a pergunta e a resposta do usuário
+        const historicoFormatado = updatedLines.map((l) => ({
+          role: l.kind === "agent" ? "assistant" : "user",
+          content: l.text,
+        }));
+
+        const res = await fetch("http://127.0.0.1:8000/api/api/mentor", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            mensagem_usuario: text,
+            nivel_conhecimento: level,
+            historico: historicoFormatado,
+            idioma: lang,
+          }),
+        });
+
+        const check = await res.json();
+        if (!alive(runId)) return;
+        if (!res.ok) throw new Error(check.error || "Erro ao responder");
+
+        const rawResposta = String(
+          check.resposta_ia || check.resposta || check.message || "Entendido!",
+        );
+        const tinhaDesafio = /\[DESAFIO\]/i.test(rawResposta);
+        const respostaIa = toPlainChatText(rawResposta);
+
+        await sleep(180);
+        await typeAgent(respostaIa, runId);
+        if (!alive(runId)) return;
+
+        // Tag interna no histórico (oculta na UI via toPlainChatText) para o
+        // backend avaliar a próxima mensagem como resposta do quiz.
+        if (tinhaDesafio) {
+          setLines((prev) => {
+            const next = [...prev];
+            const last = next[next.length - 1];
+            if (last?.kind === "agent" && !/\[DESAFIO\]/i.test(last.text)) {
+              next[next.length - 1] = {
+                kind: "agent",
+                text: `[DESAFIO] ${last.text}`,
+              };
+            }
+            return next;
+          });
+        }
+
+        if (check.ganhou_sats && check.sats_ganhos > 0) {
+          setSatsNotification(check.sats_ganhos);
+
+          try {
+            await fetch("/api/rewards/credit-quiz", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ amount: check.sats_ganhos }),
+            });
+          } catch {
+            /* notificação ainda aparece; saldo pode atualizar depois */
+          }
+
+          setTimeout(() => {
+            setSatsNotification(null);
+          }, 4000);
+
+          void refreshSatsBalance();
+          if (onBalanceChanged) {
+            onBalanceChanged();
+          }
+        }
+
+        setComposer({ type: "free-input" });
+        setBusy(false);
+      } catch (e: any) {
+        if (!alive(runId)) return;
+        setError(e.message ?? "erro ao responder");
+        setComposer({ type: "free-input" });
+        setBusy(false);
+      }
     },
-    [alive, typeAgent],
+    [
+      userInputText,
+      busy,
+      lines,
+      level,
+      lang,
+      alive,
+      typeAgent,
+      onBalanceChanged,
+      refreshSatsBalance,
+    ]
   );
 
-  function remainingTopics(exclude: string[] = doneTopicsRef.current) {
-    return OPTIONAL_TOPICS.filter((t) => !exclude.includes(t.id));
-  }
+  useEffect(() => {
+    sendFreeTextRef.current = sendFreeText;
+  }, [sendFreeText]);
 
-  async function showEndMenu(
-    runId: number,
-    opts: {
-      skipAll?: boolean;
-      satsCredited?: number;
-      alreadyDone?: boolean;
-      satsBalance?: number;
-      practiceOnly?: boolean;
+  const stopListening = useCallback(() => {
+    try {
+      recognitionRef.current?.stop();
+    } catch {
+      /* ignore */
+    }
+    setListening(false);
+  }, []);
+
+  // Troca de idioma (LanguageSelect / sv_locale) → reinicia intro no novo idioma.
+  useEffect(() => {
+    if (prevLocaleRef.current === locale) return;
+    prevLocaleRef.current = locale;
+    stopSpeaking();
+    stopListening();
+    setSessionKey((k) => k + 1);
+  }, [locale, stopSpeaking, stopListening]);
+
+  const toggleVoiceInput = useCallback(() => {
+    if (busy) return;
+
+    if (listening) {
+      stopListening();
+      return;
+    }
+
+    const Ctor = getSpeechRecognitionCtor();
+    if (!Ctor) {
+      setError("Seu navegador não suporta ditado por voz. Use Chrome ou Edge.");
+      return;
+    }
+
+    setError(null);
+    stopSpeaking();
+    const recognition = new Ctor();
+    recognition.lang = speechLocale(lang);
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognitionRef.current = recognition;
+
+    recognition.onresult = (event: any) => {
+      let transcript = "";
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        transcript += event.results[i][0]?.transcript ?? "";
+      }
+      const text = transcript.trim();
+      if (!text) return;
+      setUserInputText(text);
+
+      const last = event.results[event.results.length - 1];
+      if (last?.isFinal) {
+        setListening(false);
+        void sendFreeTextRef.current(text);
+      }
+    };
+
+    recognition.onerror = (event: any) => {
+      setListening(false);
+      const code = event?.error;
+      if (code === "not-allowed" || code === "service-not-allowed") {
+        setError("Permissão de microfone negada. Libere o mic no navegador e tente de novo.");
+      } else if (code !== "aborted" && code !== "no-speech") {
+        setError("Não foi possível captar o áudio. Tente novamente.");
+      }
+    };
+
+    recognition.onend = () => {
+      setListening(false);
+    };
+
+    try {
+      recognition.start();
+      setListening(true);
+    } catch {
+      setListening(false);
+      setError("Não foi possível iniciar o microfone.");
+    }
+  }, [busy, listening, stopListening, stopSpeaking, lang]);
+
+  const toggleSpeakMessage = useCallback(
+    (index: number, rawText: string) => {
+      if (typeof window === "undefined" || !window.speechSynthesis) {
+        setError("Seu navegador não suporta leitura em voz alta.");
+        return;
+      }
+
+      const text = toPlainChatText(rawText);
+      if (!text.trim()) return;
+
+      if (speakingIndex === index) {
+        stopSpeaking();
+        return;
+      }
+
+      stopListening();
+      window.speechSynthesis.cancel();
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = speechLocale(lang);
+      utterance.rate = 1;
+      utterance.onend = () => setSpeakingIndex(null);
+      utterance.onerror = () => setSpeakingIndex(null);
+
+      setSpeakingIndex(index);
+      window.speechSynthesis.speak(utterance);
     },
-  ) {
-    if (!alive(runId)) return;
-
-    let satsLine: string | null = null;
-    if (opts.alreadyDone) {
-      await typeAgent(
-        opts.skipAll
-          ?         "Você já tinha pulado esta conversa. Pode reler o que quiser acima ou seguir em frente."
-          : "Você já tinha concluído esta conversa. A conversa fica aqui se quiser reler.",
-        runId,
-      );
-      if (typeof opts.satsBalance === "number") {
-        satsLine = `Saldo na conta: ⚡ ${opts.satsBalance} sats.`;
-      }
-    } else if (opts.skipAll) {
-      await typeAgent(
-        "Conversa pulada — sem problema. Enquanto você só pular, ainda pode voltar depois e ganhar sats na primeira conclusão de verdade.",
-        runId,
-      );
-    } else if (typeof opts.satsCredited === "number" && opts.satsCredited > 0) {
-      await typeAgent(
-        `Satoshis conquistados nesta conversa: ⚡ ${opts.satsCredited}. Eles ficam no saldo SatVantage da sua conta (ainda não foram para a carteira Lightning).`,
-        runId,
-      );
-      await typeAgent(
-        "Garantia: o crédito está registrado na sua chave Nostr. Para sacar de verdade, no dashboard toque em Receber → voucher da mentoria e cole uma cobrança MutinyNet (lntbs) do valor exato.",
-        runId,
-      );
-      if (typeof opts.satsBalance === "number") {
-        satsLine = `Saldo garantido na conta: ⚡ ${opts.satsBalance} sats · saque em Receber`;
-      }
-    } else if (opts.practiceOnly) {
-      await typeAgent(
-        "Prática concluída. Nesta conta os sats desta conversa já foram creditados antes — refazer não gera saldo novo nem a diferença do que errou.",
-        runId,
-      );
-    } else if (typeof opts.satsCredited === "number") {
-      await typeAgent("Pronto. Desta vez não entrou sats novos (perguntas puladas).", runId);
-    }
-
-    if (!alive(runId)) return;
-
-    if (slug === MISSION_1_SLUG) {
-      await typeAgent(
-        "Quando quiser, seguimos para carteira e Lightning — ou você pode ir ao dashboard financeiro. A conversa continua visível se precisar reler.",
-        runId,
-      );
-      if (!alive(runId)) return;
-      setComposer({
-        type: "end",
-        showContinue: true,
-        topics: [],
-        satsLine,
-      });
-    } else {
-      await typeAgent(
-        "Se quiser aprofundar, tenho outros assuntos opcionais — corretora, como transferir para a carteira, carteira quente e fria. Pode escolher um, vários, ou nenhum.",
-        runId,
-      );
-      if (!alive(runId)) return;
-      setComposer({
-        type: "end",
-        showContinue: false,
-        topics: remainingTopics(),
-        satsLine,
-      });
-    }
-    setBusy(false);
-  }
+    [speakingIndex, stopListening, stopSpeaking, lang],
+  );
 
   useEffect(() => {
     const runId = ++runIdRef.current;
@@ -264,294 +456,58 @@ export default function MentorChat({
     setLoading(true);
     setError(null);
     setShowGate(false);
-    setStep(0);
-    stepRef.current = 0;
     setLines([]);
-    setLessons([]);
-    lessonsRef.current = [];
-    setResponses([]);
-    responsesRef.current = [];
     setComposer({ type: "hidden" });
     setTyping(false);
     setBusy(false);
-    setDoneTopics([]);
-    doneTopicsRef.current = [];
 
     (async () => {
       try {
-        const res = await fetch(`/api/missions?slug=${encodeURIComponent(slug)}`);
+        const res = await fetch("http://127.0.0.1:8000/api/api/mentor", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            mensagem_usuario: "iniciar",
+            nivel_conhecimento: level,
+            idioma: lang,
+          }),
+        });
+
         const data = await res.json();
         if (!alive(runId)) return;
         if (!res.ok) throw new Error(data.error ?? "erro ao carregar");
 
-        const loaded: Lesson[] = data.lessons ?? [];
-        if (slug === MISSION_2_SLUG && loaded[0] && !String(loaded[0].id).startsWith("w")) {
-          throw new Error("conteúdo da mentoria 2 inválido — recarregue a página");
-        }
+        const textResponse = toPlainChatText(
+          data.resposta_ia && data.resposta_ia !== "Qual sua dúvida sobre bitcoin hj?"
+            ? data.resposta_ia
+            : copy.intro,
+        );
 
-        setLessons(loaded);
-        lessonsRef.current = loaded;
         setRewardEligible(!!data.rewardEligible);
 
-        // Já ganhou sats desta mentoria → portão (pode refazer sem prêmio)
-        if (!data.rewardEligible && !forcePractice) {
-          setShowGate(true);
-          setLoading(false);
-          return;
-        }
-
         setLoading(false);
-        if (!loaded.length) return;
-
         setBusy(true);
-        const intro = !data.rewardEligible
-          ? "Vamos praticar de novo. Lembre: os sats desta conversa já foram creditados na sua conta — agora é só aprendizado."
-          : copy.intro;
-        await typeAgent(intro, runId);
+        await typeAgent(textResponse, runId);
         if (!alive(runId)) return;
-        await sleep(320);
-        await presentLesson(loaded[0], runId);
+
+        setComposer({ type: "free-input" });
         if (alive(runId)) setBusy(false);
       } catch (e: any) {
         if (!alive(runId)) return;
-        setError(e.message ?? "falha ao carregar mentoria");
-        setLessons([]);
-        lessonsRef.current = [];
-        setComposer({ type: "hidden" });
+        
         setLoading(false);
+        setBusy(true);
+        await typeAgent(copy.intro, runId);
+        if (!alive(runId)) return;
+        setComposer({ type: "free-input" });
+        if (alive(runId)) setBusy(false);
       }
     })();
 
     return () => {
       runIdRef.current++;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [slug, sessionKey, forcePractice]);
-
-  async function finish(payload: { responses: ResponseSlot[] } | { skipAll: true }) {
-    const runId = runIdRef.current;
-    setBusy(true);
-    setComposer({ type: "hidden" });
-    setError(null);
-    try {
-      const res = await fetch("/api/missions/submit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ slug, ...payload }),
-      });
-      const json = await res.json();
-      if (!alive(runId)) return;
-      if (!res.ok) throw new Error(json.error);
-
-      // Saldo canônico vem de /api/rewards/balance (não só do JSON do submit)
-      let satsBalance = typeof json.satsBalance === "number" ? json.satsBalance : undefined;
-      try {
-        const balRes = await fetch("/api/rewards/balance");
-        if (balRes.ok) {
-          const bal = await balRes.json();
-          if (typeof bal.satsBalance === "number") satsBalance = bal.satsBalance;
-        }
-      } catch {
-        /* mantém satsBalance do submit */
-      }
-      onBalanceChanged?.();
-
-      await sleep(300);
-      await showEndMenu(runId, {
-        skipAll: !!json.skipAll,
-        satsCredited: json.satsCredited ?? 0,
-        satsBalance,
-        practiceOnly: !!json.practiceOnly || !!json.alreadyRewarded,
-      });
-    } catch (e: any) {
-      if (!alive(runId)) return;
-      setError(e.message ?? "erro ao salvar");
-      setBusy(false);
-    }
-  }
-
-  async function advance(nextResponses: ResponseSlot[], nextStep: number) {
-    const runId = runIdRef.current;
-    const list = lessonsRef.current;
-    if (nextStep >= list.length) {
-      await sleep(360);
-      if (!alive(runId)) return;
-      await typeAgent("Pronto por aqui. Vou guardar o que você aprendeu nesta conversa.", runId);
-      if (!alive(runId)) return;
-      const full = list.map((_, i) => nextResponses[i] ?? { answer: null, skipped: true });
-      await finish({ responses: full });
-      return;
-    }
-    setStep(nextStep);
-    stepRef.current = nextStep;
-    await sleep(360);
-    if (!alive(runId)) return;
-    await presentLesson(list[nextStep], runId);
-    if (alive(runId)) setBusy(false);
-  }
-
-  async function answerMission(optionIndex: number) {
-    const runId = runIdRef.current;
-    const lesson = lessonsRef.current[stepRef.current];
-    if (!lesson || busy || composer.type !== "mission") return;
-    setBusy(true);
-    setComposer({ type: "hidden" });
-    setError(null);
-    pushUser(lesson.options[optionIndex]);
-
-    try {
-      const checkRes = await fetch("/api/missions/check", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          slug,
-          lessonIndex: stepRef.current,
-          answer: optionIndex,
-        }),
-      });
-      const check = await checkRes.json();
-      if (!alive(runId)) return;
-      if (!checkRes.ok) throw new Error(check.error);
-
-      const nextResponses = [...responsesRef.current];
-      nextResponses[stepRef.current] = { answer: optionIndex, skipped: false };
-      setResponses(nextResponses);
-      responsesRef.current = nextResponses;
-
-      await sleep(180);
-      await typeAgent(check.feedback, runId);
-      if (!alive(runId)) return;
-      await advance(nextResponses, stepRef.current + 1);
-    } catch (e: any) {
-      if (!alive(runId)) return;
-      setError(e.message ?? "erro ao responder");
-      setComposer({ type: "mission", options: lesson.options });
-      setBusy(false);
-    }
-  }
-
-  async function skipQuestion() {
-    const runId = runIdRef.current;
-    if (busy || composer.type !== "mission" || !lessonsRef.current[stepRef.current]) return;
-    setBusy(true);
-    setComposer({ type: "hidden" });
-    pushUser("Pular esta pergunta");
-
-    const nextResponses = [...responsesRef.current];
-    nextResponses[stepRef.current] = { answer: null, skipped: true };
-    setResponses(nextResponses);
-    responsesRef.current = nextResponses;
-
-    await sleep(140);
-    await typeAgent("Sem problema. Seguimos.", runId);
-    if (!alive(runId)) return;
-    await advance(nextResponses, stepRef.current + 1);
-  }
-
-  async function skipAll() {
-    const runId = runIdRef.current;
-    if (busy) return;
-    setBusy(true);
-    setComposer({ type: "hidden" });
-    pushUser("Quero pular a conversa");
-    await typeAgent(copy.skipAllAgent, runId);
-    if (!alive(runId)) return;
-    await finish({ skipAll: true });
-  }
-
-  async function startOptionalTopic(topic: OptionalTopic) {
-    const runId = runIdRef.current;
-    if (busy) return;
-    setBusy(true);
-    setComposer({ type: "hidden" });
-    pushUser(topic.label);
-
-    for (const msg of topic.teach) {
-      if (!alive(runId)) return;
-      await sleep(220);
-      await typeAgent(msg, runId);
-    }
-    if (!alive(runId)) return;
-    if (!topic.question || !topic.options) {
-      setBusy(false);
-      return;
-    }
-    await sleep(260);
-    await typeAgent(topic.question, runId);
-    if (!alive(runId)) return;
-    setComposer({ type: "topic-q", topicId: topic.id, options: topic.options });
-    setBusy(false);
-  }
-
-  async function answerTopic(optionIndex: number) {
-    const runId = runIdRef.current;
-    if (composer.type !== "topic-q" || busy) return;
-    const topic = OPTIONAL_TOPICS.find((t) => t.id === composer.topicId);
-    if (!topic?.options || topic.correct == null) return;
-
-    setBusy(true);
-    setComposer({ type: "hidden" });
-    pushUser(topic.options[optionIndex]);
-
-    const ok = optionIndex === topic.correct;
-    await sleep(180);
-    await typeAgent(
-      ok
-        ? (topic.feedbackCorrect ?? "Certo.")
-        : (topic.feedbackWrong ?? "Não foi essa."),
-      runId,
-    );
-    if (!alive(runId)) return;
-
-    const nextDone = [...doneTopicsRef.current, topic.id];
-    setDoneTopics(nextDone);
-    doneTopicsRef.current = nextDone;
-
-    const left = remainingTopics(nextDone);
-    await sleep(280);
-    if (left.length) {
-      await typeAgent("Quer ver outro assunto, ou prefere ir ao dashboard?", runId);
-    } else {
-      await typeAgent("Esses eram os extras. Pode reler a conversa acima ou ir ao dashboard financeiro.", runId);
-    }
-    if (!alive(runId)) return;
-    setComposer({
-      type: "end",
-      showContinue: false,
-      topics: left,
-      satsLine: null,
-    });
-    setBusy(false);
-  }
-
-  async function skipTopicQuestion() {
-    const runId = runIdRef.current;
-    if (composer.type !== "topic-q" || busy) return;
-    const topic = OPTIONAL_TOPICS.find((t) => t.id === composer.topicId);
-    if (!topic) return;
-
-    setBusy(true);
-    setComposer({ type: "hidden" });
-    pushUser("Pular esta pergunta");
-    await typeAgent("Beleza. O importante era a explicação.", runId);
-    if (!alive(runId)) return;
-
-    const nextDone = [...doneTopicsRef.current, topic.id];
-    setDoneTopics(nextDone);
-    doneTopicsRef.current = nextDone;
-    const left = remainingTopics(nextDone);
-
-    await sleep(200);
-    await typeAgent(
-      left.length
-        ? "Quer outro assunto opcional, ou vamos ao dashboard?"
-        : "Pode reler a conversa ou ir ao dashboard.",
-      runId,
-    );
-    if (!alive(runId)) return;
-    setComposer({ type: "end", showContinue: false, topics: left, satsLine: null });
-    setBusy(false);
-  }
+  }, [safeSlug, sessionKey, forcePractice, alive, copy.intro, level, lang, typeAgent]);
 
   const shellClass = embedded ? "sv-mentor sv-mentor--embedded" : "sv-mentor";
 
@@ -567,7 +523,12 @@ export default function MentorChat({
         </div>
       );
     }
-    return <SiteNav variant="mentor" onExitMentor={leave} />;
+    return (
+      <SiteNav
+        variant="mentor"
+        onExitMentor={leave}
+      />
+    );
   }
 
   if (loading) {
@@ -595,11 +556,7 @@ export default function MentorChat({
               height={88}
             />
             <h1>{copy.title}</h1>
-            <p>
-              Nesta conta os sats desta conversa <strong>já foram creditados</strong>. Você pode
-              refazer para praticar, mas não ganha de novo — nem a diferença se tiver errado
-              antes.
-            </p>
+            <p>Nesta conta os sats desta conversa já foram creditados.</p>
             <div className="sv-mentor-gate-actions">
               <button
                 type="button"
@@ -638,17 +595,91 @@ export default function MentorChat({
                 height={40}
               />
               <h1>{copy.title}</h1>
+              <span className="sv-mentor-sats" aria-label="Saldo de satoshis">
+                <span aria-hidden="true">⚡</span>{" "}
+                {satsBalance === null
+                  ? "…"
+                  : `${satsBalance.toLocaleString("pt-BR")} sats`}
+              </span>
             </div>
-            {!rewardEligible && (
-              <p className="sv-mentor-practice-tag">Modo prática · sem novos sats</p>
-            )}
+            <nav className="sv-mentor-quick" aria-label="Acesso rápido">
+              <button
+                type="button"
+                className={`sv-mentor-quick-btn${
+                  composer.type === "learning-pick" || composer.type === "tutorial"
+                    ? " is-active"
+                    : ""
+                }`}
+                onClick={() => setComposer({ type: "learning-pick" })}
+                disabled={busy}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path
+                    d="M8 4h8v2.2c0 2.4-1.8 4.4-4 4.8-2.2-.4-4-2.4-4-4.8V4Z"
+                    stroke="currentColor"
+                    strokeWidth="1.6"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M8 5.5H5.8A2.8 2.8 0 0 0 8.6 9M16 5.5h2.2A2.8 2.8 0 0 1 15.4 9"
+                    stroke="currentColor"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                  />
+                  <path
+                    d="M12 11.2V14M9.5 20h5M10.5 14h3l.5 6h-4l.5-6Z"
+                    stroke="currentColor"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                <span>Teste de Conhecimento</span>
+              </button>
+              <button
+                type="button"
+                className="sv-mentor-quick-btn"
+                onClick={onGoDashboard}
+                disabled={busy}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path
+                    d="M4 14.5V19a1 1 0 0 0 1 1h4.2"
+                    stroke="currentColor"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                  />
+                  <path
+                    d="M4 12c0-4.4 3.6-8 8-8s8 3.6 8 8"
+                    stroke="currentColor"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                  />
+                  <path
+                    d="M12 12l5.2-3.2"
+                    stroke="currentColor"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                  />
+                  <circle cx="12" cy="12" r="1.4" fill="currentColor" />
+                  <path
+                    d="M14.8 19h4.2a1 1 0 0 0 1-1v-2.2"
+                    stroke="currentColor"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                  />
+                </svg>
+                <span>Dashboard</span>
+              </button>
+            </nav>
           </header>
         )}
-        {embedded && !rewardEligible && (
-          <p className="sv-mentor-practice-tag">Modo prática · sem novos sats</p>
-        )}
 
-        <div className="sv-chat-panel">
+        <div
+          className={`sv-chat-panel${
+            composer.type === "simulator" ? " sv-chat-panel--sim" : ""
+          }`}
+        >
           <div className="sv-chat-scroll">
             {lines.map((line, i) =>
               line.kind === "agent" ? (
@@ -661,9 +692,78 @@ export default function MentorChat({
                     height={36}
                   />
                   <div className="sv-bubble sv-bubble--agent">
-                    <span className="sv-bubble-label">NagAI</span>
+                    <div className="sv-bubble-head">
+                      <span className="sv-bubble-label">NagAI</span>
+                      {ttsSupported &&
+                        !(typing && i === lines.length - 1) &&
+                        !!toPlainChatText(line.text) && (
+                          <button
+                            type="button"
+                            className={`sv-chat-speak${speakingIndex === i ? " is-speaking" : ""}`}
+                            aria-label={
+                              speakingIndex === i
+                                ? "Parar leitura"
+                                : "Ouvir mensagem"
+                            }
+                            title={
+                              speakingIndex === i
+                                ? "Parar leitura"
+                                : "Ouvir em voz alta"
+                            }
+                            onClick={() => toggleSpeakMessage(i, line.text)}
+                          >
+                            {speakingIndex === i ? (
+                              <svg
+                                className="sv-chat-speak-icon"
+                                width="16"
+                                height="16"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                aria-hidden="true"
+                              >
+                                <rect
+                                  x="6"
+                                  y="6"
+                                  width="12"
+                                  height="12"
+                                  rx="1.5"
+                                  fill="#ffffff"
+                                />
+                              </svg>
+                            ) : (
+                              <svg
+                                className="sv-chat-speak-icon"
+                                width="16"
+                                height="16"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                aria-hidden="true"
+                              >
+                                <path
+                                  d="M3 10v4h4l5 4V6L7 10H3z"
+                                  fill="#ffffff"
+                                />
+                                <path
+                                  d="M16 9a4 4 0 0 1 0 6"
+                                  stroke="#ffffff"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  fill="none"
+                                />
+                                <path
+                                  d="M18.5 7a7 7 0 0 1 0 10"
+                                  stroke="#ffffff"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  fill="none"
+                                />
+                              </svg>
+                            )}
+                          </button>
+                        )}
+                    </div>
                     <span className="sv-bubble-text">
-                      {line.text}
+                      {toPlainChatText(line.text)}
                       {typing && i === lines.length - 1 ? (
                         <span className="sv-caret" aria-hidden>
                           |
@@ -681,115 +781,145 @@ export default function MentorChat({
             <div ref={bottomRef} />
           </div>
 
+          {satsNotification && (
+            <div style={{
+              background: "linear-gradient(135deg, #f7931a, #ffb84d)",
+              color: "#000",
+              padding: "8px 16px",
+              borderRadius: "20px",
+              fontWeight: "bold",
+              textAlign: "center",
+              margin: "8px 16px",
+              boxShadow: "0 4px 12px rgba(247, 147, 26, 0.4)"
+            }}>
+              ⚡ +{satsNotification} Satoshis adicionados ao seu saldo!
+            </div>
+          )}
+
           <div className="sv-chat-footer">
-            {composer.type === "mission" && (
-              <div className="sv-chat-actions">
-                <div className="sv-chat-options">
-                  {composer.options.map((opt, oi) => (
-                    <button
-                      key={oi}
-                      type="button"
-                      className="sv-chat-option"
-                      disabled={busy}
-                      onClick={() => void answerMission(oi)}
-                    >
-                      {opt}
-                    </button>
-                  ))}
-                </div>
-                <div className="sv-chat-row">
-                  <button
-                    type="button"
-                    className="linkish"
-                    disabled={busy}
-                    onClick={() => void skipQuestion()}
-                  >
-                    Pular pergunta
-                  </button>
-                  <button
-                    type="button"
-                    className="linkish"
-                    disabled={busy}
-                    onClick={() => void skipAll()}
-                  >
-                    Pular conversa
-                  </button>
-                </div>
-              </div>
+            {composer.type === "learning-pick" && (
+              <LearningModePicker
+                disabled={busy}
+                onBack={() => setComposer({ type: "free-input" })}
+                onSelectTeorico={() => setComposer({ type: "tutorial" })}
+                onSelectPratico={() => setComposer({ type: "simulator" })}
+              />
             )}
 
-            {composer.type === "topic-q" && (
-              <div className="sv-chat-actions">
-                <div className="sv-chat-options">
-                  {composer.options.map((opt, oi) => (
-                    <button
-                      key={oi}
-                      type="button"
-                      className="sv-chat-option"
-                      disabled={busy}
-                      onClick={() => void answerTopic(oi)}
-                    >
-                      {opt}
-                    </button>
-                  ))}
-                </div>
-                <div className="sv-chat-row">
-                  <button
-                    type="button"
-                    className="linkish"
-                    disabled={busy}
-                    onClick={() => void skipTopicQuestion()}
-                  >
-                    Pular pergunta
-                  </button>
-                </div>
-              </div>
+            {composer.type === "tutorial" && (
+              <InvestTutorial
+                disabled={busy}
+                onBack={() => setComposer({ type: "free-input" })}
+                onStartQuiz={() => {
+                  setComposer({ type: "free-input" });
+                  void sendFreeText(quizTriggerMessage(lang));
+                }}
+              />
             )}
 
-            {composer.type === "end" && (
-              <div className="sv-chat-end">
-                {composer.satsLine && <p className="sv-chat-end-note">{composer.satsLine}</p>}
+            {composer.type === "simulator" && (
+              <ProTraderSimulator
+                disabled={busy}
+                onBack={() => setComposer({ type: "free-input" })}
+                onGoDashboard={onGoDashboard}
+              />
+            )}
 
-                {composer.showContinue && onContinueMentor && (
+            {composer.type === "free-input" && (
+              <div className="sv-chat-actions">
+                <div style={{ display: "flex", gap: "8px", width: "100%", alignItems: "center" }}>
+                  <input
+                    type="text"
+                    value={userInputText}
+                    onChange={(e) => setUserInputText(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !busy) {
+                        if (listening) stopListening();
+                        void sendFreeText();
+                      }
+                    }}
+                    placeholder={
+                      listening
+                        ? "Ouvindo… fale sua dúvida"
+                        : "Digite sua dúvida sobre Bitcoin aqui..."
+                    }
+                    disabled={busy}
+                    style={{
+                      flex: 1,
+                      padding: "10px 14px",
+                      borderRadius: "8px",
+                      border: listening
+                        ? "1px solid rgba(59, 130, 246, 0.7)"
+                        : "1px solid rgba(255,255,255,0.2)",
+                      background: "rgba(255,255,255,0.05)",
+                      color: "#fff",
+                      outline: "none",
+                    }}
+                  />
+                  {speechSupported && (
+                    <button
+                      type="button"
+                      className={`sv-chat-mic${listening ? " is-listening" : ""}`}
+                      aria-label={listening ? "Parar ditado" : "Falar mensagem"}
+                      aria-pressed={listening}
+                      title={listening ? "Parar ditado" : "Enviar por voz"}
+                      disabled={busy}
+                      onClick={toggleVoiceInput}
+                    >
+                      <svg
+                        className="sv-chat-mic-icon"
+                        width="22"
+                        height="22"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        aria-hidden="true"
+                      >
+                        <rect
+                          x="9"
+                          y="2"
+                          width="6"
+                          height="11"
+                          rx="3"
+                          stroke="#ffffff"
+                          strokeWidth="2"
+                          fill="none"
+                        />
+                        <path
+                          d="M5 11a7 7 0 0 0 14 0"
+                          stroke="#ffffff"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          fill="none"
+                        />
+                        <path
+                          d="M12 18v3"
+                          stroke="#ffffff"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                        />
+                        <path
+                          d="M8 21h8"
+                          stroke="#ffffff"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                    </button>
+                  )}
                   <button
                     type="button"
                     className="sv-chat-cta"
-                    disabled={busy}
-                    onClick={onContinueMentor}
+                    style={{ padding: "0 16px", whiteSpace: "nowrap" }}
+                    disabled={busy || !userInputText.trim()}
+                    onClick={() => {
+                      if (listening) stopListening();
+                      void sendFreeText();
+                    }}
                   >
-                    Continuar · carteira e Lightning
+                    Enviar
                   </button>
-                )}
-
-                {composer.topics.length > 0 && (
-                  <div className="sv-topic-list">
-                    <p className="sv-chat-end-note">Assuntos opcionais</p>
-                    {composer.topics.map((t) => (
-                      <button
-                        key={t.id}
-                        type="button"
-                        className="sv-topic-btn"
-                        disabled={busy}
-                        onClick={() => void startOptionalTopic(t)}
-                      >
-                        {t.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
-
-                <button
-                  type="button"
-                  className={
-                    composer.showContinue || composer.topics.length
-                      ? "sv-chat-cta sv-chat-cta--ghost"
-                      : "sv-chat-cta"
-                  }
-                  disabled={busy}
-                  onClick={onGoDashboard}
-                >
-                  {embedded ? "Fechar chat" : "Ir para o dashboard financeiro"}
-                </button>
+                </div>
               </div>
             )}
           </div>

@@ -29,20 +29,27 @@ export default function Home() {
   // sem isso, todo refresh derrubava a pessoa de volta pra landing.
   useEffect(() => {
     let cancelled = false;
+    const ctrl = new AbortController();
+    const timer = window.setTimeout(() => ctrl.abort(), 8000);
     (async () => {
       try {
-        const res = await fetch("/api/auth/session");
+        const res = await fetch("/api/auth/session", { signal: ctrl.signal });
         const data = await res.json().catch(() => ({ user: null }));
         if (!cancelled && data.user) {
           setUser(data.user);
           setView("dashboard");
         }
+      } catch {
+        /* timeout / rede — segue para landing */
       } finally {
+        window.clearTimeout(timer);
         if (!cancelled) setCheckingSession(false);
       }
     })();
     return () => {
       cancelled = true;
+      ctrl.abort();
+      window.clearTimeout(timer);
     };
   }, []);
 
@@ -53,10 +60,11 @@ export default function Home() {
   }
 
   function afterLogin(u: any) {
+    if (!u) return;
     setUser(u);
     // Extensão / não-iniciante → dash.
-    // Iniciante: só abre mentoria em tela cheia na 1ª vez.
-    // Se já pulou ou concluiu, vai ao dashboard (refazer fica no chat do canto).
+    // Iniciante: mentoria em tela cheia só na 1ª vez (status disponivel).
+    // Já pulou ou concluiu → dashboard; refazer pelo chat do canto.
     if (u?.knowledgeLevel !== "iniciante") {
       setView("dashboard");
       return;
@@ -90,14 +98,19 @@ export default function Home() {
     setExtError(null);
     setExtBusy(true);
     try {
-      const { user: u } = await loginWithExtension();
-      afterLogin(u);
+      const data = await loginWithExtension();
+      if (data && data.user) {
+        afterLogin(data.user);
+      }
     } catch (e: any) {
       setExtError(e.message ?? "Falha no login com extensão");
     } finally {
       setExtBusy(false);
     }
   }
+
+  const mentorLevel =
+    (user?.knowledgeLevel as string | undefined) || "iniciante";
 
   if (checkingSession) {
     return (
@@ -149,6 +162,7 @@ export default function Home() {
       {view === "mentor1" && user && (
         <MentorChat
           slug={MISSION_1_SLUG}
+          level={mentorLevel}
           onExitToHome={exitToHome}
           onContinueMentor={() => setView("mentor2")}
           onGoDashboard={() => setView("dashboard")}
@@ -158,6 +172,7 @@ export default function Home() {
       {view === "mentor2" && user && (
         <MentorChat
           slug={MISSION_2_SLUG}
+          level={mentorLevel}
           onExitToHome={exitToHome}
           onGoDashboard={() => setView("dashboard")}
         />

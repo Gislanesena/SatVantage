@@ -1,12 +1,13 @@
-// GET /api/market/btc?range=24h|8h|4h|1m
-// Histórico via Binance (público, sem API key) — candles reais + preço atual BRL/USD.
+// GET /api/market/btc?range=24h|8h|4h|1m|5m
+// Histórico via Binance (público, sem API key) — candles OHLC + preço atual BRL/USD.
 import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-export type BtcRange = "24h" | "8h" | "4h" | "1m";
+export type BtcRange = "24h" | "8h" | "4h" | "1m" | "5m" | "15m";
 
 type Point = { t: number; price: number };
+type Candle = { t: number; o: number; h: number; l: number; c: number };
 
 type Payload = {
   range: BtcRange;
@@ -14,6 +15,7 @@ type Payload = {
   priceUsd: number;
   changePct: number;
   series: Point[];
+  candles: Candle[];
   updatedAt: string;
 };
 
@@ -22,6 +24,8 @@ const RANGES: Record<
   { interval: string; limit: number; ttlMs: number }
 > = {
   "1m": { interval: "1m", limit: 60, ttlMs: 15_000 },
+  "5m": { interval: "5m", limit: 72, ttlMs: 20_000 },
+  "15m": { interval: "15m", limit: 64, ttlMs: 30_000 },
   "4h": { interval: "1m", limit: 240, ttlMs: 30_000 },
   "8h": { interval: "5m", limit: 96, ttlMs: 40_000 },
   "24h": { interval: "15m", limit: 96, ttlMs: 45_000 },
@@ -30,7 +34,16 @@ const RANGES: Record<
 const cache = new Map<BtcRange, { at: number; payload: Payload }>();
 
 function parseRange(raw: string | null): BtcRange {
-  if (raw === "1m" || raw === "4h" || raw === "8h" || raw === "24h") return raw;
+  if (
+    raw === "1m" ||
+    raw === "5m" ||
+    raw === "15m" ||
+    raw === "4h" ||
+    raw === "8h" ||
+    raw === "24h"
+  ) {
+    return raw;
+  }
   return "24h";
 }
 
@@ -60,9 +73,17 @@ export async function GET(req: NextRequest) {
       fetchJson("https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT"),
     ]);
 
-    const series: Point[] = (klines as any[]).map((k) => ({
+    const candles: Candle[] = (klines as any[]).map((k) => ({
       t: Number(k[0]),
-      price: Number(k[4]), // close
+      o: Number(k[1]),
+      h: Number(k[2]),
+      l: Number(k[3]),
+      c: Number(k[4]),
+    }));
+
+    const series: Point[] = candles.map((c) => ({
+      t: c.t,
+      price: c.c,
     }));
 
     if (!series.length) {
@@ -79,12 +100,12 @@ export async function GET(req: NextRequest) {
       range,
       priceBrl,
       priceUsd: usd,
-      // no range 24h, preferir variação oficial 24h da Binance
       changePct:
         range === "24h" && tickerBrl.priceChangePercent != null
           ? Number(tickerBrl.priceChangePercent)
           : changePct,
       series,
+      candles,
       updatedAt: new Date().toISOString(),
     };
 
