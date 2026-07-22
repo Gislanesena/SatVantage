@@ -2,14 +2,19 @@
 // Receber Lightning (qualquer origem via NWC) + resgate opcional do voucher.
 import { useCallback, useEffect, useState } from "react";
 import { useI18n } from "@/lib/i18n";
+import QrScanButton from "@/components/QrScanButton";
+import InvoiceQr from "@/components/InvoiceQr";
+import { isMutinyNetBolt11, MUTINYNET_ONLY_MSG, normalizeBolt11 } from "@/lib/mutinynet";
 import "./wallet.css";
 
 type Props = {
   connected: boolean;
+  /** Só saque do voucher (sem gerar cobrança de recebimento). */
+  mode?: "full" | "sacar";
   onChanged?: () => void;
 };
 
-export default function ReceivePanel({ connected, onChanged }: Props) {
+export default function ReceivePanel({ connected, mode = "full", onChanged }: Props) {
   const { t } = useI18n();
   const [reachable, setReachable] = useState(false);
   const [walletErr, setWalletErr] = useState<string | null>(null);
@@ -23,6 +28,10 @@ export default function ReceivePanel({ connected, onChanged }: Props) {
   const [notice, setNotice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showVoucher, setShowVoucher] = useState(true);
+  /** Resgate manual — abre ao clicar em "Sacar Sat recebidos". */
+  const [showManualSaque, setShowManualSaque] = useState(mode === "sacar");
+
+  const sacarOnly = mode === "sacar";
 
   const load = useCallback(async () => {
     const [w, b] = await Promise.all([
@@ -107,18 +116,14 @@ export default function ReceivePanel({ connected, onChanged }: Props) {
     setError(null);
     setNotice(null);
 
-    const bolt = (boltOverride ?? claimBolt).trim();
+    const bolt = normalizeBolt11(boltOverride ?? claimBolt);
     const lower = bolt.toLowerCase();
     if (lower.startsWith("lnbc")) {
-      setError(
-        "Sua carteira conectada opera na rede Bitcoin real. As recompensas desta demonstração rodam na rede de teste (MutinyNet) — por isso não podem ser enviadas para ela. Em produção, este resgate cairá direto aqui. Para testar agora, use o resgate manual com uma cobrança da rede de teste.",
-      );
+      setError(MUTINYNET_ONLY_MSG);
       return;
     }
-    if (!lower.startsWith("lntbs")) {
-      setError(
-        "Use uma cobrança da rede de teste (MutinyNet), que começa com lntbs…",
-      );
+    if (!isMutinyNetBolt11(bolt)) {
+      setError(MUTINYNET_ONLY_MSG);
       return;
     }
 
@@ -176,118 +181,182 @@ export default function ReceivePanel({ connected, onChanged }: Props) {
   return (
     <section className="sv-wallet" aria-labelledby="sv-receive-title">
       <h2 id="sv-receive-title" className="sv-wallet-title">
-        {t.dash.receive}
+        {sacarOnly ? t.dash.withdrawSats : t.dash.receive}
       </h2>
-      <p className="sv-wallet-copy">{t.dash.receiveBody}</p>
+      <p className="sv-wallet-copy">
+        {sacarOnly
+          ? "Cole ou escaneie uma cobrança Lightning MutinyNet (lntbs) do valor exato do crédito para sacar."
+          : t.dash.receiveBody}
+      </p>
 
-      {!connected ? null : !reachable ? (
-        <div className="sv-wallet-reconnect">
-          <p className="sv-wallet-meta">
-            Credencial salva, mas a carteira não respondeu agora.
-            {walletErr ? ` (${walletErr})` : ""}
-          </p>
-          <button
-            type="button"
-            className="sv-wallet-btn"
-            disabled={busy === "test"}
-            onClick={() => void testarCarteira()}
-          >
-            {busy === "test" ? "…" : "Testar de novo"}
-          </button>
-        </div>
-      ) : (
-        <>
-          <label className="sv-wallet-meta" htmlFor="sv-recv-amt">
-            Valor (sats)
-          </label>
-          <input
-            id="sv-recv-amt"
-            className="sv-wallet-input"
-            type="number"
-            min={1}
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-          />
-          <div className="sv-wallet-actions">
+      {!sacarOnly &&
+        (!connected ? null : !reachable ? (
+          <div className="sv-wallet-reconnect">
+            <p className="sv-wallet-meta">
+              Credencial salva, mas a carteira não respondeu agora.
+              {walletErr ? ` (${walletErr})` : ""}
+            </p>
             <button
               type="button"
               className="sv-wallet-btn"
-              disabled={busy === "inv" || !amount}
-              onClick={() => void gerar()}
+              disabled={busy === "test"}
+              onClick={() => void testarCarteira()}
             >
-              {busy === "inv" ? "…" : t.dash.generateInvoice}
+              {busy === "test" ? "…" : "Testar de novo"}
             </button>
-            {invoice && (
-              <button type="button" className="sv-wallet-btn sv-wallet-btn--ghost" onClick={() => void copiar()}>
-                Copiar
-              </button>
-            )}
           </div>
-          {invoice && (
-            <textarea
-              className="sv-wallet-input sv-wallet-textarea"
-              readOnly
-              value={invoice}
-              rows={4}
-              onFocus={(e) => e.target.select()}
+        ) : (
+          <>
+            <label className="sv-wallet-meta" htmlFor="sv-recv-amt">
+              Valor (sats)
+            </label>
+            <input
+              id="sv-recv-amt"
+              className="sv-wallet-input"
+              type="number"
+              min={1}
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
             />
-          )}
-        </>
-      )}
-
-      {voucher > 0 && (
-        <div className="sv-wallet-voucher">
-          <button
-            type="button"
-            className="linkish"
-            onClick={() => setShowVoucher((v) => !v)}
-          >
-            {showVoucher ? "▾" : "▸"} Sacar ⚡ {voucher.toLocaleString("pt-BR")} sats da
-            mentoria (crédito SatVantage)
-          </button>
-          {showVoucher && (
-            <>
-              <p className="sv-wallet-meta">
-                Voucher na conta
-                {npubShort ? ` (${npubShort})` : ""}
-                {claimRef ? (
-                  <>
-                    {" "}
-                    · ref. <code>{claimRef}</code>
-                  </>
-                ) : null}
-                . Rede de teste: cobrança <code>lntbs</code>.
-              </p>
-              {connected && reachable ? (
-                <button
-                  type="button"
-                  className="sv-wallet-btn"
-                  disabled={busy === "auto" || busy === "claim"}
-                  onClick={() => void resgatarAutomatico()}
-                >
-                  {busy === "auto"
-                    ? "…"
-                    : busy === "claim"
-                      ? "…"
-                      : "Resgatar automaticamente"}
-                </button>
-              ) : null}
-              <input
-                className="sv-wallet-input"
-                placeholder="lntbs1…"
-                value={claimBolt}
-                onChange={(e) => setClaimBolt(e.target.value)}
-                autoComplete="off"
-                spellCheck={false}
-              />
+            <div className="sv-wallet-actions">
               <button
                 type="button"
                 className="sv-wallet-btn"
-                disabled={!claimBolt || busy === "claim" || busy === "auto"}
-                onClick={() => void resgatarVoucher()}
+                disabled={busy === "inv" || !amount}
+                onClick={() => void gerar()}
               >
-                {busy === "claim" ? "…" : "Sacar voucher"}
+                {busy === "inv" ? "…" : t.dash.generateInvoice}
               </button>
+              {invoice && (
+                <button type="button" className="sv-wallet-btn sv-wallet-btn--ghost" onClick={() => void copiar()}>
+                  Copiar
+                </button>
+              )}
+            </div>
+            {invoice && (
+              <>
+                <InvoiceQr value={invoice} label="Escaneie para pagar (MutinyNet)" />
+                <textarea
+                  className="sv-wallet-input sv-wallet-textarea"
+                  readOnly
+                  value={invoice}
+                  rows={4}
+                  onFocus={(e) => e.target.select()}
+                />
+              </>
+            )}
+          </>
+        ))}
+
+      {voucher > 0 && (
+        <div className="sv-wallet-voucher">
+          {!sacarOnly && (
+            <button
+              type="button"
+              className="linkish"
+              onClick={() => setShowVoucher((v) => !v)}
+            >
+              {showVoucher ? "▾" : "▸"} Crédito SatVantage: ⚡{" "}
+              {voucher.toLocaleString("pt-BR")} sats disponíveis
+            </button>
+          )}
+          {(sacarOnly || showVoucher) && (
+            <>
+              <p className="sv-wallet-meta">
+                {sacarOnly ? (
+                  <>
+                    Crédito disponível: ⚡ {voucher.toLocaleString("pt-BR")} sats
+                    {npubShort ? ` (${npubShort})` : ""}
+                    {claimRef ? (
+                      <>
+                        {" "}
+                        · ref. <code>{claimRef}</code>
+                      </>
+                    ) : null}
+                    .
+                  </>
+                ) : (
+                  <>
+                    Voucher na conta
+                    {npubShort ? ` (${npubShort})` : ""}
+                    {claimRef ? (
+                      <>
+                        {" "}
+                        · ref. <code>{claimRef}</code>
+                      </>
+                    ) : null}
+                    . Rede de teste: cobrança <code>lntbs</code>.
+                  </>
+                )}
+              </p>
+
+              <div className="sv-wallet-actions">
+                {connected && reachable ? (
+                  <button
+                    type="button"
+                    className="sv-wallet-btn"
+                    disabled={busy === "auto" || busy === "claim"}
+                    onClick={() => void resgatarAutomatico()}
+                  >
+                    {busy === "auto" || busy === "claim"
+                      ? "…"
+                      : "Resgatar automaticamente"}
+                  </button>
+                ) : null}
+                {!sacarOnly && (
+                  <button
+                    type="button"
+                    className="sv-wallet-btn"
+                    aria-expanded={showManualSaque}
+                    onClick={() => setShowManualSaque((v) => !v)}
+                  >
+                    {t.dash.withdrawSats}
+                  </button>
+                )}
+              </div>
+
+              {(sacarOnly || showManualSaque) && (
+                <div className="sv-wallet-saque-manual">
+                  {!sacarOnly && (
+                    <p className="sv-wallet-copy">
+                      Este método <strong>não exige carteira conectada</strong>: o saldo já está
+                      disponível na plataforma e pode ser retirado para a carteira de sua
+                      preferência. Você também pode conectar uma carteira e usar o{" "}
+                      <strong>repasse automático</strong>.
+                    </p>
+                  )}
+                  <QrScanButton
+                    onScan={(value) => {
+                      const bolt = normalizeBolt11(value);
+                      setClaimBolt(bolt);
+                      setError(null);
+                      setNotice(null);
+                      if (bolt && !isMutinyNetBolt11(bolt)) {
+                        setError(MUTINYNET_ONLY_MSG);
+                      }
+                    }}
+                  />
+                  <input
+                    className="sv-wallet-input"
+                    placeholder="lntbs1… (MutinyNet)"
+                    value={claimBolt}
+                    onChange={(e) => {
+                      setClaimBolt(e.target.value);
+                      setError(null);
+                    }}
+                    autoComplete="off"
+                    spellCheck={false}
+                  />
+                  <button
+                    type="button"
+                    className="sv-wallet-btn"
+                    disabled={!claimBolt || busy === "claim" || busy === "auto"}
+                    onClick={() => void resgatarVoucher()}
+                  >
+                    {busy === "claim" ? "…" : t.dash.withdrawSats}
+                  </button>
+                </div>
+              )}
             </>
           )}
         </div>

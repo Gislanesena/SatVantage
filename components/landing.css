@@ -13,6 +13,94 @@
   padding-bottom: 80px;
 }
 
+/* Extensão Copiloto — acima do Bitcoin ao vivo (botão só estético) */
+.sv-landing-ext {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 20px 4px;
+}
+
+.sv-ext-promo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 24px;
+  padding: 20px 22px;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background:
+    linear-gradient(
+      155deg,
+      color-mix(in srgb, var(--accent) 16%, transparent),
+      transparent 55%
+    ),
+    var(--surface);
+  font-family: var(--font-ui, "Figtree", system-ui, sans-serif);
+}
+
+.sv-ext-promo-text {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  flex: 1 1 240px;
+}
+
+.sv-ext-promo-eyebrow {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.sv-ext-promo-title {
+  margin: 0;
+  font-family: var(--font-hero, "Syne", sans-serif);
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.sv-ext-promo-copy {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--ink-muted);
+  max-width: 52ch;
+}
+
+.sv-ext-promo-btn {
+  flex-shrink: 0;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 18px;
+  background: var(--accent);
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: default;
+  opacity: 0.92;
+}
+
+.sv-ext-promo-btn:hover {
+  filter: brightness(1.05);
+}
+
+@media (max-width: 640px) {
+  .sv-landing-ext {
+    padding: 4px 14px 0;
+  }
+
+  .sv-ext-promo {
+    padding: 16px 14px;
+    border-radius: 14px;
+  }
+}
+
 /* Bitcoin ao vivo — faixa quase full-bleed, só margem das bordas */
 .sv-landing-btc {
   width: 100%;

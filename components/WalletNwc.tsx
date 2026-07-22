@@ -3,6 +3,8 @@
 // Credencial salva ≠ “sempre online no relay”. UI mantém envio mesmo com relay lento.
 import { useEffect, useState } from "react";
 import { useI18n } from "@/lib/i18n";
+import QrScanButton from "@/components/QrScanButton";
+import { isMutinyNetBolt11, MUTINYNET_ONLY_MSG, normalizeBolt11 } from "@/lib/mutinynet";
 import "./wallet.css";
 
 type Props = {
@@ -156,12 +158,17 @@ export default function WalletNwc({ embedded, onChanged }: Props) {
 
   async function enviar(confirm: boolean) {
     setError(null);
+    const bolt = normalizeBolt11(bolt11);
+    if (!isMutinyNetBolt11(bolt)) {
+      setError(MUTINYNET_ONLY_MSG);
+      return;
+    }
     setBusy("pay");
     try {
       const res = await fetch("/api/wallet/pay", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ bolt11, confirm }),
+        body: JSON.stringify({ bolt11: bolt, confirm }),
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error);
@@ -173,7 +180,7 @@ export default function WalletNwc({ embedded, onChanged }: Props) {
 
       setFriction(null);
       setBolt11("");
-      setNotice(`Enviado: ${json.amountSats.toLocaleString("pt-BR")} sats.`);
+      setNotice(`Enviado: ${json.amountSats.toLocaleString("pt-BR")} sats (MutinyNet).`);
       await load();
     } catch (e: any) {
       const msg = e.message ?? "falha no envio";
@@ -312,6 +319,8 @@ export default function WalletNwc({ embedded, onChanged }: Props) {
               className="sv-wallet-btn sv-wallet-btn--ghost"
               onClick={() => {
                 setShowReplace((v) => !v);
+                setBolt11("");
+                setFriction(null);
                 setError(null);
               }}
             >
@@ -341,33 +350,52 @@ export default function WalletNwc({ embedded, onChanged }: Props) {
         </div>
       )}
 
-      <p className="sv-wallet-copy">{t.dash.sendBody}</p>
-      <input
-        className="sv-wallet-input"
-        placeholder="lnbc… / lntbs…"
-        value={bolt11}
-        onChange={(e) => setBolt11(e.target.value)}
-        autoComplete="off"
-        spellCheck={false}
-      />
-      <div className="sv-wallet-actions">
-        <button
-          type="button"
-          className="sv-wallet-btn"
-          onClick={() => void enviar(false)}
-          disabled={!bolt11 || busy === "pay"}
-        >
-          {busy === "pay" ? "…" : t.dash.send}
-        </button>
-        <button
-          type="button"
-          className="sv-wallet-btn sv-wallet-btn--ghost"
-          onClick={() => void desconectar()}
-          disabled={busy === "disc"}
-        >
-          Revogar
-        </button>
-      </div>
+      {/* Em modo trocar carteira, esconde o campo de pagamento (lnbc/lntbs). */}
+      {!showReplace && (
+        <>
+          <p className="sv-wallet-copy">{t.dash.sendBody}</p>
+          <QrScanButton
+            onScan={(value) => {
+              const bolt = normalizeBolt11(value);
+              setBolt11(bolt);
+              setError(null);
+              setNotice(null);
+              if (bolt && !isMutinyNetBolt11(bolt)) {
+                setError(MUTINYNET_ONLY_MSG);
+              }
+            }}
+          />
+          <input
+            className="sv-wallet-input"
+            placeholder="lntbs… (MutinyNet)"
+            value={bolt11}
+            onChange={(e) => {
+              setBolt11(e.target.value);
+              setError(null);
+            }}
+            autoComplete="off"
+            spellCheck={false}
+          />
+          <div className="sv-wallet-actions">
+            <button
+              type="button"
+              className="sv-wallet-btn"
+              onClick={() => void enviar(false)}
+              disabled={!bolt11 || busy === "pay"}
+            >
+              {busy === "pay" ? "…" : t.dash.send}
+            </button>
+            <button
+              type="button"
+              className="sv-wallet-btn sv-wallet-btn--ghost"
+              onClick={() => void desconectar()}
+              disabled={busy === "disc"}
+            >
+              Revogar
+            </button>
+          </div>
+        </>
+      )}
 
       {notice && <p className="sv-wallet-notice">{notice}</p>}
       {error && !relaySlow && (

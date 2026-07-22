@@ -151,6 +151,28 @@ export default function Landing({
         </section>
       </div>
 
+      <section className="sv-landing-ext" aria-label="SatVantage Copiloto">
+        <div className="sv-ext-promo">
+          <div className="sv-ext-promo-text">
+            <p className="sv-ext-promo-eyebrow">Extensão Chrome</p>
+            <h3 className="sv-ext-promo-title">SatVantage Copiloto</h3>
+            <p className="sv-ext-promo-copy">
+              Leve nossa IA para outros sites: peça um guia passo a passo ou uma análise de
+              risco em páginas de carteiras, corretoras e ofertas de Bitcoin.
+            </p>
+          </div>
+          <button
+            type="button"
+            className="sv-ext-promo-btn"
+            title="Em breve"
+            aria-disabled="true"
+            onClick={(e) => e.preventDefault()}
+          >
+            Baixar extensão
+          </button>
+        </div>
+      </section>
+
       <section className="sv-landing-btc" id="bitcoin" aria-label={t.landing.bitcoinLive}>
         <BtcMarket variant="wide" />
       </section>

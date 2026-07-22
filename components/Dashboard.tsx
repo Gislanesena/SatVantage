@@ -12,7 +12,10 @@ import FreeTopicChat from "@/components/FreeTopicChat";
 import LanguageSelect from "@/components/LanguageSelect";
 import AccessibilityFooter from "@/components/AccessibilityFooter";
 import EmergencyMode from "@/components/EmergencyMode";
+import HerancaPanel from "@/components/HerancaPanel";
+import QrScanButton from "@/components/QrScanButton";
 import { fmtBtc, fmtMoney, satsToFiat, useI18n } from "@/lib/i18n";
+import { isMutinyNetBolt11, MUTINYNET_ONLY_MSG, normalizeBolt11 } from "@/lib/mutinynet";
 import { MISSION_1_SLUG, MISSION_2_SLUG } from "@/lib/missions";
 import {
   KNOW_QUESTIONS,
@@ -21,13 +24,14 @@ import {
   type OptionalTopic,
 } from "@/lib/optional-topics";
 import "./dash.css";
+import "./wallet.css";
 
 type DashboardProps = {
   user: { npub?: string; knowledgeLevel?: string };
   onExitToHome: () => void;
 };
 
-type Panel = "home" | "receber" | "enviar";
+type Panel = "home" | "receber" | "enviar" | "conectar";
 type MentorStep = null | "m1" | "m2";
 type Theme = "dark" | "light";
 type CardView = "balance" | "statement";
@@ -154,12 +158,18 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [soonMsg, setSoonMsg] = useState<string | null>(null);
   const [emergencyOpen, setEmergencyOpen] = useState(false);
+  const [herancaOpen, setHerancaOpen] = useState(false);
   const [theme, setTheme] = useState<Theme>("dark");
   const [claimRef, setClaimRef] = useState<string | null>(null);
   const [npubShort, setNpubShort] = useState<string | null>(null);
   const [priceBrl, setPriceBrl] = useState<number | null>(null);
   const [priceUsd, setPriceUsd] = useState<number | null>(null);
   const [cardView, setCardView] = useState<CardView>("balance");
+  const [showSaque, setShowSaque] = useState(false);
+  const [claimBolt, setClaimBolt] = useState("");
+  const [claimBusy, setClaimBusy] = useState(false);
+  const [claimNotice, setClaimNotice] = useState<string | null>(null);
+  const [claimError, setClaimError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const mentorFabRef = useRef<HTMLDivElement>(null);
@@ -216,6 +226,35 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
       .catch(() => {});
   }, []);
 
+  async function resgatarVoucher() {
+    setClaimError(null);
+    setClaimNotice(null);
+    const bolt = normalizeBolt11(claimBolt);
+    if (bolt.toLowerCase().startsWith("lnbc") || !isMutinyNetBolt11(bolt)) {
+      setClaimError(MUTINYNET_ONLY_MSG);
+      return;
+    }
+    setClaimBusy(true);
+    try {
+      const res = await fetch("/api/rewards/claim", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bolt11: bolt }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error);
+      setClaimBolt("");
+      setClaimNotice(
+        `Voucher resgatado: ⚡ ${Number(json.satsPaid).toLocaleString("pt-BR")} sats.`,
+      );
+      void refreshBalances();
+    } catch (e: any) {
+      setClaimError(e.message ?? "falha no resgate");
+    } finally {
+      setClaimBusy(false);
+    }
+  }
+
   useEffect(() => {
     try {
       const a = localStorage.getItem(avatarKey(user.npub));
@@ -238,8 +277,9 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
   }, []);
 
   useEffect(() => {
-    if (!walletConnected) setPanel("home");
-  }, [walletConnected]);
+    if (!walletConnected && panel === "enviar") setPanel("home");
+    if (walletConnected && panel === "conectar") setPanel("home");
+  }, [walletConnected, panel]);
 
   useEffect(() => {
     function onDoc(e: MouseEvent) {
@@ -448,8 +488,29 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
                     type="button"
                     role="menuitem"
                     className="sv-bank-menu-item"
-                    onClick={() => setSoonMsg(t.dash.estateSoon)}
+                    onClick={() => {
+                      setMenuOpen(false);
+                      setProfileOpen(false);
+                      setSoonMsg(null);
+                      setHerancaOpen(true);
+                    }}
                   >
+                    <span className="sv-bank-menu-ico" aria-hidden>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                        <path
+                          d="M4 20V9.5L12 4l8 5.5V20"
+                          stroke="currentColor"
+                          strokeWidth="1.6"
+                          strokeLinejoin="round"
+                        />
+                        <path
+                          d="M9 20v-6h6v6"
+                          stroke="currentColor"
+                          strokeWidth="1.6"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </span>
                     {t.dash.estate}
                   </button>
                   <button
@@ -661,16 +722,58 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
                       </p>
                       <button
                         type="button"
-                        className="sv-bank-voucher-cta"
+                        className={`sv-bank-voucher-cta${showSaque ? " is-active" : ""}`}
+                        aria-expanded={showSaque}
                         onClick={() => {
-                          if (walletConnected) {
-                            setPanel("receber");
-                          }
-                          void refreshBalances();
+                          setShowSaque((v) => !v);
+                          setClaimError(null);
+                          setClaimNotice(null);
                         }}
                       >
-                        {t.dash.withdrawReceive}
+                        {t.dash.withdrawSats}
                       </button>
+                      {showSaque && (
+                        <div className="sv-bank-saque-inline">
+                          <QrScanButton
+                            onScan={(value) => {
+                              const bolt = normalizeBolt11(value);
+                              setClaimBolt(bolt);
+                              setClaimError(null);
+                              setClaimNotice(null);
+                              if (bolt && !isMutinyNetBolt11(bolt)) {
+                                setClaimError(MUTINYNET_ONLY_MSG);
+                              }
+                            }}
+                          />
+                          <input
+                            className="sv-bank-saque-input"
+                            placeholder="lntbs1… (MutinyNet)"
+                            value={claimBolt}
+                            onChange={(e) => {
+                              setClaimBolt(e.target.value);
+                              setClaimError(null);
+                            }}
+                            autoComplete="off"
+                            spellCheck={false}
+                          />
+                          <button
+                            type="button"
+                            className="sv-bank-voucher-cta"
+                            disabled={!claimBolt || claimBusy}
+                            onClick={() => void resgatarVoucher()}
+                          >
+                            {claimBusy ? "…" : t.dash.withdrawSats}
+                          </button>
+                          {claimNotice && (
+                            <p className="sv-bank-saque-notice">{claimNotice}</p>
+                          )}
+                          {claimError && (
+                            <p role="alert" className="sv-bank-saque-error">
+                              {claimError}
+                            </p>
+                          )}
+                        </div>
+                      )}
                     </div>
                   )}
                 </>
@@ -745,9 +848,29 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
                 )}
               </>
             ) : (
-              <div className="sv-bank-panel">
-                <WalletNwc embedded onChanged={() => void refreshBalances()} />
-              </div>
+              <>
+                <div className="sv-bank-actions" role="group" aria-label={t.dash.connectWalletTitle}>
+                  <button
+                    type="button"
+                    className={`sv-bank-action${panel === "conectar" ? " is-active" : ""}`}
+                    onClick={() => {
+                      setPanel((p) => (p === "conectar" ? "home" : "conectar"));
+                      void refreshBalances();
+                    }}
+                  >
+                    <span className="sv-bank-action-ico" aria-hidden>
+                      ⚡
+                    </span>
+                    {t.dash.connectWalletTitle}
+                  </button>
+                </div>
+
+                {panel === "conectar" && (
+                  <div className="sv-bank-panel">
+                    <WalletNwc embedded onChanged={() => void refreshBalances()} />
+                  </div>
+                )}
+              </>
             )}
 
             <ExchangesPanel />
@@ -759,6 +882,24 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
           </div>
         </div>
       </main>
+
+      {herancaOpen && (
+        <div className="sv-heranca-screen" role="dialog" aria-modal="true" aria-label={t.dash.estate}>
+          <div className="sv-heranca-screen-bar">
+            <button
+              type="button"
+              className="sv-heranca-screen-back"
+              onClick={() => setHerancaOpen(false)}
+            >
+              ← {t.dash.back}
+            </button>
+            <strong>{t.dash.estate}</strong>
+          </div>
+          <div className="sv-heranca-screen-body">
+            <HerancaPanel onCheckinSuccess={() => setHerancaOpen(false)} />
+          </div>
+        </div>
+      )}
 
       <div className={`sv-mentor-fab-wrap${chatActive ? " is-chat" : ""}`} ref={mentorFabRef}>
         {mentorOpen && (

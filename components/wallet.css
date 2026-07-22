@@ -189,3 +189,78 @@
   font-family: inherit;
   font-size: 0.88rem;
 }
+
+.sv-wallet-btn--saque {
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.sv-wallet-saque-manual {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--line));
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+.sv-qr {
+  display: grid;
+  gap: 8px;
+}
+
+.sv-qr-trigger {
+  justify-self: start;
+}
+
+.sv-qr-panel {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg) 60%, transparent);
+}
+
+.sv-qr-panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.sv-qr-panel-head .linkish {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--accent);
+  text-decoration: underline;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.88rem;
+}
+
+.sv-qr-viewport {
+  width: 100%;
+  min-height: 220px;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #0a0a0a;
+}
+
+.sv-invoice-qr {
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  padding: 14px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg) 55%, transparent);
+}
+
+.sv-invoice-qr img {
+  display: block;
+  border-radius: 8px;
+  background: #fff;
+}

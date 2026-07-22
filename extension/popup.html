@@ -8,15 +8,29 @@
   </head>
   <body>
     <header class="sv-head">
-      <strong>SatVantage Copiloto</strong>
-      <p>Ajuda rápida sobre Bitcoin e segurança nesta página. Não acessa sua conta.</p>
+      <img
+        class="sv-head-logo"
+        src="icons/SatVantagelogoq.png"
+        width="36"
+        height="36"
+        alt="SatVantage"
+      />
+      <div class="sv-head-text">
+        <strong>SatVantage Copiloto</strong>
+        <p id="head-sub">Ajuda rápida sobre Bitcoin e segurança nesta página.</p>
+      </div>
     </header>
 
-    <label class="sv-label" for="pergunta">Sua pergunta</label>
+    <div id="page-url-wrap" class="sv-url-wrap" hidden>
+      <span id="page-url-badge" class="sv-url-badge" hidden>Site oficial</span>
+      <p id="page-url" class="sv-url" title=""></p>
+    </div>
+
+    <label class="sv-label" for="pergunta">Sua pergunta <span class="sv-optional">(opcional)</span></label>
     <textarea
       id="pergunta"
       rows="3"
-      placeholder="Ex.: este site parece seguro para comprar Bitcoin?"
+      placeholder="Deixe em branco para um resumo de onde você está, ou pergunte algo…"
     ></textarea>
 
     <div class="sv-suggestions" role="group" aria-label="Sugestões">
@@ -26,18 +40,40 @@
       </button>
     </div>
 
-    <button type="button" id="enviar" class="sv-btn">Analisar página</button>
+    <div class="sv-actions">
+      <button type="button" id="enviar" class="sv-btn">Analisar página</button>
+      <button type="button" id="capturar" class="sv-btn sv-btn--ghost">
+        📷 Selecionar área da tela
+      </button>
+    </div>
+
+    <div id="crop" class="sv-crop" hidden>
+      <p class="sv-crop-hint">
+        Arraste na imagem para marcar a área. Depois confirme a análise.
+      </p>
+      <div id="crop-stage" class="sv-crop-stage">
+        <img id="crop-img" alt="Captura da aba" />
+        <div id="crop-rect" class="sv-crop-rect"></div>
+      </div>
+      <div class="sv-crop-actions">
+        <button type="button" id="crop-ok" class="sv-btn" disabled>Analisar área</button>
+        <button type="button" id="crop-cancel" class="sv-btn sv-btn--ghost">Cancelar</button>
+      </div>
+    </div>
+
     <p id="status" class="sv-status" hidden></p>
 
     <section id="resultado" class="sv-result" hidden>
-      <div id="risco" class="sv-risco"></div>
+      <p id="result-url" class="sv-result-url" hidden></p>
+      <div id="badge" class="sv-badge" hidden></div>
+      <div id="risco" class="sv-risco" hidden></div>
       <p id="explicacao" class="sv-explicacao"></p>
-      <p class="sv-passos-title">Próximos passos</p>
+      <p id="passos-title" class="sv-passos-title">Próximos passos</p>
       <ol id="passos" class="sv-passos"></ol>
     </section>
 
     <footer class="sv-foot">
-      Envia só o texto da página e a pergunta ao backend SatVantage.
+      Envia URL, texto/imagem da página e a pergunta (se houver) ao backend SatVantage.
     </footer>
 
     <script src="popup.js"></script>

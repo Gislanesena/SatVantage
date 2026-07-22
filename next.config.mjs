@@ -6,5 +6,9 @@ const nextConfig = {
   // configurado, não há o que checar; desligar aqui evita o erro sem
   // precisar instalar dependências novas.
   eslint: { ignoreDuringBuilds: true },
+  // opentimestamps é CJS legado com dependências nativas de request
+  experimental: {
+    serverComponentsExternalPackages: ["opentimestamps"],
+  },
 };
 export default nextConfig;

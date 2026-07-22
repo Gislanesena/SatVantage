@@ -54,9 +54,27 @@ export default function Home() {
 
   function afterLogin(u: any) {
     setUser(u);
-    // Iniciante → mentoria 1 (depois 2). Extensão → dash.
-    if (u?.knowledgeLevel === "iniciante") setView("mentor1");
-    else setView("dashboard");
+    // Extensão / não-iniciante → dash.
+    // Iniciante: só abre mentoria em tela cheia na 1ª vez.
+    // Se já pulou ou concluiu, vai ao dashboard (refazer fica no chat do canto).
+    if (u?.knowledgeLevel !== "iniciante") {
+      setView("dashboard");
+      return;
+    }
+    void (async () => {
+      try {
+        const res = await fetch("/api/missions/overview");
+        const data = await res.json().catch(() => ({}));
+        const status = data?.mentoria1?.status as string | undefined;
+        if (!status || status === "disponivel") {
+          setView("mentor1");
+        } else {
+          setView("dashboard");
+        }
+      } catch {
+        setView("dashboard");
+      }
+    })();
   }
 
   function exitToHome() {
