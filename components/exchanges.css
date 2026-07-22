@@ -14,7 +14,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  align-content: start;
+  align-content: flex-start;
   font-family: var(--font-ui, "Figtree", system-ui, sans-serif);
   min-width: 0;
 }
@@ -52,7 +52,7 @@
   display: grid;
   gap: 8px;
   flex: 1 1 auto;
-  align-content: start;
+  align-content: flex-start;
 }
 
 .sv-exch-row,
