@@ -21,6 +21,7 @@
   "devDependencies": {
     "@types/node": "^20",
     "@types/react": "^18",
+    "@types/ws": "^8.18.1",
     "typescript": "^5"
   }
 }
