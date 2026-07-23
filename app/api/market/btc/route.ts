@@ -1,5 +1,7 @@
 // GET /api/market/btc?range=24h|8h|4h|1m
-// Histórico via Binance (público, sem API key) — candles reais + preço atual BRL/USD.
+// Histórico via CoinGecko (público, sem API key) — a Binance bloqueia IPs
+// dos EUA e a função roda em servidor americano na Vercel, então passou a
+// devolver 502 em produção mesmo funcionando localmente (IP do Brasil).
 import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
@@ -17,15 +19,18 @@ type Payload = {
   updatedAt: string;
 };
 
-const RANGES: Record<
-  BtcRange,
-  { interval: string; limit: number; ttlMs: number }
-> = {
-  "1m": { interval: "1m", limit: 60, ttlMs: 15_000 },
-  "4h": { interval: "1m", limit: 240, ttlMs: 30_000 },
-  "8h": { interval: "5m", limit: 96, ttlMs: 40_000 },
-  "24h": { interval: "15m", limit: 96, ttlMs: 45_000 },
+// CoinGecko devolve granularidade ~5min para days=1 (fixo no plano público),
+// então cada faixa recorta essa mesma série pela janela de tempo desejada.
+const RANGES: Record<BtcRange, { windowMs: number }> = {
+  "1m": { windowMs: 60 * 60 * 1000 },
+  "4h": { windowMs: 4 * 60 * 60 * 1000 },
+  "8h": { windowMs: 8 * 60 * 60 * 1000 },
+  "24h": { windowMs: 24 * 60 * 60 * 1000 },
 };
+
+const CACHE_TTL_MS = 60_000;
+const POINT_INTERVAL_MS = 5 * 60 * 1000;
+const FETCH_TIMEOUT_MS = 8_000;
 
 const cache = new Map<BtcRange, { at: number; payload: Payload }>();
 
@@ -37,9 +42,10 @@ function parseRange(raw: string | null): BtcRange {
 async function fetchJson(url: string) {
   const res = await fetch(url, {
     headers: { Accept: "application/json" },
-    next: { revalidate: 0 },
+    next: { revalidate: 60 },
+    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
   });
-  if (!res.ok) throw new Error(`binance ${res.status}`);
+  if (!res.ok) throw new Error(`coingecko ${res.status}`);
   return res.json();
 }
 
@@ -47,43 +53,50 @@ export async function GET(req: NextRequest) {
   const range = parseRange(req.nextUrl.searchParams.get("range"));
   const cfg = RANGES[range];
   const hit = cache.get(range);
-  if (hit && Date.now() - hit.at < cfg.ttlMs) {
+  if (hit && Date.now() - hit.at < CACHE_TTL_MS) {
     return NextResponse.json({ ...hit.payload, cached: true });
   }
 
   try {
-    const [klines, tickerBrl, priceUsd] = await Promise.all([
+    const [chart, price] = await Promise.all([
       fetchJson(
-        `https://api.binance.com/api/v3/klines?symbol=BTCBRL&interval=${cfg.interval}&limit=${cfg.limit}`,
+        "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=brl&days=1",
       ),
-      fetchJson("https://api.binance.com/api/v3/ticker/24hr?symbol=BTCBRL"),
-      fetchJson("https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT"),
+      fetchJson(
+        "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=brl,usd&include_24hr_change=true",
+      ),
     ]);
 
-    const series: Point[] = (klines as any[]).map((k) => ({
-      t: Number(k[0]),
-      price: Number(k[4]), // close
-    }));
-
-    if (!series.length) {
+    const rawPrices = (chart?.prices as [number, number][]) ?? [];
+    if (!rawPrices.length) {
       throw new Error("série vazia");
     }
 
-    const priceBrl = Number(tickerBrl.lastPrice ?? series[series.length - 1].price);
-    const usd = Number(priceUsd.price ?? 0);
+    const cutoff = Date.now() - cfg.windowMs;
+    let windowed = rawPrices.filter(([t]) => t >= cutoff);
+    if (windowed.length < 2) {
+      const fallbackCount = Math.max(2, Math.ceil(cfg.windowMs / POINT_INTERVAL_MS));
+      windowed = rawPrices.slice(-fallbackCount);
+    }
+
+    const series: Point[] = windowed.map(([t, p]) => ({ t, price: p }));
+
+    const bitcoin = price?.bitcoin ?? {};
+    const priceBrl = Number(bitcoin.brl ?? series[series.length - 1].price);
+    const priceUsd = Number(bitcoin.usd ?? 0);
     const first = series[0].price;
     const last = series[series.length - 1].price;
-    const changePct = first > 0 ? ((last - first) / first) * 100 : 0;
+    const seriesChangePct = first > 0 ? ((last - first) / first) * 100 : 0;
 
     const payload: Payload = {
       range,
       priceBrl,
-      priceUsd: usd,
-      // no range 24h, preferir variação oficial 24h da Binance
+      priceUsd,
+      // no range 24h, preferir variação oficial 24h do CoinGecko
       changePct:
-        range === "24h" && tickerBrl.priceChangePercent != null
-          ? Number(tickerBrl.priceChangePercent)
-          : changePct,
+        range === "24h" && bitcoin.brl_24h_change != null
+          ? Number(bitcoin.brl_24h_change)
+          : seriesChangePct,
       series,
       updatedAt: new Date().toISOString(),
     };
