@@ -767,6 +767,24 @@
   text-align: left;
 }
 
+.sv-support--simple {
+  padding: 8px 0 4px;
+  border: none;
+  background: transparent;
+  border-radius: 0;
+  justify-items: center;
+}
+
+.sv-support-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  min-width: 0;
+  padding: 12px 22px;
+  text-decoration: none;
+}
+
 .sv-support-head {
   display: grid;
   gap: 4px;

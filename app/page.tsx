@@ -83,6 +83,16 @@ export default function Home() {
     void logoutRequest();
   }
 
+  function goToDashboard() {
+    setView("dashboard");
+    // A mentoria deixa a janela rolada para baixo — ao abrir o dash, começa no saldo.
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    });
+  }
+
   const loggedIn = view === "mentor1" || view === "mentor2" || view === "dashboard";
   const { warning: inactivityWarning } = useInactivityLogout(loggedIn, exitToHome);
 
@@ -151,7 +161,7 @@ export default function Home() {
           slug={MISSION_1_SLUG}
           onExitToHome={exitToHome}
           onContinueMentor={() => setView("mentor2")}
-          onGoDashboard={() => setView("dashboard")}
+          onGoDashboard={goToDashboard}
         />
       )}
 
@@ -159,7 +169,7 @@ export default function Home() {
         <MentorChat
           slug={MISSION_2_SLUG}
           onExitToHome={exitToHome}
-          onGoDashboard={() => setView("dashboard")}
+          onGoDashboard={goToDashboard}
         />
       )}
 
