@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Providers from "@/components/Providers";
 import VLibrasWidget from "@/components/VLibrasWidget";
+import AccessibilityDock from "@/components/AccessibilityDock";
 
 export const metadata: Metadata = {
   title: "SatVantage",
@@ -37,6 +38,7 @@ export default function RootLayout({
       <body>
         <Providers>
           {children}
+          <AccessibilityDock />
           <VLibrasWidget />
         </Providers>
       </body>

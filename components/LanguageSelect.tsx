@@ -4,9 +4,14 @@ import { LOCALE_OPTIONS, useI18n, type Locale } from "@/lib/i18n";
 import "./a11y.css";
 
 type Props = {
-  variant?: "nav" | "bank";
+  /** nav = header site · bank = dashboard · chat = painel NagAI compacto */
+  variant?: "nav" | "bank" | "chat";
 };
 
+/**
+ * Seletor global PT/EN/ES — lê/escreve o mesmo I18nProvider + localStorage.
+ * Qualquer instância (header ou chat) atualiza todas as outras.
+ */
 export default function LanguageSelect({ variant = "nav" }: Props) {
   const { locale, setLocale, t } = useI18n();
   const [open, setOpen] = useState(false);
@@ -34,11 +39,15 @@ export default function LanguageSelect({ variant = "nav" }: Props) {
   const current =
     LOCALE_OPTIONS.find((o) => o.value === locale)?.label ?? locale.toUpperCase();
 
+  const rootClass =
+    variant === "bank"
+      ? "sv-lang sv-lang--bank"
+      : variant === "chat"
+        ? "sv-lang sv-lang--chat"
+        : "sv-lang";
+
   return (
-    <div
-      ref={rootRef}
-      className={variant === "bank" ? "sv-lang sv-lang--bank" : "sv-lang"}
-    >
+    <div ref={rootRef} className={rootClass}>
       <button
         type="button"
         className="sv-lang-btn"

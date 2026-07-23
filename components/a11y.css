@@ -85,23 +85,230 @@
   line-height: 1;
 }
 
-/* VLibras — canto inferior direito (botão real .access-button) */
+/* VLibras — canto inferior direito (botão real .access-button)
+   Forçado visível em desktop e mobile (sem display:none em media queries). */
+#sv-vlibras-root,
+.sv-vlibras,
+div[vw],
+div[vw].enabled,
+[vw-access-button],
+.access-button {
+  z-index: 2147483000 !important;
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
 #sv-vlibras-root,
 .sv-vlibras,
 div[vw] {
-  z-index: 2147483000 !important;
+  position: relative !important;
 }
 
-.access-button {
+.access-button,
+[vw-access-button].active,
+div[vw] .access-button {
   position: fixed !important;
   right: 18px !important;
-  bottom: 18px !important;
+  /* Acima do par acessibilidade + TTS (~18 + 52 + 8 + 52) */
+  bottom: 140px !important;
   left: auto !important;
   top: auto !important;
   z-index: 2147483000 !important;
   opacity: 1 !important;
   visibility: visible !important;
   pointer-events: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 64px !important;
+  height: 64px !important;
+  max-width: none !important;
+  max-height: none !important;
+  min-width: 56px !important;
+  min-height: 56px !important;
+  transform: none !important;
+  clip: auto !important;
+  clip-path: none !important;
+  overflow: visible !important;
+}
+
+/* Dock: acessibilidade e TTS bem próximos (sem slot vazio entre eles) */
+.sv-a11y-dock {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 2147482900;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.sv-a11y-fab-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  pointer-events: auto;
+}
+
+.sv-a11y-fab-row {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  gap: 8px;
+  pointer-events: auto;
+}
+
+.sv-a11y-fab {
+  pointer-events: auto;
+  width: 52px;
+  height: 52px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: #0f172a;
+  color: #e2e8f0;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  line-height: 1;
+  padding: 0;
+}
+
+.sv-a11y-fab:hover {
+  border-color: var(--accent, #38bdf8);
+  color: var(--accent, #38bdf8);
+}
+
+.sv-a11y-fab:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent, #38bdf8) 70%, white);
+  outline-offset: 3px;
+}
+
+.sv-a11y-fab--menu {
+  background: #ffffff;
+  border-color: rgba(15, 23, 42, 0.35);
+  color: #0f172a;
+}
+
+.sv-a11y-fab--menu:hover {
+  border-color: #5ec8f0;
+  color: #0f172a;
+}
+
+.sv-a11y-fab--tts.is-on {
+  background: color-mix(in srgb, #0ea5e9 28%, #0f172a);
+  border-color: #38bdf8;
+  color: #bae6fd;
+}
+
+.sv-a11y-fab--tts.is-paused {
+  background: color-mix(in srgb, #f8c838 22%, #0f172a);
+  border-color: #f8c838;
+  color: #fef08a;
+}
+
+.sv-a11y-fab--stop {
+  background: color-mix(in srgb, #f87171 18%, #0f172a);
+  border-color: rgba(248, 113, 113, 0.55);
+  color: #fecaca;
+  width: 44px;
+  height: 44px;
+  font-size: 0.85rem;
+}
+
+.sv-a11y-nav-btn {
+  font-size: 1rem;
+  color: #0f172a;
+}
+
+[data-theme="dark"] .sv-a11y-nav-btn {
+  color: #e2e8f0;
+}
+
+.sv-a11y-panel {
+  width: min(440px, 100%);
+  max-height: min(80vh, 560px);
+  overflow: auto;
+  padding: 22px 22px 18px;
+  border-radius: 16px;
+  border: 1px solid var(--line, rgba(148, 163, 184, 0.35));
+  background: var(--surface, #0f172a);
+  color: var(--ink, #e2e8f0);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.45);
+}
+
+.sv-a11y-panel h2 {
+  margin: 0 0 10px;
+  font-size: 1.2rem;
+  font-family: var(--font-display, inherit);
+}
+
+.sv-a11y-panel p {
+  margin: 0 0 12px;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  color: var(--ink-muted, #94a3b8);
+}
+
+.sv-a11y-panel-list {
+  margin: 0 0 18px;
+  padding-left: 1.15rem;
+  display: grid;
+  gap: 10px;
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+.sv-a11y-panel-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sv-a11y-panel-btn {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 16px;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 650;
+  cursor: pointer;
+  background: var(--accent, #38bdf8);
+  color: #041018;
+}
+
+.sv-a11y-panel-btn--ghost {
+  background: transparent;
+  color: var(--ink, #e2e8f0);
+  border: 1px solid var(--line, rgba(148, 163, 184, 0.4));
+}
+
+@media (max-width: 640px) {
+  .sv-a11y-dock {
+    right: 12px;
+    bottom: 12px;
+  }
+
+  .sv-a11y-fab {
+    width: 48px;
+    height: 48px;
+  }
+
+  .access-button,
+  [vw-access-button].active,
+  div[vw] .access-button {
+    right: 12px !important;
+    bottom: 128px !important;
+    width: 56px !important;
+    height: 56px !important;
+  }
 }
 
 .sv-lang {
@@ -135,6 +342,22 @@ div[vw] {
   border-color: var(--line);
   background: var(--surface);
   color: var(--ink);
+}
+
+.sv-lang--chat .sv-lang-btn {
+  height: 32px;
+  min-width: 48px;
+  padding: 0 10px;
+  font-size: 0.78rem;
+  border-color: var(--line);
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+  color: var(--ink);
+}
+
+.sv-lang--chat .sv-lang-menu {
+  right: 0;
+  left: auto;
+  z-index: 40;
 }
 
 /* Modo claro: texto azul-marinho (botão e menu) */

@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import LanguageSelect from "@/components/LanguageSelect";
 import { useI18n } from "@/lib/i18n";
+import { useFocusTrap } from "@/lib/use-focus-trap";
+import { openAccessibilityPanel } from "@/components/AccessibilityDock";
+import AccessibilityIcon from "@/components/AccessibilityIcon";
 
 type Theme = "dark" | "light";
 
@@ -30,6 +33,7 @@ export default function SiteNav({
   const isMentor = variant === "mentor";
   const isDash = variant === "dash";
   const isCompact = isMentor || isDash;
+  const drawerRef = useFocusTrap(menuOpen && !isCompact, () => setMenuOpen(false));
 
   const navLinks = [
     { href: "#conheca", label: t.nav.platform },
@@ -95,7 +99,17 @@ export default function SiteNav({
         )}
 
         <div className="sv-nav-actions">
-          {!isDash && <LanguageSelect />}
+          <LanguageSelect />
+
+          <button
+            type="button"
+            className="sv-theme-toggle sv-a11y-nav-btn"
+            onClick={() => openAccessibilityPanel()}
+            aria-label={t.a11y.optionsLabel}
+            title={t.a11y.optionsLabel}
+          >
+            <AccessibilityIcon size={20} />
+          </button>
 
           {!isDash && (
             <button
@@ -153,7 +167,14 @@ export default function SiteNav({
       </div>
 
       {!isCompact && menuOpen && (
-        <div className="sv-nav-drawer" role="dialog" aria-label={t.nav.menu}>
+        <div
+          ref={drawerRef}
+          className="sv-nav-drawer"
+          role="dialog"
+          aria-modal="true"
+          aria-label={t.nav.menu}
+          tabIndex={-1}
+        >
           {navLinks.map((link) => (
             <a key={link.href} href={link.href} onClick={() => setMenuOpen(false)}>
               {link.label}

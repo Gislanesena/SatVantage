@@ -695,6 +695,7 @@ export default function LoginNostr({
 
       <input
         placeholder="usuário"
+        aria-label="Nome de usuário"
         value={username}
         onChange={(e) => {
           setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""));
@@ -745,6 +746,7 @@ export default function LoginNostr({
           <>
             <input
               placeholder="senha (mínimo 8 caracteres)"
+              aria-label="Senha (mínimo 8 caracteres)"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -753,12 +755,14 @@ export default function LoginNostr({
             />
             <input
               placeholder="pergunta de segurança (só você sabe a resposta)"
+              aria-label="Pergunta de segurança"
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               style={inputStyle}
             />
             <input
               placeholder="resposta"
+              aria-label="Resposta da pergunta de segurança"
               value={answer}
               onChange={(e) => setAnswer(e.target.value)}
               style={inputStyle}
@@ -785,6 +789,7 @@ export default function LoginNostr({
         <>
           <input
             placeholder="senha"
+            aria-label="Senha"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -827,6 +832,7 @@ export default function LoginNostr({
           </p>
           <input
             placeholder="sua resposta"
+            aria-label="Resposta da pergunta de segurança"
             value={answer}
             onChange={(e) => setAnswer(e.target.value)}
             style={inputStyle}
@@ -834,6 +840,7 @@ export default function LoginNostr({
           <textarea
             className="sv-mnemonic-input"
             placeholder="12 palavras de recuperação (separadas por espaço)"
+            aria-label="12 palavras de recuperação"
             value={mnemonicInput}
             onChange={(e) => setMnemonicInput(e.target.value)}
             rows={3}
@@ -843,6 +850,7 @@ export default function LoginNostr({
           />
           <input
             placeholder="senha nova (mínimo 8 caracteres)"
+            aria-label="Nova senha (mínimo 8 caracteres)"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}

@@ -1,6 +1,7 @@
 "use client";
 // Guia da homepage: mapa do site em chat. Por enquanto só "Como entrar usando Nostr".
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useFocusTrap } from "@/lib/use-focus-trap";
 import "./guide.css";
 import "./mentor.css";
 
@@ -76,6 +77,8 @@ export default function LandingGuide({ onCreateAccount, onExtension }: Props) {
     setNudgeExiting(false);
     setNudgeOn(true);
   }, []);
+
+  const sheetTrapRef = useFocusTrap(open, closeChat);
 
   // Clicar fora do chat (e do botão) fecha
   useEffect(() => {
@@ -160,7 +163,14 @@ export default function LandingGuide({ onCreateAccount, onExtension }: Props) {
       className={`sv-guide-fab-wrap${open ? " is-chat" : ""}`}
     >
       {open && (
-        <div className="sv-guide-sheet" role="dialog" aria-label="NagAI SatVantage">
+        <div
+          ref={sheetTrapRef}
+          className="sv-guide-sheet"
+          role="dialog"
+          aria-modal="true"
+          aria-label="NagAI SatVantage"
+          tabIndex={-1}
+        >
           <div className="sv-guide-sheet-head">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/satvantage-mentor.png" alt="" width={40} height={40} />
@@ -192,7 +202,9 @@ export default function LandingGuide({ onCreateAccount, onExtension }: Props) {
                       className="sv-guide-avatar"
                     />
                     <div className="sv-bubble sv-bubble--agent">
-                      <span className="sv-bubble-label">NagAI</span>
+                      <div className="sv-bubble-head">
+                        <span className="sv-bubble-label">NagAI</span>
+                      </div>
                       <span className="sv-bubble-text">{line.text}</span>
                     </div>
                   </div>

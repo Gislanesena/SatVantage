@@ -1,0 +1,711 @@
+.sv-tsim {
+  --tsim-bg: #0b1020;
+  --tsim-panel: #121826;
+  --tsim-line: rgba(148, 163, 184, 0.22);
+  --tsim-ink: #e8eef8;
+  --tsim-muted: #94a3b8;
+  --tsim-blue: #0ea5e9;
+  --tsim-orange: #f97316;
+  flex: 1;
+  min-height: min(78vh, 720px);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-radius: 14px;
+  border: 1px solid var(--tsim-line);
+  background: var(--tsim-bg);
+  color: var(--tsim-ink);
+  overflow: hidden;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
+}
+
+.sv-tsim-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  padding: 10px 12px;
+  background: #0f1524;
+  border-bottom: 1px solid var(--tsim-line);
+}
+
+.sv-tsim-mode {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.sv-tsim-mode-off {
+  color: var(--tsim-muted);
+  opacity: 0.7;
+}
+
+.sv-tsim-mode-on {
+  color: var(--tsim-orange);
+}
+
+.sv-tsim-toggle {
+  width: 34px;
+  height: 18px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--tsim-orange) 35%, #1e293b);
+  position: relative;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tsim-orange) 50%, transparent);
+}
+
+.sv-tsim-toggle::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--tsim-orange);
+}
+
+.sv-tsim-clock {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  min-width: 7ch;
+}
+
+.sv-tsim-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  flex: 1;
+  font-size: 0.82rem;
+}
+
+.sv-tsim-stats-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.sv-tsim-stats-hint {
+  margin: 0;
+  font-size: 0.68rem;
+  color: var(--tsim-muted);
+  opacity: 0.9;
+}
+
+.sv-tsim-stats > div,
+.sv-tsim-stat {
+  display: grid;
+  gap: 2px;
+  position: relative;
+}
+
+.sv-tsim-stat {
+  outline: none;
+}
+
+.sv-tsim-stat-label {
+  color: var(--tsim-muted);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: help;
+  border-bottom: 1px dotted rgba(148, 163, 184, 0.55);
+  width: fit-content;
+}
+
+.sv-tsim-tip-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  font-size: 0.58rem;
+  font-weight: 800;
+  line-height: 1;
+  color: #0f172a;
+  background: #f8c838;
+  text-transform: none;
+}
+
+.sv-tsim-stat-tip {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 6px);
+  z-index: 40;
+  width: min(260px, 70vw);
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #0f172a;
+  border: 1px solid rgba(248, 200, 56, 0.45);
+  color: #e2e8f0;
+  font-size: 0.72rem;
+  font-weight: 500;
+  line-height: 1.35;
+  text-transform: none;
+  letter-spacing: 0;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.12s ease;
+}
+
+.sv-tsim-stat:hover .sv-tsim-stat-tip,
+.sv-tsim-stat:focus-visible .sv-tsim-stat-tip {
+  opacity: 1;
+  visibility: visible;
+}
+
+.sv-tsim-top-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sv-tsim-btn {
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  background: var(--tsim-blue);
+  color: #041018;
+}
+
+.sv-tsim-btn--ghost {
+  background: transparent;
+  color: var(--tsim-ink);
+  border: 1px solid var(--tsim-line);
+}
+
+.sv-tsim-btn--order {
+  flex: 1;
+  background: #38bdf8;
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.sv-tsim-btn--order.is-sell {
+  background: var(--tsim-orange);
+  color: #1a0b00;
+}
+
+.sv-tsim-flash {
+  margin: 0 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(14, 165, 233, 0.12);
+  border: 1px solid rgba(14, 165, 233, 0.35);
+  color: #bae6fd;
+  font-size: 0.82rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: flex-start;
+  line-height: 1.4;
+}
+
+.sv-tsim-flash--ok {
+  background: rgba(34, 197, 94, 0.12);
+  border-color: rgba(34, 197, 94, 0.4);
+  color: #bbf7d0;
+}
+
+.sv-tsim-flash--warn {
+  background: rgba(251, 146, 60, 0.14);
+  border-color: rgba(251, 146, 60, 0.45);
+  color: #fed7aa;
+}
+
+.sv-tsim-flash button {
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.sv-tsim-grid {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 260px 220px;
+  gap: 8px;
+  padding: 0 8px 8px;
+}
+
+.sv-tsim-chart-wrap,
+.sv-tsim-boleta,
+.sv-tsim-ativos {
+  background: var(--tsim-panel);
+  border: 1px solid var(--tsim-line);
+  border-radius: 10px;
+  min-height: 0;
+}
+
+.sv-tsim-chart-wrap {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sv-tsim-chart-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--tsim-line);
+}
+
+.sv-tsim-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.sv-tsim-tabs button {
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--tsim-muted);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sv-tsim-tabs button.is-active {
+  color: var(--tsim-ink);
+  border-color: var(--tsim-line);
+  background: rgba(14, 165, 233, 0.12);
+}
+
+.sv-tsim-tf {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.78rem;
+  color: var(--tsim-muted);
+}
+
+.sv-tsim-tf select {
+  margin-left: 6px;
+  background: #0b1020;
+  color: var(--tsim-ink);
+  border: 1px solid var(--tsim-line);
+  border-radius: 6px;
+  padding: 4px 6px;
+  font: inherit;
+}
+
+.sv-tsim-chg.is-up {
+  color: #4ade80;
+}
+.sv-tsim-chg.is-down {
+  color: #fb923c;
+}
+
+.sv-tsim-chart {
+  flex: 1;
+  min-height: 240px;
+  padding: 4px;
+}
+
+.sv-tsim-chart svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: 6px;
+}
+
+.sv-tsim-boleta {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sv-tsim-boleta-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.sv-tsim-badge {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #1a0b00;
+  background: var(--tsim-orange);
+  border-radius: 999px;
+  padding: 3px 8px;
+}
+
+.sv-tsim-side-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+
+.sv-tsim-side-tabs button {
+  border: 1px solid var(--tsim-line);
+  background: transparent;
+  color: var(--tsim-muted);
+  border-radius: 8px;
+  padding: 8px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.sv-tsim-side-tabs button.is-active.is-buy {
+  color: #e0f2fe;
+  border-color: #0284c7;
+  background: rgba(2, 132, 199, 0.25);
+}
+
+.sv-tsim-side-tabs button.is-active.is-sell {
+  color: #ffedd5;
+  border-color: var(--tsim-orange);
+  background: rgba(249, 115, 22, 0.22);
+}
+
+.sv-tsim-field {
+  display: grid;
+  gap: 4px;
+  font-size: 0.72rem;
+  color: var(--tsim-muted);
+}
+
+.sv-tsim-field-caption {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 0.72rem;
+  color: var(--tsim-muted);
+  margin-bottom: 4px;
+}
+
+.sv-tsim-side-block {
+  display: grid;
+  gap: 4px;
+}
+
+.sv-tsim-req-legend {
+  margin: -4px 0 4px;
+  font-size: 0.68rem;
+  color: var(--tsim-muted);
+}
+
+.sv-tsim-req {
+  color: #f87171;
+  font-weight: 800;
+  margin-left: 2px;
+}
+
+.sv-tsim-optional {
+  font-style: normal;
+  font-weight: 500;
+  opacity: 0.75;
+  text-transform: none;
+  font-size: 0.65rem;
+}
+
+.sv-tsim-field input,
+.sv-tsim-field select,
+.sv-tsim-search input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--tsim-line);
+  border-radius: 8px;
+  background: #0b1020;
+  color: var(--tsim-ink);
+  padding: 8px 10px;
+  font: inherit;
+  font-size: 0.85rem;
+}
+
+.sv-tsim-field input:disabled {
+  opacity: 0.75;
+}
+
+.sv-tsim-row2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.sv-tsim-boleta-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 4px;
+}
+
+.sv-tsim-ativos {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: auto;
+}
+
+.sv-tsim-ativos h3 {
+  margin: 4px 0 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--tsim-muted);
+  font-weight: 700;
+}
+
+.sv-tsim-ativos ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.sv-tsim-ativos li button {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 8px;
+  align-items: center;
+  text-align: left;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--tsim-ink);
+  border-radius: 8px;
+  padding: 8px;
+  font: inherit;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.sv-tsim-ativos li button.is-active,
+.sv-tsim-ativos li button:hover {
+  border-color: var(--tsim-line);
+  background: rgba(14, 165, 233, 0.08);
+}
+
+.sv-tsim-asset-code {
+  font-weight: 700;
+}
+
+.sv-tsim-asset-px {
+  color: var(--tsim-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.sv-tsim-pos {
+  color: #4ade80;
+}
+.sv-tsim-neg {
+  color: #fb923c;
+}
+
+.sv-tsim-hint {
+  margin: auto 0 0;
+  font-size: 0.72rem;
+  color: var(--tsim-muted);
+  line-height: 1.4;
+}
+
+.sv-tsim-btn--tour {
+  background: #f8c838;
+  color: #0f172a;
+  box-shadow: 0 0 0 2px color-mix(in srgb, #eebb39 55%, transparent);
+}
+
+.sv-tsim-btn--tour:hover {
+  background: #eebb39;
+}
+
+.sv-tsim-tour-cta {
+  margin: 0 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: color-mix(in srgb, #f8c838 16%, #121826);
+  border: 1px solid color-mix(in srgb, #eebb39 55%, transparent);
+}
+
+.sv-tsim-tour-cta p {
+  margin: 0;
+  flex: 1;
+  min-width: 200px;
+  font-size: 0.85rem;
+  color: #e8eef8;
+  line-height: 1.4;
+}
+
+.sv-tsim.is-touring {
+  position: relative;
+}
+
+.sv-tsim-tour {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  pointer-events: none;
+}
+
+.sv-tsim-tour-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(7, 11, 18, 0.78);
+  pointer-events: auto;
+}
+
+.sv-tsim-tour-catcher {
+  position: absolute;
+  inset: 0;
+  pointer-events: auto;
+  background: transparent;
+}
+
+.sv-tsim-tour-spot {
+  position: fixed;
+  z-index: 81;
+  border-radius: 10px;
+  box-shadow:
+    0 0 0 2px #f8c838,
+    0 0 0 9999px rgba(7, 11, 18, 0.78);
+  background: transparent;
+  pointer-events: none;
+  transition:
+    top 0.2s ease,
+    left 0.2s ease,
+    width 0.2s ease,
+    height 0.2s ease;
+}
+
+.sv-tsim-tour-tip {
+  position: fixed;
+  z-index: 82;
+  pointer-events: auto;
+  box-sizing: border-box;
+  padding: 14px 14px 12px;
+  border-radius: 12px;
+  background: #f8c838;
+  border: 1px solid #eebb39;
+  color: #0f172a;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.45);
+}
+
+.sv-tsim-tour-tip h3 {
+  margin: 0 0 6px;
+  font-family: var(--font-hero, "Space Grotesk", sans-serif);
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.sv-tsim-tour-tip > p {
+  margin: 0 0 12px;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: #1e293b;
+}
+
+.sv-tsim-tour-step {
+  margin: 0 0 4px !important;
+  font-size: 0.72rem !important;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #334155 !important;
+}
+
+.sv-tsim-tour-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.sv-tsim-tour-skip,
+.sv-tsim-tour-next {
+  border-radius: 8px;
+  padding: 8px 12px;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.sv-tsim-tour-skip {
+  border: 1px solid #0f172a;
+  background: transparent;
+  color: #0f172a;
+}
+
+.sv-tsim-tour-next {
+  border: none;
+  background: #0f172a;
+  color: #f8c838;
+}
+
+.sv-tsim-tour-next:hover {
+  background: #1e293b;
+}
+
+.sv-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.sv-mentor-body--sim {
+  max-width: min(1180px, 100%);
+}
+
+@media (max-width: 960px) {
+  .sv-tsim-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+  }
+
+  .sv-tsim-chart {
+    min-height: 220px;
+  }
+}
+
+@media (max-width: 640px) {
+  .sv-tsim-top {
+    align-items: flex-start;
+  }
+
+  .sv-tsim-clock {
+    order: -1;
+    width: 100%;
+  }
+}

@@ -1,9 +1,10 @@
 "use client";
 // Modo Emergência: confirma identidade pela pergunta de segurança (mesma prova
 // da recuperação de senha) antes de revogar a carteira Lightning e as corretoras.
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { hashAnswer } from "@/lib/vault";
 import { useI18n } from "@/lib/i18n";
+import { useFocusTrap } from "@/lib/use-focus-trap";
 import "./emergency.css";
 
 type Props = {
@@ -22,7 +23,9 @@ export default function EmergencyMode({ open, onClose, onDisconnected }: Props) 
   const [qaSalt, setQaSalt] = useState<string | null>(null);
   const [answer, setAnswer] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const dialogRef = useRef<HTMLDivElement>(null);
+  const dialogRef = useFocusTrap(open, () => {
+    if (stage !== "confirming") onClose();
+  });
 
   useEffect(() => {
     if (!open) return;
@@ -55,22 +58,17 @@ export default function EmergencyMode({ open, onClose, onDisconnected }: Props) 
 
   useEffect(() => {
     if (!open) return;
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape" && stage !== "confirming") onClose();
-    }
     function onPointer(e: MouseEvent) {
       const el = dialogRef.current;
       if (el && e.target instanceof Node && !el.contains(e.target) && stage !== "confirming") {
         onClose();
       }
     }
-    document.addEventListener("keydown", onKey);
     document.addEventListener("mousedown", onPointer);
     return () => {
-      document.removeEventListener("keydown", onKey);
       document.removeEventListener("mousedown", onPointer);
     };
-  }, [open, stage, onClose]);
+  }, [open, stage, onClose, dialogRef]);
 
   if (!open) return null;
 
@@ -107,6 +105,7 @@ export default function EmergencyMode({ open, onClose, onDisconnected }: Props) 
         role="dialog"
         aria-modal="true"
         aria-labelledby="sv-emg-title"
+        tabIndex={-1}
       >
         <div className="sv-emg-head">
           <h3 id="sv-emg-title">{t.dash.emergencyModalTitle}</h3>

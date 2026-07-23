@@ -37,14 +37,23 @@ function pinAccessButton() {
   if (!btn) return false;
   btn.classList.add("active");
   btn.style.setProperty("position", "fixed", "important");
+  // VLibras acima do par acessibilidade + TTS
   btn.style.setProperty("right", "18px", "important");
-  btn.style.setProperty("bottom", "18px", "important");
+  btn.style.setProperty("bottom", "140px", "important");
   btn.style.setProperty("left", "auto", "important");
   btn.style.setProperty("top", "auto", "important");
   btn.style.setProperty("z-index", "2147483000", "important");
   btn.style.setProperty("opacity", "1", "important");
   btn.style.setProperty("visibility", "visible", "important");
   btn.style.setProperty("pointer-events", "auto", "important");
+  btn.style.setProperty("display", "flex", "important");
+  btn.style.setProperty("width", "64px", "important");
+  btn.style.setProperty("height", "64px", "important");
+  btn.style.setProperty("max-width", "none", "important");
+  btn.style.setProperty("max-height", "none", "important");
+  btn.style.setProperty("transform", "none", "important");
+  btn.style.setProperty("clip", "auto", "important");
+  btn.style.setProperty("clip-path", "none", "important");
   return true;
 }
 

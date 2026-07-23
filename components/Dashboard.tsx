@@ -9,11 +9,12 @@ import WalletNwc from "@/components/WalletNwc";
 import BtcMarket from "@/components/BtcMarket";
 import MentorChat from "@/components/MentorChat";
 import FreeTopicChat from "@/components/FreeTopicChat";
-import LanguageSelect from "@/components/LanguageSelect";
-import AccessibilityFooter from "@/components/AccessibilityFooter";
 import EmergencyMode from "@/components/EmergencyMode";
 import HerancaPanel from "@/components/HerancaPanel";
 import QrScanButton from "@/components/QrScanButton";
+import SkipToContent from "@/components/SkipToContent";
+import A11yDialog from "@/components/A11yDialog";
+import { useFocusTrap } from "@/lib/use-focus-trap";
 import { fmtBtc, fmtMoney, satsToFiat, useI18n } from "@/lib/i18n";
 import { isMutinyNetBolt11, MUTINYNET_ONLY_MSG, normalizeBolt11 } from "@/lib/mutinynet";
 import { MISSION_1_SLUG, MISSION_2_SLUG } from "@/lib/missions";
@@ -29,6 +30,12 @@ import "./wallet.css";
 type DashboardProps = {
   user: { npub?: string; knowledgeLevel?: string };
   onExitToHome: () => void;
+  /** Abre Mentoria NagAI em tela cheia (fora do balão flutuante). */
+  onOpenMentorFull?: (
+    step: "m1" | "m2",
+    intent?: "chat" | "quiz" | "pratico",
+    opts?: { practiceConfirmed?: boolean },
+  ) => void;
 };
 
 type Panel = "home" | "receber" | "enviar" | "conectar";
@@ -139,7 +146,7 @@ function applyTheme(next: Theme) {
   }
 }
 
-export default function Dashboard({ user, onExitToHome }: DashboardProps) {
+export default function Dashboard({ user, onExitToHome, onOpenMentorFull }: DashboardProps) {
   const { t, locale } = useI18n();
   const [panel, setPanel] = useState<Panel>("home");
   const [mentorStep, setMentorStep] = useState<MentorStep>(null);
@@ -148,6 +155,7 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
   const [canEarn, setCanEarn] = useState(false);
   const [m1Eligible, setM1Eligible] = useState(true);
   const [m2Eligible, setM2Eligible] = useState(true);
+  const [satsAlreadyModal, setSatsAlreadyModal] = useState(false);
   const [satsBalance, setSatsBalance] = useState<number | null>(null);
   const [walletSats, setWalletSats] = useState<number | null>(null);
   const [walletConnected, setWalletConnected] = useState(false);
@@ -409,8 +417,44 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
   }
 
+  const herancaTrapRef = useFocusTrap(herancaOpen, () => setHerancaOpen(false));
+  const mentorSheetTrapRef = useFocusTrap(mentorOpen, endMentorChat);
+
+  /** Fecha o balão e abre Mentoria em layout de página inteira (ideal p/ simulador). */
+  function openMentorFullScreen(
+    intent: "chat" | "quiz" | "pratico" = "chat",
+    opts?: { practiceConfirmed?: boolean },
+  ) {
+    // No quiz com sats pendentes, prioriza a trilha ainda elegível a prêmio.
+    let step: "m1" | "m2" = mentorStep === "m2" ? "m2" : "m1";
+    if (intent === "quiz") {
+      if (m1Eligible) step = "m1";
+      else if (m2Eligible) step = "m2";
+    }
+    setSatsAlreadyModal(false);
+    setMentorOpen(false);
+    setMentorStep(null);
+    setFreeTopic(null);
+    if (onOpenMentorFull) {
+      onOpenMentorFull(step, intent, opts);
+      return;
+    }
+    setMentorStep(step);
+    setMentorOpen(true);
+  }
+
+  function onKnowledgeTestClick() {
+    if (canEarn) {
+      openMentorFullScreen("quiz");
+      return;
+    }
+    // Sats já creditados: confirmação antes de ir à revisão.
+    setSatsAlreadyModal(true);
+  }
+
   return (
     <div className="sv-bank">
+      <SkipToContent href="#conteudo" />
       <header className="sv-bank-top">
         <SiteNav variant="dash" />
         <div className="sv-bank-settings" ref={menuRef}>
@@ -442,8 +486,6 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
               </svg>
             )}
           </button>
-
-          <LanguageSelect variant="bank" />
 
           <button
             type="button"
@@ -625,7 +667,7 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
         </div>
       </header>
 
-      <main className="sv-bank-main">
+      <main className="sv-bank-main" id="conteudo" tabIndex={-1}>
         <div className="sv-bank-home-grid">
           <div className="sv-bank-home-left">
             <section
@@ -782,10 +824,15 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
                               }
                             }}
                           />
+                          <label className="sv-sr-only" htmlFor="sv-saque-bolt">
+                            Fatura Lightning para saque (bolt11 MutinyNet)
+                          </label>
                           <input
+                            id="sv-saque-bolt"
                             className="sv-bank-saque-input"
                             placeholder="lntbs1… (MutinyNet)"
                             value={claimBolt}
+                            aria-label="Fatura Lightning para saque (bolt11 MutinyNet)"
                             onChange={(e) => {
                               setClaimBolt(e.target.value);
                               setClaimError(null);
@@ -797,6 +844,10 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
                             type="button"
                             className="sv-bank-voucher-cta"
                             disabled={!claimBolt || claimBusy}
+                            aria-busy={claimBusy}
+                            aria-label={
+                              claimBusy ? t.a11y.loading : t.dash.withdrawSats
+                            }
                             onClick={() => void resgatarVoucher()}
                           >
                             {claimBusy ? "…" : t.dash.withdrawSats}
@@ -921,7 +972,14 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
       </main>
 
       {herancaOpen && (
-        <div className="sv-heranca-screen" role="dialog" aria-modal="true" aria-label={t.dash.estate}>
+        <div
+          ref={herancaTrapRef}
+          className="sv-heranca-screen"
+          role="dialog"
+          aria-modal="true"
+          aria-label={t.dash.estate}
+          tabIndex={-1}
+        >
           <div className="sv-heranca-screen-bar">
             <button
               type="button"
@@ -941,9 +999,12 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
       <div className={`sv-mentor-fab-wrap${chatActive ? " is-chat" : ""}`} ref={mentorFabRef}>
         {mentorOpen && (
           <div
+            ref={mentorSheetTrapRef}
             className={`sv-mentor-sheet${chatActive ? " sv-mentor-sheet--chat" : ""}`}
             role="dialog"
+            aria-modal="true"
             aria-label="NagAI SatVantage"
+            tabIndex={-1}
           >
             <div className="sv-mentor-sheet-head">
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -954,16 +1015,16 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
                   {freeTopic
                     ? freeTopic.label
                     : mentorStep === "m1"
-                      ? "Primeiros passos no Bitcoin"
+                      ? t.nagai.titleM1Short
                       : mentorStep === "m2"
-                        ? "Carteira e Lightning"
-                        : "Em que posso te ajudar?"}
+                        ? t.nagai.titleM2Short
+                        : t.nagai.helpTitle}
                 </p>
               </div>
               <button
                 type="button"
                 className="sv-mentor-sheet-close"
-                aria-label="Fechar NagAI"
+                aria-label={t.a11y.closeDialog}
                 onClick={endMentorChat}
               >
                 <span aria-hidden="true">×</span>
@@ -995,36 +1056,55 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
               ) : null
             ) : (
               <>
-                <p className="sv-mentor-sheet-label">Dúvidas importantes</p>
+                <p className="sv-mentor-sheet-label">{t.know.title}</p>
                 <div className="sv-mentor-chips">
-                  {KNOW_QUESTIONS.map((s) => (
-                    <button
-                      key={s.id}
-                      type="button"
-                      className="sv-mentor-chip"
-                      onClick={() => openGuideTopic(s.id)}
-                    >
-                      {s.label}
-                    </button>
-                  ))}
+                  {KNOW_QUESTIONS.map((s) => {
+                    const label =
+                      s.id === "imposto-quando"
+                        ? t.know.qImpostoQuando
+                        : s.id === "ir-2027"
+                          ? t.know.qIr2027
+                          : s.id === "patrimonio-crypto"
+                            ? t.know.qPatrimonio
+                            : t.know.qInforme;
+                    return (
+                      <button
+                        key={s.id}
+                        type="button"
+                        className="sv-mentor-chip"
+                        onClick={() => openGuideTopic(s.id)}
+                      >
+                        {label}
+                      </button>
+                    );
+                  })}
                 </div>
 
-                <p className="sv-mentor-sheet-label">Sugestões</p>
+                <p className="sv-mentor-sheet-label">{t.know.suggestions}</p>
                 <div className="sv-mentor-chips">
-                  {MENTOR_SUGGESTIONS.map((s) => (
-                    <button
-                      key={s.id}
-                      type="button"
-                      className="sv-mentor-chip"
-                      onClick={() => openGuideTopic(s.id)}
-                    >
-                      {s.label}
-                    </button>
-                  ))}
+                  {MENTOR_SUGGESTIONS.map((s) => {
+                    const label =
+                      s.id === "patrimonio"
+                        ? t.know.sPatrimonio
+                        : s.id === "comprar"
+                          ? t.know.sComprar
+                          : t.know.sGeopolitica;
+                    return (
+                      <button
+                        key={s.id}
+                        type="button"
+                        className="sv-mentor-chip"
+                        onClick={() => openGuideTopic(s.id)}
+                      >
+                        {label}
+                      </button>
+                    );
+                  })}
                 </div>
 
                 <p className="sv-mentor-sheet-label">
-                  Com NagAI · sats {canEarn ? "" : "(já creditados nesta conta)"}
+                  {t.nagai.withNagai}
+                  {canEarn ? "" : ` ${t.nagai.satsAlready}`}
                 </p>
                 <div className="sv-mentor-chips">
                   <button
@@ -1036,29 +1116,79 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
                       setMentorStep("m1");
                     }}
                   >
-                    NagAI · Bitcoin {m1Eligible ? "· ganha sats" : "· prática"}
+                    {t.nagai.askNagai}
+                  </button>
+                  <button
+                    type="button"
+                    className={`sv-mentor-chip${
+                      canEarn ? " sv-mentor-chip--sats-cta" : " sv-mentor-chip--earn"
+                    }`}
+                    onClick={onKnowledgeTestClick}
+                    title={canEarn ? t.nagai.earnTitle : t.nagai.practiceTitle}
+                  >
+                    {canEarn ? t.nagai.earnSats : t.nagai.testKnowledge}
                   </button>
                   <button
                     type="button"
                     className="sv-mentor-chip sv-mentor-chip--earn"
-                    onClick={() => {
-                      setFreeTopic(null);
-                      setMentorOpen(true);
-                      setMentorStep("m2");
-                    }}
+                    onClick={() => openMentorFullScreen("pratico")}
                   >
-                    NagAI · Carteira e Lightning {m2Eligible ? "· ganha sats" : "· prática"}
+                    {t.nagai.tradeSim}
+                  </button>
+                </div>
+
+                <div className="sv-mentor-chips">
+                  <button
+                    type="button"
+                    className="sv-mentor-chip sv-mentor-chip--fullscreen"
+                    onClick={() => openMentorFullScreen("chat")}
+                  >
+                    <span className="sv-mentor-chip-ico" aria-hidden>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <path
+                          d="M9 3H3v6M15 3h6v6M9 21H3v-6M21 15v6h-6"
+                          stroke="currentColor"
+                          strokeWidth="1.8"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </span>
+                    {t.nagai.openFullscreen}
                   </button>
                 </div>
               </>
             )}
+
+            {chatActive ? (
+              <div className="sv-mentor-sheet-foot">
+                <button
+                  type="button"
+                  className="sv-mentor-chip sv-mentor-chip--fullscreen"
+                  onClick={() => openMentorFullScreen("chat")}
+                >
+                  <span className="sv-mentor-chip-ico" aria-hidden>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                      <path
+                        d="M9 3H3v6M15 3h6v6M9 21H3v-6M21 15v6h-6"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </span>
+                  {t.nagai.openFullscreen}
+                </button>
+              </div>
+            ) : null}
           </div>
         )}
 
         <button
           type="button"
           className="sv-mentor-fab"
-          aria-label={mentorOpen ? "Fechar NagAI" : "Abrir NagAI"}
+          aria-label={mentorOpen ? t.a11y.closeDialog : "NagAI"}
           aria-expanded={mentorOpen}
           onClick={() => {
             if (mentorOpen) endMentorChat();
@@ -1074,8 +1204,6 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
         </button>
       </div>
 
-      <AccessibilityFooter />
-
       <EmergencyMode
         open={emergencyOpen}
         onClose={() => setEmergencyOpen(false)}
@@ -1086,49 +1214,75 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
       />
 
       {nostrKeyOpen && user.npub && (
-        <div
-          className="sv-key-modal-backdrop"
-          role="presentation"
-          onClick={() => setNostrKeyOpen(false)}
+        <A11yDialog
+          open={nostrKeyOpen}
+          onClose={() => setNostrKeyOpen(false)}
+          labelledBy="sv-nostr-key-title"
+          className="sv-key-modal"
+          backdropClassName="sv-key-modal-backdrop"
         >
-          <div
-            className="sv-key-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="sv-nostr-key-title"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 id="sv-nostr-key-title" className="sv-key-modal-title">
-              {t.dash.nostrKeyTitle}
-            </h2>
-            <p className="sv-key-modal-hint">{t.dash.nostrKeyHint}</p>
-            <code className="sv-key-modal-npub">{user.npub}</code>
-            <div className="sv-key-modal-actions">
-              <button
-                type="button"
-                className="sv-bank-profile-btn"
-                onClick={async () => {
-                  try {
-                    await navigator.clipboard.writeText(user.npub!);
-                    setKeyCopied(true);
-                    setTimeout(() => setKeyCopied(false), 2000);
-                  } catch {
-                    /* ignore */
-                  }
-                }}
-              >
-                {keyCopied ? t.dash.keyCopied : t.dash.copyKey}
-              </button>
-              <button
-                type="button"
-                className="sv-bank-profile-btn sv-bank-profile-btn--ghost"
-                onClick={() => setNostrKeyOpen(false)}
-              >
-                {t.dash.closeKeyModal}
-              </button>
-            </div>
+          <h2 id="sv-nostr-key-title" className="sv-key-modal-title">
+            {t.dash.nostrKeyTitle}
+          </h2>
+          <p className="sv-key-modal-hint">{t.dash.nostrKeyHint}</p>
+          <code className="sv-key-modal-npub">{user.npub}</code>
+          <div className="sv-key-modal-actions">
+            <button
+              type="button"
+              className="sv-bank-profile-btn"
+              onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(user.npub!);
+                  setKeyCopied(true);
+                  setTimeout(() => setKeyCopied(false), 2000);
+                } catch {
+                  /* ignore */
+                }
+              }}
+            >
+              {keyCopied ? t.dash.keyCopied : t.dash.copyKey}
+            </button>
+            <button
+              type="button"
+              className="sv-bank-profile-btn sv-bank-profile-btn--ghost"
+              onClick={() => setNostrKeyOpen(false)}
+            >
+              {t.dash.closeKeyModal}
+            </button>
           </div>
-        </div>
+        </A11yDialog>
+      )}
+
+      {satsAlreadyModal && (
+        <A11yDialog
+          open={satsAlreadyModal}
+          onClose={() => setSatsAlreadyModal(false)}
+          labelledBy="sv-sats-confirm-title"
+          className="sv-sats-confirm-modal"
+          backdropClassName="sv-sats-confirm-backdrop"
+        >
+          <h2 id="sv-sats-confirm-title">{t.dash.satsAlreadyTitle}</h2>
+          <p>
+            {t.dash.satsAlreadyBefore}{" "}
+            <strong>{t.dash.satsAlreadyStrong}</strong> {t.dash.satsAlreadyAfter}
+          </p>
+          <div className="sv-sats-confirm-actions">
+            <button
+              type="button"
+              className="sv-sats-confirm-btn sv-sats-confirm-btn--ghost"
+              onClick={() => setSatsAlreadyModal(false)}
+            >
+              {t.dash.satsAlreadyCancel}
+            </button>
+            <button
+              type="button"
+              className="sv-sats-confirm-btn"
+              onClick={() => openMentorFullScreen("quiz", { practiceConfirmed: true })}
+            >
+              {t.dash.satsAlreadyProceed}
+            </button>
+          </div>
+        </A11yDialog>
       )}
     </div>
   );

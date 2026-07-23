@@ -59,6 +59,8 @@ export async function GET(req: NextRequest) {
         ? "concluida"
         : "em_andamento"; // já respondeu algo (crédito incremental) mas ainda não terminou
 
+  const rawLocale = req.nextUrl.searchParams.get("locale") ?? "pt";
+
   return NextResponse.json({
     mission: {
       slug: mission.slug,
@@ -72,6 +74,7 @@ export async function GET(req: NextRequest) {
     hasProgress: !!progress,
     xp: user?.xp ?? 0,
     satsBalance: user?.sats_balance ?? 0,
-    lessons: lessonsForClient(slug),
+    locale: rawLocale,
+    lessons: lessonsForClient(slug, rawLocale),
   });
 }

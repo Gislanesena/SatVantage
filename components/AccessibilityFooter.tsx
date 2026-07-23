@@ -1,23 +1,9 @@
 "use client";
 // Leitura por voz da página (Web Speech API) + âncora de acessibilidade.
-import { useEffect, useState } from "react";
+import { useSpeakText } from "@/lib/use-speak-text";
+import { extractReadableText } from "@/lib/speak-text";
 import { useI18n } from "@/lib/i18n";
 import "./a11y.css";
-
-function pageText(): string {
-  const root =
-    document.getElementById("topo") ||
-    document.querySelector("main") ||
-    document.body;
-  if (!root) return "";
-  const clone = root.cloneNode(true) as HTMLElement;
-  clone
-    .querySelectorAll(
-      "script, style, noscript, [aria-hidden='true'], .sv-a11y, [vw]",
-    )
-    .forEach((el) => el.remove());
-  return (clone.innerText || "").replace(/\s+\n/g, "\n").trim();
-}
 
 export default function AccessibilityFooter({
   embedded = false,
@@ -25,44 +11,17 @@ export default function AccessibilityFooter({
   embedded?: boolean;
 }) {
   const { t, locale } = useI18n();
-  const [speaking, setSpeaking] = useState(false);
-  const supported =
-    typeof window !== "undefined" && "speechSynthesis" in window;
-
-  useEffect(() => {
-    return () => {
-      try {
-        window.speechSynthesis?.cancel();
-      } catch {
-        /* ignore */
-      }
-    };
-  }, []);
-
-  function stop() {
-    try {
-      window.speechSynthesis.cancel();
-    } catch {
-      /* ignore */
-    }
-    setSpeaking(false);
-  }
+  const lang = locale === "pt" ? "pt-BR" : locale === "es" ? "es-ES" : "en-US";
+  const { supported, speaking, speak, stop } = useSpeakText(lang);
 
   function start() {
     if (!supported) {
       window.alert(t.a11y.voiceUnsupported);
       return;
     }
-    stop();
-    const text = pageText();
+    const text = extractReadableText();
     if (!text) return;
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = locale === "pt" ? "pt-BR" : locale === "es" ? "es-ES" : "en-US";
-    utter.rate = 1;
-    utter.onend = () => setSpeaking(false);
-    utter.onerror = () => setSpeaking(false);
-    setSpeaking(true);
-    window.speechSynthesis.speak(utter);
+    speak(text);
   }
 
   const Tag = embedded ? "div" : "footer";
@@ -77,6 +36,7 @@ export default function AccessibilityFooter({
           type="button"
           className={`sv-a11y-voice${speaking ? " is-on" : ""}`}
           onClick={() => (speaking ? stop() : start())}
+          aria-label={speaking ? t.a11y.stopReading : t.a11y.readPage}
           aria-pressed={speaking}
         >
           <span className="sv-a11y-ico" aria-hidden>

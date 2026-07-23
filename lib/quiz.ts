@@ -8,8 +8,14 @@ import {
   isMissionSlug,
   type MissionSlug,
 } from "@/lib/missions";
+import {
+  QUIZ_I18N,
+  normalizeQuizLocale,
+  type QuizLocale,
+} from "@/lib/quiz-i18n";
 
 export { MISSION_1_SLUG, MISSION_2_SLUG, isMissionSlug, type MissionSlug };
+export type { QuizLocale };
 
 export const SATS_CORRECT = 5;
 export const SATS_TRIED = 3;
@@ -193,14 +199,43 @@ export function questionsFor(slug: MissionSlug): QuizQuestion[] {
   return BY_SLUG[slug];
 }
 
-/** Conteúdo seguro para o cliente (sem gabarito). */
-export function lessonsForClient(slug: MissionSlug) {
-  return questionsFor(slug).map(({ id, teach, question, options }) => ({
+function localizeQuestion(q: QuizQuestion, locale: QuizLocale): QuizQuestion {
+  if (locale === "pt") return q;
+  const pack = QUIZ_I18N[q.id]?.[locale];
+  if (!pack) return q;
+  return {
+    ...q,
+    teach: pack.teach,
+    question: pack.question,
+    options: [...pack.options],
+    feedbackCorrect: pack.feedbackCorrect,
+    feedbackWrong: pack.feedbackWrong,
+  };
+}
+
+/** Conteúdo seguro para o cliente (sem gabarito).
+ *  Teste de conhecimento: exatamente 1 pergunta estratégica por trilha. */
+export function lessonsForClient(slug: MissionSlug, locale: QuizLocale | string = "pt") {
+  const lang = normalizeQuizLocale(locale);
+  const strategic = questionsFor(slug).slice(0, 1).map((q) => localizeQuestion(q, lang));
+  return strategic.map(({ id, teach, question, options }) => ({
     id,
     teach,
     question,
     options,
   }));
+}
+
+/** Feedback localizado para check/submit (mantém índice correto). */
+export function localizedQuestion(
+  slug: MissionSlug,
+  questionId: string,
+  locale: QuizLocale | string = "pt",
+): QuizQuestion | null {
+  const lang = normalizeQuizLocale(locale);
+  const q = questionsFor(slug).find((item) => item.id === questionId);
+  if (!q) return null;
+  return localizeQuestion(q, lang);
 }
 
 export type MentorResponse = {

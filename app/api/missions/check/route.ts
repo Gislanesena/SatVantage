@@ -16,11 +16,13 @@ import { ensureMission } from "@/lib/ensure-mission";
 import {
   isMissionSlug,
   MISSION_1_SLUG,
+  localizedQuestion,
   questionsFor,
   SATS_CORRECT,
   SATS_TRIED,
   type MissionSlug,
 } from "@/lib/quiz";
+import { normalizeQuizLocale } from "@/lib/quiz-i18n";
 
 function wasRewarded(marker: string | null | undefined): boolean {
   if (!marker) return false;
@@ -34,7 +36,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "faça login" }, { status: 401 });
   }
 
-  let body: { slug?: string; lessonIndex?: number; answer?: number };
+  let body: {
+    slug?: string;
+    lessonIndex?: number;
+    answer?: number;
+    locale?: string;
+    idioma?: string;
+  };
   try {
     body = await req.json();
   } catch {
@@ -47,6 +55,7 @@ export async function POST(req: NextRequest) {
   }
   const slug: MissionSlug = rawSlug;
   const questions = questionsFor(slug);
+  const lang = normalizeQuizLocale(body.locale ?? body.idioma);
 
   const i = body.lessonIndex;
   const answer = body.answer;
@@ -60,6 +69,7 @@ export async function POST(req: NextRequest) {
   }
 
   const q = questions[i];
+  const qLocal = localizedQuestion(slug, q.id, lang) ?? q;
   const correct = answer === q.correct;
   const sats = correct ? SATS_CORRECT : SATS_TRIED;
 
@@ -187,7 +197,7 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({
     correct,
-    feedback: correct ? q.feedbackCorrect : q.feedbackWrong,
+    feedback: correct ? qLocal.feedbackCorrect : qLocal.feedbackWrong,
     sats,
     satsCredited,
     satsBalance,

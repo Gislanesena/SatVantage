@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import Landing from "@/components/Landing";
 import LoginNostr, { loginWithExtension, type AuthMode } from "@/components/LoginNostr";
-import MentorChat from "@/components/MentorChat";
+import MentorChat, { type MentorIntent } from "@/components/MentorChat";
 import Dashboard from "@/components/Dashboard";
 import { MISSION_1_SLUG, MISSION_2_SLUG } from "@/lib/missions";
 import { useInactivityLogout } from "@/lib/useInactivityLogout";
@@ -24,6 +24,8 @@ export default function Home() {
   const [checkingSession, setCheckingSession] = useState(true);
   const [extBusy, setExtBusy] = useState(false);
   const [extError, setExtError] = useState<string | null>(null);
+  const [mentorIntent, setMentorIntent] = useState<MentorIntent>("chat");
+  const [mentorPracticeConfirmed, setMentorPracticeConfirmed] = useState(false);
 
   // Restaura a sessão existente (cookie httpOnly de 12h) ao carregar/dar F5 —
   // sem isso, todo refresh derrubava a pessoa de volta pra landing.
@@ -84,6 +86,8 @@ export default function Home() {
   }
 
   function goToDashboard() {
+    setMentorIntent("chat");
+    setMentorPracticeConfirmed(false);
     setView("dashboard");
     // A mentoria deixa a janela rolada para baixo — ao abrir o dash, começa no saldo.
     requestAnimationFrame(() => {
@@ -91,6 +95,16 @@ export default function Home() {
       document.documentElement.scrollTop = 0;
       document.body.scrollTop = 0;
     });
+  }
+
+  function openMentorFull(
+    step: "m1" | "m2",
+    intent: MentorIntent = "chat",
+    opts?: { practiceConfirmed?: boolean },
+  ) {
+    setMentorIntent(intent);
+    setMentorPracticeConfirmed(!!opts?.practiceConfirmed);
+    setView(step === "m2" ? "mentor2" : "mentor1");
   }
 
   const loggedIn = view === "mentor1" || view === "mentor2" || view === "dashboard";
@@ -158,23 +172,37 @@ export default function Home() {
 
       {view === "mentor1" && user && (
         <MentorChat
+          key={`m1-${mentorIntent}-${mentorPracticeConfirmed ? "p" : "r"}`}
           slug={MISSION_1_SLUG}
+          initialIntent={mentorIntent}
+          startAsPractice={mentorPracticeConfirmed}
           onExitToHome={exitToHome}
-          onContinueMentor={() => setView("mentor2")}
+          onContinueMentor={() => {
+            setMentorIntent("chat");
+            setMentorPracticeConfirmed(false);
+            setView("mentor2");
+          }}
           onGoDashboard={goToDashboard}
         />
       )}
 
       {view === "mentor2" && user && (
         <MentorChat
+          key={`m2-${mentorIntent}-${mentorPracticeConfirmed ? "p" : "r"}`}
           slug={MISSION_2_SLUG}
+          initialIntent={mentorIntent}
+          startAsPractice={mentorPracticeConfirmed}
           onExitToHome={exitToHome}
           onGoDashboard={goToDashboard}
         />
       )}
 
       {view === "dashboard" && user && (
-        <Dashboard user={user} onExitToHome={exitToHome} />
+        <Dashboard
+          user={user}
+          onExitToHome={exitToHome}
+          onOpenMentorFull={openMentorFull}
+        />
       )}
     </>
   );
