@@ -121,7 +121,7 @@ div[vw] {
   border-radius: 999px;
   border: 1px solid var(--theme-btn-border);
   background: transparent;
-  color: var(--ink);
+  color: #e2e8f0;
   font-family: var(--font-body, "Figtree", system-ui, sans-serif);
   font-size: 0.82rem;
   font-weight: 700;
@@ -134,12 +134,32 @@ div[vw] {
   min-width: 56px;
   border-color: var(--line);
   background: var(--surface);
+  color: var(--ink);
+}
+
+/* Modo claro: texto azul-marinho (botão e menu) */
+[data-theme="light"] .sv-lang-btn {
+  color: #0f172a;
+  background: #e2e8f0;
+  border-color: rgba(15, 23, 42, 0.22);
+}
+
+[data-theme="light"] .sv-lang--bank .sv-lang-btn {
+  color: #0f172a;
+  background: #e8eef7;
+  border-color: rgba(15, 23, 42, 0.18);
 }
 
 .sv-lang-btn:hover {
   border-color: var(--accent);
   color: var(--accent);
   background: var(--orange-soft);
+}
+
+[data-theme="light"] .sv-lang-btn:hover {
+  color: #0f172a;
+  background: #dbe7f5;
+  border-color: #1e3a5f;
 }
 
 .sv-lang-btn:focus-visible {
@@ -149,12 +169,14 @@ div[vw] {
 
 .sv-lang-code {
   line-height: 1;
+  color: inherit;
 }
 
 .sv-lang-caret {
   font-size: 0.65rem;
   opacity: 0.75;
   line-height: 1;
+  color: inherit;
 }
 
 .sv-lang-menu {
@@ -174,6 +196,12 @@ div[vw] {
   gap: 2px;
 }
 
+[data-theme="light"] .sv-lang-menu {
+  background: #f8fafc;
+  border-color: rgba(15, 23, 42, 0.14);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.16);
+}
+
 .sv-lang-option {
   width: 100%;
   display: block;
@@ -190,9 +218,19 @@ div[vw] {
   cursor: pointer;
 }
 
+[data-theme="light"] .sv-lang-option {
+  color: #0f172a;
+}
+
 .sv-lang-option:hover {
   background: var(--orange-soft);
   color: var(--accent);
+}
+
+[data-theme="light"] .sv-lang-option:hover,
+[data-theme="light"] .sv-lang-option.is-on {
+  color: #0f172a;
+  background: #dbeafe;
 }
 
 .sv-lang-option.is-on {

@@ -63,6 +63,12 @@ export type Dict = {
     choosePhoto: string;
     removePhoto: string;
     pickPhotoAria: string;
+    myNostrKey: string;
+    nostrKeyTitle: string;
+    nostrKeyHint: string;
+    copyKey: string;
+    keyCopied: string;
+    closeKeyModal: string;
     estateSoon: string;
     emergencySoon: string;
     emergencyModalTitle: string;
@@ -163,6 +169,11 @@ export type Dict = {
     vaultBody: string;
     extTitle: string;
     extBody: string;
+    copilotoEyebrow: string;
+    copilotoTitle: string;
+    copilotoCopy: string;
+    copilotoBtn: string;
+    copilotoBtnTitle: string;
     emergencyTitle: string;
     emergencyBody: string;
   };
@@ -263,6 +274,13 @@ const dictionaries: Record<Locale, Dict> = {
       choosePhoto: "Escolher foto",
       removePhoto: "Remover",
       pickPhotoAria: "Escolher foto de perfil",
+      myNostrKey: "Minha chave Nostr",
+      nostrKeyTitle: "Sua chave Nostr (npub)",
+      nostrKeyHint:
+        "Use esta identidade pública para conferir a conta. Para entrar com extensão (Alby/nos2x) na mesma identidade, importe as 12 palavras geradas no cadastro — elas derivam esta chave (NIP-06).",
+      copyKey: "Copiar",
+      keyCopied: "Copiada",
+      closeKeyModal: "Sair",
       estateSoon: "Herança chega em breve — ainda estamos montando.",
       emergencySoon:
         "Modo Emergência chega em breve — a base NWC já está pronta.",
@@ -380,6 +398,12 @@ const dictionaries: Record<Locale, Dict> = {
       extTitle: "Extensão = a chave não sai do seu dispositivo.",
       extBody:
         "Com Alby ou nos2x, só pedimos uma assinatura. Verificamos a prova — não a chave.",
+      copilotoEyebrow: "Extensão Chrome",
+      copilotoTitle: "SatVantage Copiloto",
+      copilotoCopy:
+        "Leve nossa IA para outros sites: peça um guia passo a passo ou uma análise de risco em páginas de carteiras, corretoras e ofertas de Bitcoin.",
+      copilotoBtn: "Baixar extensão",
+      copilotoBtnTitle: "Em breve",
       emergencyTitle: "Modo emergência e fricção consciente.",
       emergencyBody:
         "Revogue conexões num toque se perder o aparelho. Em operações fora do padrão, alertamos antes — você decide.",
@@ -509,6 +533,13 @@ const dictionaries: Record<Locale, Dict> = {
       choosePhoto: "Choose photo",
       removePhoto: "Remove",
       pickPhotoAria: "Choose profile photo",
+      myNostrKey: "My Nostr key",
+      nostrKeyTitle: "Your Nostr key (npub)",
+      nostrKeyHint:
+        "Use this public identity to verify your account. To sign in with an extension (Alby/nos2x) on the same identity, import the 12 words from signup — they derive this key (NIP-06).",
+      copyKey: "Copy",
+      keyCopied: "Copied",
+      closeKeyModal: "Close",
       estateSoon: "Inheritance is coming soon — we’re still building it.",
       emergencySoon:
         "Emergency mode is coming soon — the NWC foundation is ready.",
@@ -626,6 +657,12 @@ const dictionaries: Record<Locale, Dict> = {
       extTitle: "Extension = the key never leaves your device.",
       extBody:
         "With Alby or nos2x, we only ask for a signature. We verify the proof — not the key.",
+      copilotoEyebrow: "Chrome extension",
+      copilotoTitle: "SatVantage Copilot",
+      copilotoCopy:
+        "Take our AI to other sites: ask for a step-by-step guide or a risk analysis on wallet pages, exchanges and Bitcoin offers.",
+      copilotoBtn: "Download extension",
+      copilotoBtnTitle: "Coming soon",
       emergencyTitle: "Emergency mode and mindful friction.",
       emergencyBody:
         "Revoke connections in one tap if you lose your device. On unusual operations, we alert first — you decide.",
@@ -755,6 +792,13 @@ const dictionaries: Record<Locale, Dict> = {
       choosePhoto: "Elegir foto",
       removePhoto: "Quitar",
       pickPhotoAria: "Elegir foto de perfil",
+      myNostrKey: "Mi clave Nostr",
+      nostrKeyTitle: "Tu clave Nostr (npub)",
+      nostrKeyHint:
+        "Usa esta identidad pública para verificar la cuenta. Para entrar con extensión (Alby/nos2x) en la misma identidad, importa las 12 palabras del registro — derivan esta clave (NIP-06).",
+      copyKey: "Copiar",
+      keyCopied: "Copiada",
+      closeKeyModal: "Salir",
       estateSoon: "Herencia llega pronto — aún lo estamos armando.",
       emergencySoon:
         "Modo emergencia llega pronto — la base NWC ya está lista.",
@@ -872,6 +916,12 @@ const dictionaries: Record<Locale, Dict> = {
       extTitle: "Extensión = la clave no sale de tu dispositivo.",
       extBody:
         "Con Alby o nos2x, solo pedimos una firma. Verificamos la prueba — no la clave.",
+      copilotoEyebrow: "Extensión Chrome",
+      copilotoTitle: "SatVantage Copiloto",
+      copilotoCopy:
+        "Lleva nuestra IA a otros sitios: pide una guía paso a paso o un análisis de riesgo en páginas de carteras, exchanges y ofertas de Bitcoin.",
+      copilotoBtn: "Descargar extensión",
+      copilotoBtnTitle: "Pronto",
       emergencyTitle: "Modo emergencia y fricción consciente.",
       emergencyBody:
         "Revoca conexiones en un toque si pierdes el aparato. En operaciones fuera de patrón, avisamos antes — tú decides.",

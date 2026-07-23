@@ -155,6 +155,8 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
   const [hideBalance, setHideBalance] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [nostrKeyOpen, setNostrKeyOpen] = useState(false);
+  const [keyCopied, setKeyCopied] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [soonMsg, setSoonMsg] = useState<string | null>(null);
   const [emergencyOpen, setEmergencyOpen] = useState(false);
@@ -265,6 +267,9 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
     setTheme(t);
     applyTheme(t);
     void refreshBalances();
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
   }, [user.npub, refreshBalances]);
 
   // Reposiciona o VLibras ao abrir o dash (o plugin às vezes some na troca de tela)
@@ -273,6 +278,17 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
     const id = window.setTimeout(() => {
       window.dispatchEvent(new Event("sv-vlibras-repin"));
     }, 900);
+    return () => window.clearTimeout(id);
+  }, []);
+
+  // Ao montar o dash (ex.: saída da mentoria), garante topo da página = saldo.
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    const id = window.setTimeout(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    }, 50);
     return () => window.clearTimeout(id);
   }, []);
 
@@ -390,6 +406,7 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
     setFreeTopic(null);
     setMentorOpen(false);
     void refreshBalances();
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
   }
 
   return (
@@ -516,7 +533,7 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
                   <button
                     type="button"
                     role="menuitem"
-                    className="sv-bank-menu-item"
+                    className="sv-bank-menu-item sv-bank-menu-item--emergency"
                     onClick={() => {
                       setMenuOpen(false);
                       setEmergencyOpen(true);
@@ -524,6 +541,14 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
                   >
                     {t.dash.emergency}
                   </button>
+                  <a
+                    role="menuitem"
+                    className="sv-bank-menu-item"
+                    href={`mailto:suporte@satvantage.com.br?subject=${encodeURIComponent(t.footer.supportSubject)}`}
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    {t.nav.support}
+                  </a>
                   <button
                     type="button"
                     role="menuitem"
@@ -565,6 +590,18 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
                   >
                     {t.dash.choosePhoto}
                   </button>
+                  {user.npub && (
+                    <button
+                      type="button"
+                      className="sv-bank-profile-btn sv-bank-profile-btn--ghost"
+                      onClick={() => {
+                        setNostrKeyOpen(true);
+                        setKeyCopied(false);
+                      }}
+                    >
+                      {t.dash.myNostrKey}
+                    </button>
+                  )}
                   {avatarUrl && (
                     <button
                       type="button"
@@ -1047,6 +1084,52 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
           void refreshBalances();
         }}
       />
+
+      {nostrKeyOpen && user.npub && (
+        <div
+          className="sv-key-modal-backdrop"
+          role="presentation"
+          onClick={() => setNostrKeyOpen(false)}
+        >
+          <div
+            className="sv-key-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="sv-nostr-key-title"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 id="sv-nostr-key-title" className="sv-key-modal-title">
+              {t.dash.nostrKeyTitle}
+            </h2>
+            <p className="sv-key-modal-hint">{t.dash.nostrKeyHint}</p>
+            <code className="sv-key-modal-npub">{user.npub}</code>
+            <div className="sv-key-modal-actions">
+              <button
+                type="button"
+                className="sv-bank-profile-btn"
+                onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(user.npub!);
+                    setKeyCopied(true);
+                    setTimeout(() => setKeyCopied(false), 2000);
+                  } catch {
+                    /* ignore */
+                  }
+                }}
+              >
+                {keyCopied ? t.dash.keyCopied : t.dash.copyKey}
+              </button>
+              <button
+                type="button"
+                className="sv-bank-profile-btn sv-bank-profile-btn--ghost"
+                onClick={() => setNostrKeyOpen(false)}
+              >
+                {t.dash.closeKeyModal}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
