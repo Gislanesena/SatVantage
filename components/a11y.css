@@ -85,36 +85,52 @@
   line-height: 1;
 }
 
-/* VLibras — canto inferior direito (botão real .access-button)
-   Forçado visível em desktop e mobile (sem display:none em media queries). */
+/* VLibras — um único FAB no meio da borda direita */
 #sv-vlibras-root,
 .sv-vlibras,
 div[vw],
-div[vw].enabled,
-[vw-access-button],
-.access-button {
+div[vw].enabled {
   z-index: 2147483000 !important;
-  display: block !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-  pointer-events: auto !important;
+  pointer-events: none !important;
 }
 
-#sv-vlibras-root,
-.sv-vlibras,
-div[vw] {
-  position: relative !important;
+/* Marcador oficial vazio — some só se NÃO for o botão e NÃO contiver o botão */
+[vw-access-button]:not(.access-button):not(:has(.access-button)) {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: -1px !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  border: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Wrapper que só hospeda o botão: não cria segundo FAB */
+[vw-access-button]:has(.access-button):not(.access-button) {
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  overflow: visible !important;
+  opacity: 1 !important;
+  clip: auto !important;
+  pointer-events: none !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 .access-button,
-[vw-access-button].active,
+[vw-access-button].access-button,
 div[vw] .access-button {
   position: fixed !important;
   right: 18px !important;
-  /* Acima do par acessibilidade + TTS (~18 + 52 + 8 + 52) */
-  bottom: 140px !important;
+  top: 50% !important;
+  bottom: auto !important;
   left: auto !important;
-  top: auto !important;
+  transform: translateY(-50%) !important;
   z-index: 2147483000 !important;
   opacity: 1 !important;
   visibility: visible !important;
@@ -128,7 +144,6 @@ div[vw] .access-button {
   max-height: none !important;
   min-width: 56px !important;
   min-height: 56px !important;
-  transform: none !important;
   clip: auto !important;
   clip-path: none !important;
   overflow: visible !important;
@@ -373,17 +388,21 @@ div[vw] .access-button {
   }
 
   .access-button,
-  [vw-access-button].active,
+  [vw-access-button].access-button,
   div[vw] .access-button {
     right: 12px !important;
-    bottom: 128px !important;
+    top: 50% !important;
+    bottom: auto !important;
+    transform: translateY(-50%) !important;
     width: 56px !important;
     height: 56px !important;
   }
 
   .sv-vlibras-fallback {
     right: 12px;
-    bottom: 128px;
+    top: 50%;
+    bottom: auto;
+    transform: translateY(-50%);
   }
 
   .sv-vlibras-fallback-btn {
@@ -392,11 +411,13 @@ div[vw] .access-button {
   }
 }
 
-/* Fallback quando o CDN VLibras falha — não quebra o layout mobile */
+/* Fallback quando o CDN VLibras falha — mesmo ponto do FAB (meio à direita) */
 .sv-vlibras-fallback {
   position: fixed;
   right: 18px;
-  bottom: 140px;
+  top: 50%;
+  bottom: auto;
+  transform: translateY(-50%);
   z-index: 2147483000;
   display: flex;
   flex-direction: column;

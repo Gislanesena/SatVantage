@@ -417,22 +417,57 @@ export default function TradeSimulator({ onExit }: TradeSimulatorProps) {
   }, [candles, last, locale]);
 
   const tipStyle = useMemo(() => {
-    if (!spot) return { top: "30%", left: "50%", transform: "translate(-50%, 0)" } as const;
     const vw = typeof window !== "undefined" ? window.innerWidth : 1200;
     const vh = typeof window !== "undefined" ? window.innerHeight : 800;
-    const tipW = Math.min(320, vw - 24);
-    let left = spot.left + spot.width / 2 - tipW / 2;
-    left = Math.max(12, Math.min(left, vw - tipW - 12));
-    const below = spot.top + spot.height + 14;
-    const above = spot.top - 14;
-    const placeBelow = below + 200 < vh || spot.top < 160;
-    return {
-      top: placeBelow ? below : undefined,
-      bottom: placeBelow ? undefined : vh - above,
-      left,
-      width: tipW,
-    } as const;
-  }, [spot]);
+    const tipW = Math.min(300, vw - 24);
+    const tipH = 220; // altura aproximada do card (título + texto + botões)
+    const gap = 12;
+    const margin = 12;
+
+    if (!spot) {
+      return {
+        top: Math.max(margin, (vh - tipH) / 2),
+        left: Math.max(margin, (vw - tipW) / 2),
+        width: tipW,
+      } as const;
+    }
+
+    const spaceRight = vw - (spot.left + spot.width) - margin;
+    const spaceLeft = spot.left - margin;
+    const preferBeside = tourTarget === "chart" || spot.width > vw * 0.45;
+
+    let left: number;
+    let top: number;
+
+    if (preferBeside && spaceRight >= tipW + gap) {
+      left = spot.left + spot.width + gap;
+      top = spot.top + Math.min(spot.height / 2 - tipH / 2, 40);
+    } else if (preferBeside && spaceLeft >= tipW + gap) {
+      left = spot.left - tipW - gap;
+      top = spot.top + Math.min(spot.height / 2 - tipH / 2, 40);
+    } else {
+      // Abaixo ou acima, sem sair da tela
+      left = spot.left + spot.width / 2 - tipW / 2;
+      const below = spot.top + spot.height + gap;
+      const above = spot.top - tipH - gap;
+      if (below + tipH <= vh - margin) {
+        top = below;
+      } else if (above >= margin) {
+        top = above;
+      } else {
+        // Lado forçado no meio da viewport se o alvo for enorme
+        top = Math.max(margin, Math.min(spot.top + gap, vh - tipH - margin));
+        if (spaceRight >= tipW + gap) left = spot.left + spot.width + gap;
+        else if (spaceLeft >= tipW + gap) left = spot.left - tipW - gap;
+        else left = Math.max(margin, (vw - tipW) / 2);
+      }
+    }
+
+    left = Math.max(margin, Math.min(left, vw - tipW - margin));
+    top = Math.max(margin, Math.min(top, vh - tipH - margin));
+
+    return { top, left, width: tipW } as const;
+  }, [spot, tourTarget]);
 
   return (
     <div
