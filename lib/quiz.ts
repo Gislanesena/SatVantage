@@ -21,6 +21,9 @@ export const SATS_CORRECT = 5;
 export const SATS_TRIED = 3;
 export const SATS_SKIP = 0;
 
+/** Quantas etapas o Teste de conhecimento apresenta por mentoria. */
+export const MENTORSHIP_LESSON_COUNT = 4;
+
 interface QuizQuestion {
   id: string;
   /** Texto curto que o mentor fala antes da pergunta */
@@ -32,126 +35,97 @@ interface QuizQuestion {
   feedbackWrong: string;
 }
 
+/** Mentoria 1 — Primeiros passos no Bitcoin (4 etapas). */
 export const MISSION_1_QUESTIONS: QuizQuestion[] = [
   {
     id: "q1",
     teach:
-      "Bitcoin é dinheiro digital que funciona sem banco no meio. Ninguém 'imprime' do nada: as regras são públicas e qualquer um pode verificar.",
-    question: "O que é o Bitcoin?",
+      "Bitcoin é dinheiro digital que funciona numa rede mundial — sem depender de bancos ou governos no meio. As regras são públicas e qualquer um pode verificar. A ideia central: você pode guardar e enviar valor sem pedir licença a uma instituição.",
+    question: "O que é o Bitcoin, na essência?",
     options: [
       "Uma empresa de tecnologia com sede nos Estados Unidos",
-      "Um dinheiro digital que funciona sem depender de bancos ou governos",
+      "Dinheiro digital numa rede mundial, sem depender de bancos ou governos",
       "Um aplicativo de investimentos criado por uma corretora",
       "Uma moeda física de colecionador banhada a ouro",
     ],
-      correct: 1,
-    feedbackCorrect: "Isso — soberania sem pedir licença a um banco.",
-    feedbackWrong: "Quase. Pense em dinheiro digital sem intermediário obrigatório.",
+    correct: 1,
+    feedbackCorrect: "Isso — rede aberta, sem intermediário obrigatório.",
+    feedbackWrong: "Pense em dinheiro digital global, sem banco no meio.",
   },
   {
     id: "q2",
     teach:
-      "Sua chave privada é o segredo que prova que os bitcoins são seus. Quem tem a chave, controla o dinheiro. Por isso nunca compartilhe.",
-    question: "O que é uma chave privada?",
-    options: [
-      "A senha do aplicativo da corretora",
-      "Um código que a empresa guarda para você recuperar a conta",
-      "O segredo que prova que os bitcoins são seus — quem tem a chave, tem os bitcoins",
-      "O número da sua carteira, que você compartilha para receber pagamentos",
-    ],
-    correct: 2,
-    feedbackCorrect: "Exato. A chave é a posse.",
-    feedbackWrong: "A chave privada não é para compartilhar — ela é o controle.",
-  },
-  {
-    id: "q3",
-    teach:
-      "Golpes adoram pressa e 'dinheiro fácil'. Se alguém promete dobrar seus bitcoins, desconfie: é o golpe mais clássico do ecossistema.",
+      "Golpes em Bitcoin adoram pressa e promessa fácil: 'dobrar' seu dinheiro, pirâmide disfarçada de investimento, falso suporte pedindo chave ou seed, urgência artificial. Se alguém pede segredo da carteira ou garante lucro rápido, desconfie e pare.",
     question:
-      "Você recebe uma mensagem: 'Dobre seus bitcoins! Envie 0,01 BTC e receba 0,02 de volta'. O que fazer?",
+      "Alguém manda: 'Dobre seus bitcoins! Envie um pouco e receba o dobro'. O que fazer?",
     options: [
       "Enviar um valor pequeno primeiro, para testar se é verdade",
-      "Ignorar e denunciar: promessa de multiplicar dinheiro é o golpe mais clássico que existe",
-      "Verificar se o site tem cadeado de segurança e, se tiver, enviar",
-      "Enviar apenas se a mensagem vier de um perfil verificado",
+      "Ignorar: promessa de multiplicar dinheiro é golpe clássico",
+      "Verificar se o site tem cadeado e, se tiver, enviar",
+      "Enviar só se o perfil parecer verificado nas redes",
     ],
     correct: 1,
     feedbackCorrect: "Perfeito. Promessa de multiplicar = bandeira vermelha.",
     feedbackWrong: "Nunca envie para 'dobrar'. Isso é golpe clássico.",
   },
   {
-    id: "q4",
+    id: "q3",
     teach:
-      "Autocustódia é você guardar a própria chave — sem depender da corretora. Mais responsabilidade, mais liberdade.",
-    question: "O que significa 'autocustódia'?",
+      "Uma carteira de Bitcoin não guarda 'moedinhas': ela guarda as chaves que controlam seus bitcoins na rede. Na corretora (custodial) a empresa segura por você; na carteira própria (autocustódia) você controla a chave. Abrir uma carteira própria costuma ser instalar o app, anotar a frase de recuperação offline e nunca compartilhá-la.",
+    question: "Qual é a diferença central entre carteira na corretora e carteira própria?",
     options: [
-      "Deixar os bitcoins guardados na corretora, que cuida de tudo",
-      "Guardar você mesmo a chave dos seus bitcoins, sem depender de empresas",
-      "Contratar um cofre físico em um banco para guardar as moedas",
-      "Imprimir os bitcoins em papel e guardar em casa",
+      "Na corretora o bitcoin é físico; na própria é só número",
+      "Na corretora a empresa guarda as chaves; na própria você controla as chaves",
+      "Carteira própria só funciona fora do Brasil",
+      "Não há diferença — os dois nomes são a mesma coisa",
     ],
     correct: 1,
-    feedbackCorrect: "Isso. Você no controle da chave.",
-    feedbackWrong: "Autocustódia = você com a chave, não a corretora.",
+    feedbackCorrect: "Exato — custodial vs autocustódia é quem tem a chave.",
+    feedbackWrong: "O ponto é: quem controla a chave, controla o bitcoin.",
   },
   {
-    id: "q5",
+    id: "q4",
     teach:
-      "Um bitcoin se divide em satoshis — a menor unidade. É assim que dá para aprender e ganhar valores pequenos sem precisar de um bitcoin inteiro.",
-    question: "O que é um satoshi?",
+      "No Brasil, Bitcoin entra na declaração de imposto quando você tem a obrigação de informar patrimônio ou quando vende e há ganho. Em linhas gerais, vendas mensais pequenas podem cair em faixa de isenção — mas regras mudam e o detalhe técnico fica com contador. A ideia aqui: aprender que existe regra fiscal; não ignore o tema.",
+    question: "Sobre imposto e Bitcoin no Brasil, o que faz mais sentido?",
     options: [
-      "A menor fração do bitcoin — cada bitcoin tem 100 milhões de satoshis",
-      "Uma criptomoeda concorrente do Bitcoin",
-      "A taxa cobrada pelas corretoras em cada compra",
-      "O nome do banco central que emite os bitcoins",
+      "Bitcoin nunca precisa ser declarado em nenhuma situação",
+      "Pode haver obrigação de declarar e regras de isenção em vendas — vale se informar (e, se preciso, um contador)",
+      "Só quem tem corretora americana precisa declarar",
+      "Imposto só existe se você minerar bitcoin em casa",
     ],
-    correct: 0,
-    feedbackCorrect: "Mandou bem. Sats são os 'centavos' do Bitcoin.",
-    feedbackWrong: "Satoshi é a menor fração do bitcoin.",
+    correct: 1,
+    feedbackCorrect: "Isso — existe marco fiscal; informe-se sem pânico.",
+    feedbackWrong: "Não é 'nunca declara': há regras e isenções a conhecer.",
   },
 ];
 
-/** Mentoria 2: carteira + Lightning — para quem ainda não sabe nada disso. */
+/** Mentoria 2 — Corretoras e Lightning (4 etapas). */
 export const MISSION_2_QUESTIONS: QuizQuestion[] = [
   {
     id: "w1",
     teach:
-      "Uma carteira de Bitcoin não guarda 'moedas' como uma carteira de couro. Ela guarda as chaves que controlam seus bitcoins na rede. Sem a chave, ninguém move o seu dinheiro — nem a gente.",
-    question: "O que uma carteira de Bitcoin guarda de verdade?",
+      "Corretoras (exchanges) são a ponte entre reais e Bitcoin: você deposita em R$, compra BTC e pode sacar para uma carteira. No Brasil há várias conhecidas no mercado — o importante é entender o papel delas (custódia e liquidez), não fazer propaganda de nenhuma marca específica.",
+    question: "Qual é o papel principal de uma corretora de Bitcoin?",
     options: [
-      "As moedas físicas de bitcoin que você comprou",
-      "As chaves que controlam seus bitcoins na rede",
-      "O extrato do seu banco, só que em dólares",
-      "Um cadastro da Receita Federal com seu CPF",
+      "Substituir o Bitcoin por outra moeda oficial",
+      "Servir de ponte entre reais e Bitcoin (comprar, vender, liquidez)",
+      "Guardar sua seed automaticamente com segurança total",
+      "Emitir bitcoins novos como um banco central",
     ],
     correct: 1,
-    feedbackCorrect: "Isso. A carteira é o controle das chaves.",
-    feedbackWrong: "A carteira guarda as chaves — não moedinhas físicas.",
+    feedbackCorrect: "Isso — corretora = ponte entre real e BTC.",
+    feedbackWrong: "Pense em comprar/vender com liquidez, não em emitir moeda.",
   },
   {
     id: "w2",
     teach:
-      "Quando você cria uma carteira, aparece uma frase de recuperação (seed) — várias palavras. É o backup mestre. Quem tem essa frase pode recriar a carteira. Nunca fotografe, nunca mande no WhatsApp, nunca digite em site estranho.",
-    question: "O que fazer com a frase de recuperação (seed) da carteira?",
-    options: [
-      "Mandar no WhatsApp para um amigo 'de confiança' guardar",
-      "Fotografar e salvar na nuvem do celular, para não perder",
-      "Anotar offline em lugar seguro e nunca compartilhar com ninguém",
-      "Colar no Instagram Stories para lembrar depois",
-    ],
-    correct: 2,
-    feedbackCorrect: "Perfeito. Offline, seguro, só você.",
-    feedbackWrong: "Seed nunca vai para chat, foto ou nuvem — é o backup mestre.",
-  },
-  {
-    id: "w3",
-    teach:
-      "A rede Lightning é uma 'camada' em cima do Bitcoin para pagar rápido e barato — tipo pix, mas em sats. Ideal para o dia a dia. Os sats que você ganha aqui podem ir para uma carteira Lightning quando você estiver pronto.",
+      "Lightning Network é uma 'via expressa' em cima do Bitcoin: pagamentos quase instantâneos e com taxas baixas — ideal para o dia a dia. Você usa carteiras compatíveis, gera ou cola uma cobrança (invoice) e a rede move os sats rápido.",
     question: "Para que serve a Lightning Network?",
     options: [
       "Substituir o Bitcoin por outra moeda",
       "Pagar com sats de forma rápida e com taxas baixas",
-      "Esconder transações do governo automaticamente",
+      "Esconder automaticamente todas as transações do governo",
       "Imprimir bitcoins novos mais depressa",
     ],
     correct: 1,
@@ -159,34 +133,34 @@ export const MISSION_2_QUESTIONS: QuizQuestion[] = [
     feedbackWrong: "Lightning = pagamentos rápidos e baratos em sats.",
   },
   {
-    id: "w4",
+    id: "w3",
     teach:
-      "Para receber sats na Lightning, sua carteira gera uma cobrança (invoice) — um código longo que começa com letras. Quem vai te pagar cola esse código e a rede envia. Você não precisa 'saber o endereço' de memória.",
-    question: "Como você recebe um pagamento Lightning?",
+      "O caminho clássico: comprar Bitcoin na corretora e, quando fizer sentido, sacar para uma carteira de autocustódia. Na corretora você depende da empresa; na carteira própria você controla a chave. 'Não suas chaves, não suas moedas' — por isso a autocustódia importa para quem quer soberania.",
+    question: "Por que sacar da corretora para uma carteira própria?",
     options: [
-      "Pedindo o CPF de quem vai pagar",
-      "Gerando uma cobrança (invoice) na sua carteira e passando para quem paga",
-      "Ligando para a corretora e pedindo um TED",
-      "Enviando sua senha da SatVantage para a outra pessoa",
+      "Porque a corretora não consegue guardar bitcoin",
+      "Para você controlar as chaves — menos dependência da empresa",
+      "Porque carteira própria rende juros automaticamente",
+      "Só para pagar menos imposto na hora",
     ],
     correct: 1,
-    feedbackCorrect: "Isso. Invoice = cobrança gerada pela carteira.",
-    feedbackWrong: "Quem recebe gera a cobrança; quem paga cola o código.",
+    feedbackCorrect: "Isso — autocustódia = você no controle da chave.",
+    feedbackWrong: "O motivo central é controle das chaves, não juros ou imposto.",
   },
   {
-    id: "w5",
+    id: "w4",
     teach:
-      "Aqui no SatVantage estamos em rede de teste (MutinyNet). Os sats de aprendizado não são dinheiro de verdade — dá para errar, treinar e entender sem medo. Quando for pra vida real, aí sim o cuidado com seed e carteira vale ouro.",
-    question: "Por que usamos rede de teste nesta plataforma?",
+      "Carteira fria (cold wallet) fica offline — hardware wallet ou setup desconectado da internet. Serve para guardar por longo prazo com menos exposição a vírus e golpes online. O dia a dia (gastar pouco) pode ficar numa carteira quente; o estoque maior, no frio.",
+    question: "O que caracteriza uma carteira fria?",
     options: [
-      "Porque a Lightning não funciona no Brasil",
-      "Para você aprender e treinar sem arriscar dinheiro de verdade",
-      "Porque sats de teste valem mais que bitcoin real",
-      "Para o governo acompanhar cada clique",
+      "Uma carteira só para moedas de países frios",
+      "Uma carteira offline, mais segura para guardar a longo prazo",
+      "Qualquer carteira dentro de uma corretora",
+      "Uma carteira que congela o saldo por 30 dias",
     ],
     correct: 1,
-    feedbackCorrect: "Mandou bem. Aqui é laboratório seguro.",
-    feedbackWrong: "Rede de teste = aprender sem risco de dinheiro real.",
+    feedbackCorrect: "Perfeito — offline e pensada para o longo prazo.",
+    feedbackWrong: "Fria = offline / menos exposição à internet.",
   },
 ];
 
@@ -213,17 +187,18 @@ function localizeQuestion(q: QuizQuestion, locale: QuizLocale): QuizQuestion {
   };
 }
 
-/** Conteúdo seguro para o cliente (sem gabarito).
- *  Teste de conhecimento: exatamente 1 pergunta estratégica por trilha. */
+/** Conteúdo seguro para o cliente (sem gabarito). 4 etapas por mentoria. */
 export function lessonsForClient(slug: MissionSlug, locale: QuizLocale | string = "pt") {
   const lang = normalizeQuizLocale(locale);
-  const strategic = questionsFor(slug).slice(0, 1).map((q) => localizeQuestion(q, lang));
-  return strategic.map(({ id, teach, question, options }) => ({
-    id,
-    teach,
-    question,
-    options,
-  }));
+  return questionsFor(slug)
+    .slice(0, MENTORSHIP_LESSON_COUNT)
+    .map((q) => localizeQuestion(q, lang))
+    .map(({ id, teach, question, options }) => ({
+      id,
+      teach,
+      question,
+      options,
+    }));
 }
 
 /** Feedback localizado para check/submit (mantém índice correto). */

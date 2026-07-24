@@ -1,4 +1,4 @@
-/** Símbolo Universal de Acessibilidade (ativo oficial + SVG de fallback). */
+/** Símbolo Universal de Acessibilidade (PNG oficial fornecido). */
 type Props = {
   size?: number;
   className?: string;
@@ -6,14 +6,14 @@ type Props = {
 };
 
 export default function AccessibilityIcon({
-  size = 22,
+  size = 52,
   className,
   title,
 }: Props) {
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src="/accessibility-symbol.png"
+      src="/accessibility-symbol.png?v=3"
       alt=""
       width={size}
       height={size}
@@ -22,12 +22,7 @@ export default function AccessibilityIcon({
       aria-label={title}
       aria-hidden={title ? undefined : true}
       decoding="async"
-      style={{
-        width: size,
-        height: size,
-        objectFit: "contain",
-        display: "block",
-      }}
+      draggable={false}
     />
   );
 }

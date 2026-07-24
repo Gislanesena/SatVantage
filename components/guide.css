@@ -150,51 +150,36 @@ html[data-theme="dark"] .sv-guide-fab,
 }
 
 @media (max-width: 480px) {
+  /* Mesmo padrão do desktop: tip ao lado do FAB, uma linha contínua */
   .sv-guide-tip {
-    left: 50%;
-    top: auto;
-    bottom: calc(100% + 10px);
-    transform: translateX(-50%);
-    transform-origin: bottom center;
+    left: calc(100% + 8px);
+    right: auto;
+    top: 50%;
+    bottom: auto;
+    transform: translateY(-50%);
+    transform-origin: left center;
+    white-space: nowrap;
+    max-width: none;
+    line-height: 1.35;
+    padding: 10px 12px;
+    font-size: 0.86rem;
   }
 
   .sv-guide-tip.is-intro {
-    animation-name: sv-guide-tip-in-mobile;
+    animation-name: sv-guide-tip-in;
   }
 
   .sv-guide-tip.is-exiting {
-    animation-name: sv-guide-tip-out-mobile;
+    animation-name: sv-guide-tip-out;
   }
 
   .sv-guide-tip.is-hover-only {
-    transform: translateX(-50%) translateY(4px);
+    transform: translateY(-50%) translateX(4px);
   }
 
   .sv-guide-fab-tip-wrap.is-hoverable:hover .sv-guide-tip.is-hover-only,
   .sv-guide-fab-tip-wrap.is-hoverable:focus-within .sv-guide-tip.is-hover-only {
-    transform: translateX(-50%) translateY(0);
-  }
-
-  @keyframes sv-guide-tip-in-mobile {
-    from {
-      opacity: 0;
-      transform: translateX(-50%) translateY(8px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-  }
-
-  @keyframes sv-guide-tip-out-mobile {
-    from {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-    to {
-      opacity: 0;
-      transform: translateX(-50%) translateY(8px);
-    }
+    transform: translateY(-50%) translateX(0);
   }
 }
 

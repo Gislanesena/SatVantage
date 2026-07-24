@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
     if (!Array.isArray(raw) || raw.length === 0) {
       return NextResponse.json({ error: "respostas incompletas" }, { status: 400 });
     }
-    // Cliente envia 1 pergunta; completa o restante como pulado (0 sats).
+    // Cliente pode enviar menos respostas; completa o restante como pulado.
     responses = questions.map((_, i) => {
       const r = raw[i];
       if (!r || typeof r !== "object") return { answer: null, skipped: true };

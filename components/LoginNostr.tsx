@@ -305,7 +305,11 @@ export default function LoginNostr({
           if (cancelled) return;
           if (!res.ok) {
             setUsernameAvailable(null);
-            setUsernameCheckMsg("Não foi possível verificar o usuário agora.");
+            setUsernameCheckMsg(
+              typeof data.reason === "string" && data.reason
+                ? data.reason
+                : "Não foi possível verificar o usuário agora.",
+            );
             return;
           }
           if (data.available) {

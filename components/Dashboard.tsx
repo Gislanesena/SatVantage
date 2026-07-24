@@ -794,7 +794,7 @@ export default function Dashboard({ user, onExitToHome, onOpenMentorFull }: Dash
                     </p>
                   )}
 
-                  {satsBalance !== null && satsBalance > 0 && (
+                  {satsBalance !== null && satsBalance > 0 && !(mentorOpen && chatActive) && (
                     <div className="sv-bank-voucher-note">
                       <p className="sv-bank-voucher-title">{t.dash.voucherTitle}</p>
                       <p className="sv-bank-sub">
@@ -1029,14 +1029,17 @@ export default function Dashboard({ user, onExitToHome, onOpenMentorFull }: Dash
                         : t.nagai.helpTitle}
                 </p>
               </div>
-              <button
-                type="button"
-                className="sv-mentor-sheet-close"
-                aria-label={t.a11y.closeDialog}
-                onClick={endMentorChat}
-              >
-                <span aria-hidden="true">×</span>
-              </button>
+              <div className="sv-mentor-sheet-head-actions">
+                <div id="sv-nagai-sheet-menu-root" />
+                <button
+                  type="button"
+                  className="sv-mentor-sheet-close"
+                  aria-label={t.a11y.closeDialog}
+                  onClick={endMentorChat}
+                >
+                  <span aria-hidden="true">×</span>
+                </button>
+              </div>
             </div>
 
             {chatActive ? (

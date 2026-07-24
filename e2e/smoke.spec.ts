@@ -26,7 +26,8 @@ test.describe("SatVantage landing + a11y smoke", () => {
     const hasVlibrasWiring = await page.evaluate(() => {
       const w = window as unknown as { VLibras?: unknown };
       return Boolean(
-        document.querySelector("#sv-vlibras-root") ||
+        document.querySelector("[vw].enabled") ||
+          document.querySelector("[vw-access-button]") ||
           document.querySelector('script[src*="vlibras"]') ||
           w.VLibras,
       );

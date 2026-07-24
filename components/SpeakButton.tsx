@@ -2,6 +2,7 @@
 
 import { useSpeakText } from "@/lib/use-speak-text";
 import { useI18n } from "@/lib/i18n";
+import SpeakIcon from "@/components/SpeakIcon";
 
 type SpeakButtonProps = {
   text: string;
@@ -39,7 +40,11 @@ export default function SpeakButton({
         toggle(text);
       }}
     >
-      <span aria-hidden>{speaking ? "■" : "🔊"}</span>
+      {speaking ? (
+        <span aria-hidden>■</span>
+      ) : (
+        <SpeakIcon className="sv-speak-btn-ico" size={16} />
+      )}
     </button>
   );
 }

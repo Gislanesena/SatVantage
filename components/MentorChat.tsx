@@ -1,6 +1,7 @@
 "use client";
-// NagAI: chat livre por padrão; Teste de Conhecimento abre Teórico (quiz 5/3) ou Prático.
+// NagAI: chat livre por padrão; mentoria inicial = 4 perguntas (sats só no fim).
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import SiteNav from "@/components/SiteNav";
 import {
   MISSION_1_SLUG,
@@ -28,6 +29,11 @@ import {
   upsertHistoryConversation,
   type NagaiHistoryLine,
 } from "@/lib/nagai-history";
+
+/** Quantas perguntas a mentoria inicial apresenta. */
+const MENTORSHIP_QUESTIONS = 4;
+/** Só anuncia sats ao usuário se respondeu (não pulou) pelo menos este número. */
+const MIN_ANSWERED_FOR_SATS_REVEAL = 4;
 import "./mentor.css";
 
 /** Espelha quiz.ts — não importar quiz no cliente (contém gabarito). */
@@ -251,6 +257,8 @@ export default function MentorChat({
   const [composer, setComposer] = useState<ComposerMode>({ type: "hidden" });
   const [doneTopics, setDoneTopics] = useState<string[]>([]);
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [toolbarMenuOpen, setToolbarMenuOpen] = useState(false);
+  const toolbarMenuRef = useRef<HTMLDivElement | null>(null);
   const [conversationId, setConversationId] = useState(() => newConversationId());
   const conversationCreatedAtRef = useRef(Date.now());
   const historyScopeRef = useRef("guest");
@@ -330,6 +338,32 @@ export default function MentorChat({
   useEffect(() => {
     linesRef.current = lines;
   }, [lines]);
+
+  useEffect(() => {
+    if (!toolbarMenuOpen) return;
+    function onDoc(e: MouseEvent) {
+      const el = toolbarMenuRef.current;
+      if (el && !el.contains(e.target as Node)) setToolbarMenuOpen(false);
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setToolbarMenuOpen(false);
+    }
+    document.addEventListener("mousedown", onDoc);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDoc);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [toolbarMenuOpen]);
+
+  const [sheetMenuRoot, setSheetMenuRoot] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    if (!sheetHosted) {
+      setSheetMenuRoot(null);
+      return;
+    }
+    setSheetMenuRoot(document.getElementById("sv-nagai-sheet-menu-root"));
+  }, [sheetHosted]);
 
   useEffect(() => {
     void resolveHistoryScope().then((s) => {
@@ -638,14 +672,23 @@ export default function MentorChat({
     };
   }, [locale, copy.intro, mode]);
 
-  /** Se o idioma muda com o quiz aberto, reescreve intro + teach + pergunta + opções. */
+  const quizLocaleAppliedRef = useRef(locale);
+
+  /** Só quando o idioma muda NO MEIO do quiz — nunca a cada nova pergunta. */
   useEffect(() => {
-    if (mode !== "quiz" || composer.type !== "mission") return;
+    if (mode !== "quiz") {
+      quizLocaleAppliedRef.current = locale;
+      return;
+    }
+    if (quizLocaleAppliedRef.current === locale) return;
+    quizLocaleAppliedRef.current = locale;
+
     let cancelled = false;
     const nagai = dictFor(locale as Locale).nagai;
     const introText = rewardEligibleRef.current
       ? nagai.quizIntroEarn
       : nagai.quizIntroPractice;
+    const currentStep = stepRef.current;
 
     (async () => {
       try {
@@ -654,28 +697,32 @@ export default function MentorChat({
         );
         const data = await res.json();
         if (cancelled || !res.ok) return;
-        const raw: Lesson[] = (data.lessons ?? []).slice(0, 1);
+        const raw: Lesson[] = (data.lessons ?? []).slice(0, MENTORSHIP_QUESTIONS);
         const loaded = raw.map((l) => localizeLessonClient(l, locale));
-        if (!loaded[0]) return;
+        if (!loaded.length) return;
         setLessons(loaded);
         lessonsRef.current = loaded;
-        setComposer({ type: "mission", options: loaded[0].options });
+
+        const cur = loaded[Math.min(currentStep, loaded.length - 1)] ?? loaded[0];
+        setComposer((prev) =>
+          prev.type === "mission" && cur
+            ? { type: "mission", options: cur.options }
+            : prev,
+        );
         setLines((prev) => {
           const next = [...prev];
-          // Ordem típica: user(want) → agent(intro) → agent(teach) → agent(question)
           const agentIdx: number[] = [];
           for (let i = 0; i < next.length; i++) {
             if (next[i].kind === "agent") agentIdx.push(i);
           }
-          if (agentIdx.length >= 3) {
-            const [iIntro, iTeach, iQ] = agentIdx.slice(-3);
-            next[iIntro] = { ...next[iIntro], text: introText };
-            next[iTeach] = { ...next[iTeach], text: loaded[0].teach };
-            next[iQ] = { ...next[iQ], text: loaded[0].question };
-          } else if (agentIdx.length === 2) {
-            const [iTeach, iQ] = agentIdx;
-            next[iTeach] = { ...next[iTeach], text: loaded[0].teach };
-            next[iQ] = { ...next[iQ], text: loaded[0].question };
+          if (agentIdx.length >= 1) {
+            next[agentIdx[0]!] = { ...next[agentIdx[0]!], text: introText };
+          }
+          if (agentIdx.length >= 2 && cur) {
+            const iQ = agentIdx[agentIdx.length - 1]!;
+            const iTeach = agentIdx[agentIdx.length - 2]!;
+            next[iTeach] = { ...next[iTeach], text: cur.teach };
+            next[iQ] = { ...next[iQ], text: cur.question };
           }
           for (let i = 0; i < next.length; i++) {
             if (next[i].kind === "user") {
@@ -692,7 +739,7 @@ export default function MentorChat({
     return () => {
       cancelled = true;
     };
-  }, [locale, mode, composer.type, slug]);
+  }, [locale, mode, slug]);
 
   async function startTheoreticalQuiz(opts?: { practiceConfirmed?: boolean }) {
     const runId = ++runIdRef.current;
@@ -722,15 +769,33 @@ export default function MentorChat({
     pushUser(nagai.wantTheoretical);
 
     try {
-      const res = await fetch(
-        `/api/missions?slug=${encodeURIComponent(slug)}&locale=${encodeURIComponent(activeLocale)}`,
-      );
-      const data = await res.json();
+      let res: Response | null = null;
+      let data: any = null;
+      // Retry curto: no hot-reload do Next a rota às vezes responde 404 por 1 instante.
+      for (let attempt = 0; attempt < 3; attempt++) {
+        res = await fetch(
+          `/api/missions?slug=${encodeURIComponent(slug)}&locale=${encodeURIComponent(activeLocale)}`,
+        );
+        data = await res.json().catch(() => ({}));
+        if (res.ok) break;
+        if (res.status === 404 && attempt < 2) {
+          await sleep(350);
+          continue;
+        }
+        break;
+      }
       if (!alive(runId)) return;
-      if (!res.ok) throw new Error(data.error ?? "erro ao carregar teste");
+      if (!res?.ok) {
+        throw new Error(
+          data?.error ??
+            (res?.status === 404
+              ? "teste indisponível agora — recarregue a página e tente de novo"
+              : "erro ao carregar teste"),
+        );
+      }
 
       const loaded: Lesson[] = (data.lessons ?? [])
-        .slice(0, 1)
+        .slice(0, MENTORSHIP_QUESTIONS)
         .map((l: Lesson) => localizeLessonClient(l, activeLocale));
       setLessons(loaded);
       lessonsRef.current = loaded;
@@ -845,12 +910,13 @@ export default function MentorChat({
       satsBalance?: number;
       practiceOnly?: boolean;
       earnedThisRound?: number;
+      /** Quantas perguntas o usuário respondeu de fato (não pulou). */
+      answeredCount?: number;
     },
   ) {
     if (!alive(runId)) return;
 
     let satsLine: string | null = null;
-    let satsHighlight: string | null = null;
     const earned =
       typeof opts.earnedThisRound === "number"
         ? opts.earnedThisRound
@@ -868,16 +934,17 @@ export default function MentorChat({
       }
     } else if (opts.skipAll) {
       await typeAgent(t.nagai.zeroSatsClosed, runId);
-      satsHighlight = t.nagai.zeroSatsTest;
     } else if (opts.practiceOnly) {
       await typeAgent(t.mentor.practiceDone, runId);
-      satsHighlight = t.nagai.practiceNoSats;
-    } else if (earned > 0) {
+    } else if (
+      earned > 0 &&
+      (opts.answeredCount ?? 0) >= MIN_ANSWERED_FOR_SATS_REVEAL
+    ) {
+      // Surpresa: só revela sats no fim, com ≥4 respostas (não puladas).
       await typeAgent(
         t.mentor.satsWon.replace("{n}", String(earned)),
         runId,
       );
-      satsHighlight = t.nagai.hitSats.replace("{sats}", String(earned));
       if (typeof opts.satsBalance === "number") {
         satsLine = t.nagai.accountBalance.replace(
           "{sats}",
@@ -885,19 +952,19 @@ export default function MentorChat({
         );
       }
     } else {
-      await typeAgent(t.nagai.zeroSatsClosed, runId);
-      satsHighlight = t.nagai.zeroSatsTest;
+      await typeAgent(t.mentor.savingProgress, runId);
     }
 
     if (!alive(runId)) return;
 
+    const isM1 = slug === MISSION_1_SLUG;
     setComposer({
       type: "end",
-      showContinue: false,
+      showContinue: isM1 && !!onContinueMentor,
       topics: [],
       satsLine,
-      satsHighlight,
-      dashboardOnly: true,
+      satsHighlight: null,
+      dashboardOnly: !isM1,
     });
     setBusy(false);
     setMode("chat");
@@ -937,6 +1004,12 @@ export default function MentorChat({
             ? json.satsEarned
             : sessionSats;
 
+      const answeredCount =
+        "skipAll" in payload
+          ? 0
+          : payload.responses.filter((r) => !r.skipped && r.answer !== null)
+              .length;
+
       await sleep(300);
       await showEndMenu(runId, {
         skipAll: "skipAll" in payload,
@@ -945,6 +1018,7 @@ export default function MentorChat({
         satsBalance,
         practiceOnly: !!json.practiceOnly || !!json.alreadyRewarded,
         alreadyDone: !!json.alreadyDone,
+        answeredCount,
       });
     } catch (e: any) {
       if (!alive(runId)) return;
@@ -953,87 +1027,31 @@ export default function MentorChat({
     }
   }
 
-  /** Teste de conhecimento = 1 pergunta. Encerra na hora e mostra saída ao dashboard. */
-  async function endKnowledgeTest(
-    nextResponses: ResponseSlot[],
-    highlight: string,
-  ) {
+  /** Avança para a próxima pergunta ou encerra a mentoria. */
+  async function advance(nextResponses: ResponseSlot[], nextStep: number) {
     const runId = runIdRef.current;
-    setStep(0);
-    stepRef.current = 0;
-    setMode("chat");
-    // Mostra o botão imediatamente sob o feedback amarelo — sem nova pergunta.
-    setComposer({
-      type: "end",
-      showContinue: false,
-      topics: [],
-      satsLine: null,
-      satsHighlight: highlight,
-      dashboardOnly: true,
-    });
-    setBusy(true);
-    setError(null);
-    try {
-      const res = await fetch("/api/missions/submit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ slug, responses: nextResponses.slice(0, 1) }),
-      });
-      const json = await res.json();
+    const list = lessonsRef.current;
+    if (nextStep >= list.length) {
+      await sleep(280);
       if (!alive(runId)) return;
-      if (!res.ok) throw new Error(json.error);
-
-      let satsBalance = typeof json.satsBalance === "number" ? json.satsBalance : undefined;
-      try {
-        const balRes = await fetch("/api/rewards/balance");
-        if (balRes.ok) {
-          const bal = await balRes.json();
-          if (typeof bal.satsBalance === "number") satsBalance = bal.satsBalance;
-        }
-      } catch {
-        /* ignore */
-      }
-      onBalanceChanged?.();
-
-      const earned =
-        typeof json.satsEarned === "number"
-          ? json.satsEarned
-          : typeof json.satsCredited === "number"
-            ? json.satsCredited
-            : sessionSats;
-
-      let finalHighlight = highlight;
-      if (json.practiceOnly || json.alreadyRewarded) {
-        finalHighlight = t.nagai.practiceNoSats;
-      } else if (earned > 0) {
-        finalHighlight = t.nagai.hitSats.replace("{sats}", String(earned));
-      } else if (nextResponses[0]?.skipped) {
-        finalHighlight = t.nagai.zeroSatsTest;
-      }
-
-      if (!alive(runId)) return;
-      setComposer({
-        type: "end",
-        showContinue: false,
-        topics: [],
-        satsLine:
-          typeof satsBalance === "number"
-            ? t.nagai.accountBalance.replace("{sats}", String(satsBalance))
-            : null,
-        satsHighlight: finalHighlight,
-        dashboardOnly: true,
-      });
-    } catch (e: any) {
-      if (!alive(runId)) return;
-      setError(e.message ?? "erro ao salvar");
-    } finally {
-      if (alive(runId)) setBusy(false);
+      const full = list.map(
+        (_, i) => nextResponses[i] ?? { answer: null, skipped: true },
+      );
+      await finish({ responses: full });
+      return;
     }
+    setStep(nextStep);
+    stepRef.current = nextStep;
+    await sleep(320);
+    if (!alive(runId)) return;
+    await presentLesson(list[nextStep], runId);
+    if (alive(runId)) setBusy(false);
   }
 
   async function answerMission(optionIndex: number) {
     const runId = runIdRef.current;
-    const lesson = lessonsRef.current[0];
+    const idx = stepRef.current;
+    const lesson = lessonsRef.current[idx];
     if (!lesson || busy || composer.type !== "mission") return;
     setBusy(true);
     setComposer({ type: "hidden" });
@@ -1046,7 +1064,7 @@ export default function MentorChat({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           slug,
-          lessonIndex: 0,
+          lessonIndex: idx,
           answer: optionIndex,
           locale,
           idioma: locale,
@@ -1056,7 +1074,8 @@ export default function MentorChat({
       if (!alive(runId)) return;
       if (!res.ok) throw new Error(check.error);
 
-      const nextResponses: ResponseSlot[] = [{ answer: optionIndex, skipped: false }];
+      const nextResponses = [...responsesRef.current];
+      nextResponses[idx] = { answer: optionIndex, skipped: false };
       setResponses(nextResponses);
       responsesRef.current = nextResponses;
 
@@ -1067,13 +1086,10 @@ export default function MentorChat({
           : check.correct
             ? SATS_CORRECT
             : SATS_TRIED;
-      const satsNote = check.correct
-        ? t.nagai.hitSats.replace("{sats}", String(SATS_CORRECT))
-        : t.nagai.trySats.replace("{sats}", String(SATS_TRIED));
-      const highlight = rewardEligible ? satsNote : t.nagai.practiceNoSats;
 
+      // Credita em silêncio — não anuncia sats no meio da mentoria.
       if (rewardEligible) {
-        setSessionSats(sats);
+        setSessionSats((prev) => prev + sats);
       }
 
       try {
@@ -1088,13 +1104,9 @@ export default function MentorChat({
       onBalanceChanged?.();
 
       await sleep(180);
-      await typeAgent(feedbackText, runId, {
-        satsNote: highlight,
-        sats: rewardEligible ? sats : 0,
-      });
+      await typeAgent(feedbackText, runId);
       if (!alive(runId)) return;
-      // Fim imediato: sem segunda pergunta.
-      await endKnowledgeTest(nextResponses, highlight);
+      await advance(nextResponses, idx + 1);
     } catch (e: any) {
       if (!alive(runId)) return;
       setError(e.message ?? "erro ao responder");
@@ -1105,22 +1117,19 @@ export default function MentorChat({
 
   async function skipQuestion() {
     const runId = runIdRef.current;
-    if (busy || composer.type !== "mission" || !lessonsRef.current[0]) return;
+    const idx = stepRef.current;
+    if (busy || composer.type !== "mission" || !lessonsRef.current[idx]) return;
     setBusy(true);
     setComposer({ type: "hidden" });
     pushUser(t.nagai.skipThisQuestion);
-    const nextResponses: ResponseSlot[] = [{ answer: null, skipped: true }];
+    const nextResponses = [...responsesRef.current];
+    nextResponses[idx] = { answer: null, skipped: true };
     setResponses(nextResponses);
     responsesRef.current = nextResponses;
-    setSessionSats(0);
-    const highlight = t.nagai.zeroSatsTest;
     await sleep(140);
-    await typeAgent(t.nagai.zeroSatsQuestion, runId, {
-      satsNote: highlight,
-      sats: 0,
-    });
+    await typeAgent(t.nagai.zeroSatsQuestion, runId);
     if (!alive(runId)) return;
-    await endKnowledgeTest(nextResponses, highlight);
+    await advance(nextResponses, idx + 1);
   }
 
   async function skipAll() {
@@ -1214,6 +1223,101 @@ export default function MentorChat({
   }
 
   const shellClass = embedded ? "sv-mentor sv-mentor--embedded" : "sv-mentor";
+
+  function renderToolbarMenu(variant: "head" | "embed" | "sheet") {
+    const className =
+      variant === "sheet"
+        ? `sv-mentor-menu sv-mentor-menu--sheet${toolbarMenuOpen ? " is-open" : ""}`
+        : variant === "embed"
+          ? `sv-mentor-menu sv-mentor-menu--embed${toolbarMenuOpen ? " is-open" : ""}`
+          : `sv-mentor-menu${toolbarMenuOpen ? " is-open" : ""}`;
+    return (
+      <div className={className} ref={toolbarMenuRef}>
+        <button
+          type="button"
+          className="sv-mentor-menu-btn"
+          aria-label={t.nav.openMenu}
+          aria-expanded={toolbarMenuOpen}
+          aria-haspopup="menu"
+          onClick={() => setToolbarMenuOpen((o) => !o)}
+        >
+          <span className="sv-mentor-menu-ico" aria-hidden>
+            <span />
+            <span />
+            <span />
+          </span>
+        </button>
+        {toolbarMenuOpen && (
+          <div className="sv-mentor-menu-panel" role="menu">
+            {mode === "pratico" ? (
+              <button
+                type="button"
+                role="menuitem"
+                className="sv-mentor-menu-item"
+                onClick={() => {
+                  setToolbarMenuOpen(false);
+                  exitPracticalSim();
+                }}
+              >
+                {t.nagai.backToChat}
+              </button>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  role="menuitem"
+                  className="sv-mentor-menu-item"
+                  disabled={busy || mode === "quiz"}
+                  onClick={() => {
+                    setToolbarMenuOpen(false);
+                    startNewConversation();
+                  }}
+                >
+                  {t.nagai.historyNew}
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  className="sv-mentor-menu-item"
+                  disabled={busy || mode === "quiz"}
+                  onClick={() => {
+                    setToolbarMenuOpen(false);
+                    setHistoryOpen(true);
+                  }}
+                >
+                  {t.nagai.historyOpen}
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  className="sv-mentor-menu-item sv-mentor-menu-item--accent"
+                  disabled={busy}
+                  onClick={() => {
+                    setToolbarMenuOpen(false);
+                    setShowKnowledgePicker(true);
+                    setComposer({ type: "hidden" });
+                  }}
+                >
+                  {t.nagai.knowledgeTest}
+                </button>
+              </>
+            )}
+            <button
+              type="button"
+              role="menuitem"
+              className="sv-mentor-menu-item"
+              onClick={() => {
+                setToolbarMenuOpen(false);
+                onGoDashboard();
+              }}
+            >
+              {t.nagai.dashboard}
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   function shellNav() {
     if (embedded && sheetHosted) return null;
@@ -1317,64 +1421,10 @@ export default function MentorChat({
                 height={40}
               />
               <h1>{mode === "pratico" ? t.nagai.simTitle : copy.title}</h1>
-            </div>
-            <div className="sv-mentor-toolbar">
-              {mode === "pratico" ? (
-                <button type="button" className="sv-toolbar-btn" onClick={exitPracticalSim}>
-                  {t.nagai.backToChat}
-                </button>
-              ) : (
-                <>
-                  <button
-                    type="button"
-                    className="sv-toolbar-btn sv-toolbar-btn--ghost"
-                    disabled={busy || mode === "quiz"}
-                    onClick={startNewConversation}
-                  >
-                    {t.nagai.historyNew}
-                  </button>
-                  <button
-                    type="button"
-                    className="sv-toolbar-btn sv-toolbar-btn--ghost"
-                    disabled={busy || mode === "quiz"}
-                    onClick={() => setHistoryOpen(true)}
-                  >
-                    {t.nagai.historyOpen}
-                  </button>
-                  <button
-                    type="button"
-                    className="sv-toolbar-btn"
-                    disabled={busy}
-                    onClick={() => {
-                      setShowKnowledgePicker(true);
-                      setComposer({ type: "hidden" });
-                    }}
-                  >
-                    {t.nagai.knowledgeTest}
-                  </button>
-                </>
-              )}
-              <button
-                type="button"
-                className="sv-toolbar-btn sv-toolbar-btn--ghost"
-                onClick={onGoDashboard}
-              >
-                {t.nagai.dashboard}
-              </button>
+              {renderToolbarMenu("head")}
             </div>
             {mode === "quiz" && !rewardEligible && (
               <p className="sv-mentor-practice-tag">{t.nagai.practiceMode}</p>
-            )}
-            {mode === "quiz" && (sessionSats > 0 || accountBalance !== null) && (
-              <p className="sv-mentor-sats-bar">
-                {sessionSats > 0
-                  ? t.nagai.thisTest.replace("{sats}", String(sessionSats))
-                  : null}
-                {sessionSats > 0 && accountBalance !== null ? " · " : null}
-                {accountBalance !== null
-                  ? t.nagai.accountBalance.replace("{sats}", String(accountBalance))
-                  : null}
-              </p>
             )}
             {mode === "pratico" && (
               <p className="sv-mentor-practice-tag">{t.nagai.simTag}</p>
@@ -1382,49 +1432,13 @@ export default function MentorChat({
           </header>
         )}
 
-        {embedded && (
-          <div className="sv-mentor-toolbar sv-mentor-toolbar--embed">
-            {mode === "pratico" ? (
-              <button type="button" className="sv-toolbar-btn" onClick={exitPracticalSim}>
-                {t.nagai.backToChat}
-              </button>
-            ) : (
-              <>
-                <button
-                  type="button"
-                  className="sv-toolbar-btn sv-toolbar-btn--ghost"
-                  disabled={busy || mode === "quiz"}
-                  onClick={startNewConversation}
-                >
-                  {t.nagai.historyNew}
-                </button>
-                <button
-                  type="button"
-                  className="sv-toolbar-btn sv-toolbar-btn--ghost"
-                  disabled={busy || mode === "quiz"}
-                  onClick={() => setHistoryOpen(true)}
-                >
-                  {t.nagai.historyOpen}
-                </button>
-                <button
-                  type="button"
-                  className="sv-toolbar-btn"
-                  disabled={busy}
-                  onClick={() => setShowKnowledgePicker(true)}
-                >
-                  {t.nagai.knowledgeTest}
-                </button>
-              </>
-            )}
-            <button
-              type="button"
-              className="sv-toolbar-btn sv-toolbar-btn--ghost"
-              onClick={onGoDashboard}
-            >
-              {t.nagai.dashboard}
-            </button>
-          </div>
-        )}
+        {embedded &&
+          !sheetHosted &&
+          renderToolbarMenu("embed")}
+        {embedded &&
+          sheetHosted &&
+          sheetMenuRoot &&
+          createPortal(renderToolbarMenu("sheet"), sheetMenuRoot)}
 
         <NagaiHistoryDrawer
           open={historyOpen}
@@ -1678,10 +1692,17 @@ export default function MentorChat({
 
             {composer.type === "end" && (
               <div className="sv-chat-actions">
-                {composer.satsHighlight ? (
-                  <div className="sv-quiz-sats-banner" role="status">
-                    {composer.satsHighlight}
-                  </div>
+                {composer.showContinue && onContinueMentor ? (
+                  <button
+                    type="button"
+                    className="sv-quiz-sats-banner sv-quiz-continue-btn"
+                    onClick={() => {
+                      setComposer({ type: "hidden" });
+                      onContinueMentor();
+                    }}
+                  >
+                    {t.nagai.continueMentorship}
+                  </button>
                 ) : null}
                 {composer.satsLine && <p className="sv-mentor-status">{composer.satsLine}</p>}
                 <button

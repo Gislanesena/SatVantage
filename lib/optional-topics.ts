@@ -335,6 +335,152 @@ export const OPTIONAL_TOPICS: OptionalTopic[] = [
       },
     ],
   }),
+
+  converse({
+    id: "duvidas-imposto-inflacao",
+    label: "Inflação, escassez do Bitcoin e imposto (visão geral)",
+    teach: [
+      "Inflação, em linguagem simples, é quando o dinheiro perde poder de compra: o mesmo real compra menos com o tempo. Isso acontece, em parte, porque a oferta de moeda fiduciária pode crescer sem um teto fixo igual ao do Bitcoin.",
+      "O Bitcoin tem oferta limitada: no máximo cerca de 21 milhões de unidades. Essa escassez programada é uma das razões pelas quais muita gente o vê como forma de proteger valor no longo prazo — não como garantia de preço todo dia.",
+      "Proteção de valor não significa 'nunca cai'. Significa entender o ativo, o horizonte de tempo e o risco. Oscilação de curto prazo faz parte; o desenho de escassez é sobre o longo prazo.",
+      "Sobre imposto no Brasil: em linhas gerais, o que mais pesa costuma ser o ganho de capital na alienação — vender, trocar ou usar o bitcoin. Comprar e só guardar, em regra, não é o mesmo gatilho. Regras e limites mudam.",
+      "Esta conversa é orientação educativa, não conselho fiscal. Para o seu caso concreto (declarar, isenção, cálculo), converse com um contador que entenda cripto.",
+    ],
+    faq: [
+      {
+        keys: ["inflação", "poder de compra"],
+        answer:
+          "Inflação é a perda de poder de compra da moeda: com o tempo, o mesmo dinheiro compra menos. O Bitcoin, com oferta limitada (teto de cerca de 21 milhões), é estudado por muita gente como alternativa de longo prazo — sem prometer que o preço sobe todo mês.",
+      },
+      {
+        keys: ["imposto", "tributação", "ganho de capital"],
+        answer:
+          "Em orientação geral, o ganho de capital aparece quando você realiza — vende, troca ou gasta o bitcoin — e há diferença entre o que pagou e o que recebeu. Não decore um número de blog: confirme a regra vigente com um contador.",
+      },
+      {
+        keys: ["receita federal", "declarar", "isenção"],
+        answer:
+          "Pode haver obrigação de informar cripto e regras de isenção em algumas alienações, mas condições mudam. Organize extratos e histórico; a Receita e o contador fecham o enquadramento. Eu oriento o vocabulário — não substituo profissional.",
+      },
+    ],
+  }),
+
+  converse({
+    id: "volatilidade-dca",
+    label: "Volatilidade do Bitcoin e DCA (compra programada)",
+    teach: [
+      "Volatilidade é o preço subir e descer com força. No Bitcoin isso é comum: o mercado ainda está em formação, notícias mexem rápido e a liquidez em alguns momentos é menor do que em mercados antigos.",
+      "Tentar acertar 'a hora certa' de comprar tudo de uma vez gera ansiedade — e muitas vezes arrependimento. Ninguém tem bola de cristal confiável o tempo todo.",
+      "DCA (Dollar-Cost Averaging), ou compra programada, é o hábito de comprar valores pequenos e regulares (ex.: toda semana ou todo mês), em vez de concentrar tudo num único dia.",
+      "A ideia do DCA não é garantir o melhor preço. É reduzir o medo de 'comprar na hora errada' e transformar a entrada em rotina, com disciplina e menos drama.",
+      "Combine DCA com segurança: só compre o que entende, evite golpe de urgência e tenha plano de custódia. Educação primeiro; pressa nunca.",
+    ],
+    faq: [
+      {
+        keys: ["volatilidade", "preço sobe e desce"],
+        answer:
+          "O preço do Bitcoin oscila porque é um mercado global 24/7, ainda em maturação, sensível a notícias e a fluxos de compra/venda. Volatilidade é o nome disso — sobe e desce com mais amplitude que ativos bem estabelecidos.",
+      },
+      {
+        keys: ["hora certa", "quando comprar", "melhor momento"],
+        answer:
+          "Esperar o 'melhor momento' absoluto costuma travar a pessoa. Ninguém acerta sempre. Por isso muita gente prefere valores pequenos e regulares em vez de uma aposta única no dia 'perfeito'.",
+      },
+      {
+        keys: ["dca", "compra programada", "medo de perder dinheiro"],
+        answer:
+          "DCA / compra programada = comprar pouco com frequência. Ajuda a diluir o risco de entrar só no pico e acalma o medo de errar o timing. Não elimina risco de mercado — organiza a forma de entrar.",
+      },
+    ],
+  }),
+
+  converse({
+    id: "bitcoin-vs-outras-criptos",
+    label: "Bitcoin e outras criptomoedas (altcoins)",
+    teach: [
+      "Bitcoin foi a primeira criptomoeda amplamente adotada e é a mais conhecida. Em geral é descrita como a mais descentralizada entre as grandes: sem uma empresa ou fundação única 'no comando' do protocolo.",
+      "A oferta de novos bitcoins segue regras públicas e um teto aproximado de 21 milhões. Outras criptomoedas (altcoins) têm propósitos, equipes, níveis de descentralização e riscos diferentes.",
+      "Ethereum e outras redes, por exemplo, costumam focar em contratos inteligentes e aplicativos — outro desenho, outro conjunto de trade-offs. Isso não torna uma 'melhor' em absoluto; são ferramentas distintas.",
+      "Tom neutro e educativo: conhecer a diferença ajuda a não misturar tudo sob o nome 'cripto'. Não é recomendação de compra de nenhuma moeda.",
+      "Se alguém promete lucro garantido em 'a próxima moeda', trate como sinal de alerta. Estude o básico, compare riscos e vá no seu ritmo.",
+    ],
+    faq: [
+      {
+        keys: ["outras criptomoedas", "altcoin", "ethereum", "criptomoeda", "moeda digital"],
+        answer:
+          "Altcoin é o nome genérico para criptomoedas que não são Bitcoin. Cada uma tem regras, governança e riscos próprios. Bitcoin é a pioneira, com oferta limitada e forte ênfase em descentralização; outras servem a usos diferentes.",
+      },
+      {
+        keys: ["diferença", "qual é melhor"],
+        answer:
+          "Não existe 'a melhor' para todo mundo. Bitcoin costuma ser visto como reserva/rede monetária descentralizada; outras moedas podem priorizar apps, velocidade ou outros recursos — com outros riscos. Compare propósito e risco; não compre por moda.",
+      },
+    ],
+  }),
+
+  converse({
+    id: "mineracao-bitcoin",
+    label: "O que é mineração de Bitcoin",
+    teach: [
+      "Mineração, em linguagem simples, é o trabalho de computadores que competem para validar blocos de transações e proteger a rede Bitcoin — sem um banco central no meio.",
+      "Os mineradores usam energia e hardware para resolver um desafio matemático (prova de trabalho / proof of work). Quem resolve de forma válida ajuda a incluir o próximo bloco e recebe uma recompensa em bitcoin novo + taxas.",
+      "Por que isso existe? Para a rede continuar segura e descentralizada: alterar o histórico fica caríssimo em energia e equipamento. Não é 'imprimir dinheiro à toa' — é o custo de proteger o livro-razão público.",
+      "Você não precisa minerar para usar Bitcoin. A maioria das pessoas compra, guarda e transaciona; a mineração é a camada de segurança da rede.",
+      "Cuidado com golpes de 'mineradora caseira milagrosa' ou apps que pedem depósito para 'minerar por você' com lucro garantido. Educação primeiro.",
+    ],
+    faq: [
+      {
+        keys: ["mineração", "minerar", "mineradores"],
+        answer:
+          "Mineração é o processo em que computadores validam transações e protegem a rede Bitcoin. Mineradores competem para montar o próximo bloco; o trabalho custa energia e hardware, e isso ajuda a manter a segurança descentralizada.",
+      },
+      {
+        keys: ["como é criado", "quem cria bitcoin"],
+        answer:
+          "Novos bitcoins entram na rede principalmente como recompensa aos mineradores que validam blocos — segundo regras públicas, até o teto aproximado de 21 milhões. Não é um governo 'imprimindo'; é o protocolo incentivando quem protege a rede.",
+      },
+      {
+        keys: ["proof of work", "prova de trabalho"],
+        answer:
+          "Prova de trabalho (proof of work) é o mecanismo: gasto real de esforço computacional para propor um bloco válido. Isso torna caro atacar a rede e barato para todos verificar se as regras foram seguidas.",
+      },
+    ],
+  }),
+
+  converse({
+    id: "geopolitica-e-preco",
+    label: "Geopolítica, notícias e o preço do Bitcoin (visão geral)",
+    teach: [
+      "Esta conversa é educativa e geral: explica COMO certos fatores costumam influenciar o mercado de Bitcoin ao longo do tempo — sem dizer por que o preço subiu ou caiu especificamente hoje, e sem precisar de cotação ao vivo.",
+      "Regulação: decisões de governos e reguladores sobre cripto tendem a mover o mercado. Sinais mais favoráveis costumam aumentar confiança; regras muito restritivas costumam pressionar o preço para baixo (e vice-versa, no clima geral).",
+      "Adoção institucional: quando grandes empresas, fundos ou países adotam ou facilitam o uso de Bitcoin, isso tende a aumentar demanda e percepção de legitimidade — o que pode sustentar interesse de longo prazo.",
+      "Juros nos EUA e força do dólar: juros mais altos costumam reduzir o apetite por ativos de risco (como o Bitcoin). Dólar mais forte tende a pressionar o preço para baixo; o contrário também aparece com frequência no histórico do mercado.",
+      "Eventos geopolíticos (guerras, sanções, instabilidade): geram volatilidade. Às vezes o Bitcoin sobe, visto como reserva fora do sistema tradicional; às vezes cai junto com outros ativos de risco. O contexto importa.",
+      "Bitcoin é mercado global aberto 24/7: reage rápido a notícias. Oscilação de curto prazo não define sozinha o valor de longo prazo do ativo. Calma e educação batem urgência de manchete.",
+    ],
+    faq: [
+      {
+        keys: ["geopolítica", "guerra", "economia mundial"],
+        answer:
+          "Eventos geopolíticos e o clima da economia mundial costumam aumentar a volatilidade. O Bitcoin pode subir (busca por ativo fora do sistema tradicional) ou cair (aversão geral a risco), dependendo do contexto — não há regra única automática.",
+      },
+      {
+        keys: ["por que caiu", "por que subiu", "notícias"],
+        answer:
+          "No curto prazo, notícias (regulação, juros, adoção, conflitos) mexem rápido num mercado 24/7. Explicar 'por que hoje' exige o evento específico daquele dia; aqui o foco é o padrão geral: notícia grande → reação rápida → depois o mercado digere.",
+      },
+      {
+        keys: ["juros", "dólar", "banco central"],
+        answer:
+          "Juros mais altos nos EUA e dólar forte costumam reduzir o apetite por ativos de risco como o Bitcoin. Quando o dinheiro fica 'mais caro' ou o dólar se fortalece, muitos investidores ficam mais seletivos — e o preço pode sentir isso.",
+      },
+      {
+        keys: ["regulação", "adoção institucional"],
+        answer:
+          "Regulação mais clara/favorável e adoção por instituições (empresas, fundos, países) tendem a aumentar confiança e demanda. Regulação hostil ou incerteza regulatória costumam fazer o oposto no clima de mercado.",
+      },
+    ],
+  }),
 ];
 
 /** Sugestões que aparecem no balão do mentor no dashboard */

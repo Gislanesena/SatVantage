@@ -192,36 +192,66 @@ div[vw] .access-button {
 }
 
 .sv-a11y-fab--menu {
+  position: relative;
+  width: 52px;
+  height: 52px;
   background: transparent;
-  border-color: transparent;
-  box-shadow: none;
-  color: #0f172a;
+  border: none;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+  color: transparent;
   overflow: hidden;
+  padding: 0;
 }
 
 .sv-a11y-fab--menu:hover {
-  border-color: transparent;
+  border: none;
   background: transparent;
-  color: #0f172a;
+  filter: brightness(1.06);
 }
 
-.sv-a11y-fab--menu img {
+.sv-a11y-fab--menu .sv-a11y-menu-ico {
+  position: absolute;
+  inset: 0;
   width: 100% !important;
   height: 100% !important;
+  max-width: none;
+  max-height: none;
   object-fit: cover;
   border-radius: 999px;
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+.sv-a11y-fab--tts {
+  background: #ffffff;
+  border-color: rgba(148, 163, 184, 0.45);
+  color: #2563eb;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.sv-a11y-fab--tts:hover {
+  border-color: #2563eb;
+  color: #1d4ed8;
+  background: #ffffff;
+}
+
+.sv-a11y-fab--tts .sv-a11y-tts-ico {
+  display: block;
+  width: 26px;
+  height: 26px;
 }
 
 .sv-a11y-fab--tts.is-on {
-  background: color-mix(in srgb, #0ea5e9 28%, #0f172a);
+  background: color-mix(in srgb, #0ea5e9 18%, #ffffff);
   border-color: #38bdf8;
-  color: #bae6fd;
+  color: #0369a1;
 }
 
 .sv-a11y-fab--tts.is-paused {
-  background: color-mix(in srgb, #f8c838 22%, #0f172a);
+  background: color-mix(in srgb, #f8c838 18%, #ffffff);
   border-color: #f8c838;
-  color: #fef08a;
+  color: #a16207;
 }
 
 .sv-a11y-fab--stop {
@@ -304,11 +334,42 @@ div[vw] .access-button {
   .sv-a11y-dock {
     right: 12px;
     bottom: 12px;
+    gap: 8px;
   }
 
   .sv-a11y-fab {
-    width: 48px;
-    height: 48px;
+    width: 52px;
+    height: 52px;
+  }
+
+  .sv-a11y-fab--menu {
+    position: relative;
+    width: 52px;
+    height: 52px;
+    background: transparent;
+    border: none;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+    overflow: hidden;
+  }
+
+  .sv-a11y-fab--menu .sv-a11y-menu-ico {
+    position: absolute;
+    inset: 0;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover;
+    border-radius: 999px;
+  }
+
+  .sv-a11y-fab--tts {
+    background: #ffffff;
+    border-color: rgba(148, 163, 184, 0.45);
+    color: #2563eb;
+  }
+
+  .sv-a11y-fab--tts .sv-a11y-tts-ico {
+    width: 26px;
+    height: 26px;
   }
 
   .access-button,

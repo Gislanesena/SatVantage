@@ -21,6 +21,19 @@ export async function POST(req: NextRequest) {
     });
   }
 
+  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    console.error(
+      "[check-username] SUPABASE_URL ou SUPABASE_SERVICE_ROLE_KEY ausente no .env.local",
+    );
+    return NextResponse.json(
+      {
+        error: "erro ao verificar usuário",
+        reason: "configuração do servidor incompleta",
+      },
+      { status: 500 },
+    );
+  }
+
   const { data, error } = await supabaseAdmin
     .from("users")
     .select("id")
@@ -28,7 +41,22 @@ export async function POST(req: NextRequest) {
     .maybeSingle();
 
   if (error) {
-    return NextResponse.json({ error: "erro ao verificar usuário" }, { status: 500 });
+    console.error("[check-username] supabase", {
+      code: error.code,
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+    });
+    const invalidKey = /invalid api key/i.test(error.message ?? "");
+    return NextResponse.json(
+      {
+        error: "erro ao verificar usuário",
+        reason: invalidKey
+          ? "chave Supabase inválida — confira SUPABASE_SERVICE_ROLE_KEY no .env.local"
+          : undefined,
+      },
+      { status: 500 },
+    );
   }
 
   if (data) {

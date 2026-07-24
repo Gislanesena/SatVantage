@@ -19,309 +19,249 @@ export const QUIZ_I18N: Record<
   q1: {
     en: {
       teach:
-        "Bitcoin is digital money that works without a bank in the middle. Nobody 'prints' it from nothing: the rules are public and anyone can verify them.",
-      question: "What is Bitcoin?",
+        "Bitcoin is digital money on a worldwide network — without depending on banks or governments in the middle. The rules are public and anyone can verify them. The core idea: you can hold and send value without asking an institution for permission.",
+      question: "What is Bitcoin, at its core?",
       options: [
         "A technology company headquartered in the United States",
-        "Digital money that works without depending on banks or governments",
+        "Digital money on a worldwide network, without depending on banks or governments",
         "An investment app created by an exchange",
         "A physical collector coin plated in gold",
       ],
-      feedbackCorrect: "That's it — sovereignty without asking a bank for permission.",
-      feedbackWrong: "Almost. Think of digital money without a mandatory middleman.",
+      feedbackCorrect: "That's it — an open network, no mandatory middleman.",
+      feedbackWrong: "Think global digital money, without a bank in the middle.",
     },
     es: {
       teach:
-        "Bitcoin es dinero digital que funciona sin un banco en el medio. Nadie lo 'imprime' de la nada: las reglas son públicas y cualquiera puede verificarlas.",
-      question: "¿Qué es Bitcoin?",
+        "Bitcoin es dinero digital en una red mundial — sin depender de bancos o gobiernos en el medio. Las reglas son públicas y cualquiera puede verificarlas. La idea central: puedes guardar y enviar valor sin pedir permiso a una institución.",
+      question: "¿Qué es Bitcoin, en esencia?",
       options: [
         "Una empresa de tecnología con sede en Estados Unidos",
-        "Un dinero digital que funciona sin depender de bancos o gobiernos",
+        "Dinero digital en una red mundial, sin depender de bancos o gobiernos",
         "Una app de inversiones creada por un exchange",
         "Una moneda física de coleccionista bañada en oro",
       ],
-      feedbackCorrect: "Eso — soberanía sin pedir permiso a un banco.",
-      feedbackWrong: "Casi. Piensa en dinero digital sin intermediario obligatorio.",
+      feedbackCorrect: "Eso — red abierta, sin intermediario obligatorio.",
+      feedbackWrong: "Piensa en dinero digital global, sin banco en el medio.",
     },
   },
   q2: {
     en: {
       teach:
-        "Your private key is the secret that proves the bitcoins are yours. Whoever has the key controls the money. Never share it.",
-      question: "What is a private key?",
-      options: [
-        "The password of the exchange app",
-        "A code the company keeps so you can recover the account",
-        "The secret that proves the bitcoins are yours — who has the key has the bitcoins",
-        "Your wallet number, which you share to receive payments",
-      ],
-      feedbackCorrect: "Exactly. The key is ownership.",
-      feedbackWrong: "A private key is not for sharing — it is control.",
-    },
-    es: {
-      teach:
-        "Tu clave privada es el secreto que prueba que los bitcoins son tuyos. Quien tiene la clave controla el dinero. Nunca la compartas.",
-      question: "¿Qué es una clave privada?",
-      options: [
-        "La contraseña de la app del exchange",
-        "Un código que la empresa guarda para recuperar la cuenta",
-        "El secreto que prueba que los bitcoins son tuyos — quien tiene la clave, tiene los bitcoins",
-        "El número de tu billetera, que compartes para recibir pagos",
-      ],
-      feedbackCorrect: "Exacto. La clave es la posesión.",
-      feedbackWrong: "La clave privada no se comparte — es el control.",
-    },
-  },
-  q3: {
-    en: {
-      teach:
-        "Scams love urgency and 'easy money'. If someone promises to double your bitcoins, be suspicious: it's the classic ecosystem scam.",
+        "Bitcoin scams love urgency and easy promises: 'double' your money, pyramids dressed as investments, fake support asking for your key or seed, artificial urgency. If someone asks for wallet secrets or guarantees quick profit, stop and walk away.",
       question:
-        "You get a message: 'Double your bitcoins! Send 0.01 BTC and get 0.02 back'. What should you do?",
+        "Someone messages: 'Double your bitcoin! Send a little and get twice back.' What should you do?",
       options: [
-        "Send a small amount first to test if it's real",
-        "Ignore and report: promising to multiply money is the classic scam",
-        "Check if the site has a security padlock and, if so, send",
-        "Send only if the message comes from a verified profile",
+        "Send a small amount first to test if it's true",
+        "Ignore it: promises to multiply money are a classic scam",
+        "Check for a padlock on the site and, if it has one, send",
+        "Send only if the profile looks verified on social media",
       ],
       feedbackCorrect: "Perfect. Promise to multiply = red flag.",
-      feedbackWrong: "Never send to 'double'. That's a classic scam.",
+      feedbackWrong: "Never send to 'double' funds. Classic scam.",
     },
     es: {
       teach:
-        "Las estafas aman la prisa y el 'dinero fácil'. Si alguien promete duplicar tus bitcoins, desconfía: es la estafa clásica del ecosistema.",
+        "Las estafas con Bitcoin adoran la prisa y la promesa fácil: 'duplicar' tu dinero, pirámides disfrazadas de inversión, falso soporte pidiendo clave o seed, urgencia artificial. Si alguien pide el secreto de la cartera o garantiza ganancia rápida, desconfía y para.",
       question:
-        "Recibes un mensaje: '¡Duplica tus bitcoins! Envía 0,01 BTC y recibe 0,02 de vuelta'. ¿Qué hacer?",
+        "Alguien escribe: '¡Duplica tus bitcoins! Envía un poco y recibe el doble'. ¿Qué hacer?",
       options: [
-        "Enviar un valor pequeño primero para probar si es verdad",
-        "Ignorar y denunciar: promete multiplicar dinero es la estafa más clásica",
-        "Verificar si el sitio tiene candado de seguridad y, si tiene, enviar",
-        "Enviar solo si el mensaje viene de un perfil verificado",
+        "Enviar un valor pequeño primero, para probar si es verdad",
+        "Ignorar: la promesa de multiplicar dinero es estafa clásica",
+        "Verificar si el sitio tiene candado y, si lo tiene, enviar",
+        "Enviar solo si el perfil parece verificado en redes",
       ],
       feedbackCorrect: "Perfecto. Promesa de multiplicar = bandera roja.",
       feedbackWrong: "Nunca envíes para 'duplicar'. Es estafa clásica.",
     },
   },
+  q3: {
+    en: {
+      teach:
+        "A Bitcoin wallet doesn't store 'coins': it stores the keys that control your bitcoin on the network. At an exchange (custodial) the company holds them for you; with your own wallet (self-custody) you control the key. Opening your own wallet usually means installing the app, writing the recovery phrase offline, and never sharing it.",
+      question: "What is the key difference between an exchange wallet and your own wallet?",
+      options: [
+        "At the exchange bitcoin is physical; in your own wallet it's only a number",
+        "At the exchange the company holds the keys; in your own wallet you control the keys",
+        "Your own wallet only works outside Brazil",
+        "There is no difference — both names mean the same thing",
+      ],
+      feedbackCorrect: "Exactly — custodial vs self-custody is who holds the key.",
+      feedbackWrong: "The point is: whoever controls the key controls the bitcoin.",
+    },
+    es: {
+      teach:
+        "Una cartera de Bitcoin no guarda 'moneditas': guarda las claves que controlan tus bitcoins en la red. En el exchange (custodia) la empresa las guarda por ti; en una cartera propia (autocustodia) tú controlas la clave. Abrir una propia suele ser instalar la app, anotar la frase de recuperación offline y nunca compartirla.",
+      question: "¿Cuál es la diferencia central entre cartera en el exchange y cartera propia?",
+      options: [
+        "En el exchange el bitcoin es físico; en la propia es solo un número",
+        "En el exchange la empresa guarda las claves; en la propia tú controlas las claves",
+        "La cartera propia solo funciona fuera de Brasil",
+        "No hay diferencia — los dos nombres son lo mismo",
+      ],
+      feedbackCorrect: "Exacto — custodial vs autocustodia es quién tiene la clave.",
+      feedbackWrong: "El punto es: quien controla la clave, controla el bitcoin.",
+    },
+  },
   q4: {
     en: {
       teach:
-        "Self-custody means you hold your own key — without depending on the exchange. More responsibility, more freedom.",
-      question: "What does 'self-custody' mean?",
+        "In Brazil, Bitcoin may need to be reported when you must declare assets or when you sell at a gain. In broad terms, small monthly sales can fall under an exemption band — but rules change and the fine print belongs with an accountant. The idea here: know that tax rules exist; don't ignore the topic.",
+      question: "About tax and Bitcoin in Brazil, what makes the most sense?",
       options: [
-        "Leaving bitcoins on the exchange, which handles everything",
-        "Holding the key to your bitcoins yourself, without depending on companies",
-        "Hiring a physical bank vault to store coins",
-        "Printing bitcoins on paper and keeping them at home",
+        "Bitcoin never needs to be declared in any situation",
+        "There may be a duty to declare and exemption rules on sales — get informed (and an accountant if needed)",
+        "Only people with a US exchange must declare",
+        "Tax only exists if you mine bitcoin at home",
       ],
-      feedbackCorrect: "That's it. You in control of the key.",
-      feedbackWrong: "Self-custody = you with the key, not the exchange.",
+      feedbackCorrect: "That's it — a tax framework exists; learn it without panic.",
+      feedbackWrong: "It's not 'never declare': there are rules and exemptions to know.",
     },
     es: {
       teach:
-        "Autocustodia es guardar tú mismo la clave — sin depender del exchange. Más responsabilidad, más libertad.",
-      question: "¿Qué significa 'autocustodia'?",
+        "En Brasil, Bitcoin entra en la declaración cuando debes informar patrimonio o cuando vendes con ganancia. En líneas generales, ventas mensuales pequeñas pueden caer en una franja de exención — pero las reglas cambian y el detalle técnico es del contador. La idea aquí: saber que hay marco fiscal; no ignores el tema.",
+      question: "Sobre impuestos y Bitcoin en Brasil, ¿qué tiene más sentido?",
       options: [
-        "Dejar los bitcoins en el exchange, que se encarga de todo",
-        "Guardar tú mismo la clave de tus bitcoins, sin depender de empresas",
-        "Contratar una caja fuerte física en un banco para guardar monedas",
-        "Imprimir los bitcoins en papel y guardarlos en casa",
+        "Bitcoin nunca necesita declararse en ninguna situación",
+        "Puede haber obligación de declarar y reglas de exención en ventas — conviene informarse (y, si hace falta, un contador)",
+        "Solo quien tiene exchange estadounidense debe declarar",
+        "Impuesto solo existe si minas bitcoin en casa",
       ],
-      feedbackCorrect: "Eso. Tú con el control de la clave.",
-      feedbackWrong: "Autocustodia = tú con la clave, no el exchange.",
-    },
-  },
-  q5: {
-    en: {
-      teach:
-        "One bitcoin divides into satoshis — the smallest unit. That's how you can learn and earn small amounts without needing a whole bitcoin.",
-      question: "What is a satoshi?",
-      options: [
-        "The smallest fraction of a bitcoin — each bitcoin has 100 million satoshis",
-        "A cryptocurrency that competes with Bitcoin",
-        "The fee exchanges charge on each purchase",
-        "The name of the central bank that issues bitcoins",
-      ],
-      feedbackCorrect: "Nice. Sats are Bitcoin's 'cents'.",
-      feedbackWrong: "A satoshi is the smallest fraction of a bitcoin.",
-    },
-    es: {
-      teach:
-        "Un bitcoin se divide en satoshis — la unidad más pequeña. Así puedes aprender y ganar valores pequeños sin necesitar un bitcoin entero.",
-      question: "¿Qué es un satoshi?",
-      options: [
-        "La fracción más pequeña del bitcoin — cada bitcoin tiene 100 millones de satoshis",
-        "Una criptomoneda competidora de Bitcoin",
-        "La comisión que cobran los exchanges en cada compra",
-        "El nombre del banco central que emite los bitcoins",
-      ],
-      feedbackCorrect: "Bien. Los sats son los 'centavos' del Bitcoin.",
-      feedbackWrong: "Satoshi es la fracción más pequeña del bitcoin.",
+      feedbackCorrect: "Eso — hay marco fiscal; infórmate sin pánico.",
+      feedbackWrong: "No es 'nunca declares': hay reglas y exenciones que conocer.",
     },
   },
   w1: {
     en: {
       teach:
-        "A Bitcoin wallet doesn't hold 'coins' like a leather wallet. It holds the keys that control your bitcoins on the network. Without the key, nobody moves your money — not even us.",
-      question: "What does a Bitcoin wallet really store?",
+        "Exchanges are the bridge between fiat currency and Bitcoin: you deposit money, buy BTC, and can withdraw to a wallet. In Brazil there are several well-known players — what matters is their role (custody and liquidity), not advertising any specific brand.",
+      question: "What is the main role of a Bitcoin exchange?",
       options: [
-        "The physical bitcoin coins you bought",
-        "The keys that control your bitcoins on the network",
-        "Your bank statement, just in dollars",
-        "A tax registry with your ID number",
+        "Replace Bitcoin with another official currency",
+        "Act as a bridge between fiat and Bitcoin (buy, sell, liquidity)",
+        "Store your seed automatically with total safety",
+        "Issue new bitcoins like a central bank",
       ],
-      feedbackCorrect: "That's it. The wallet is key control.",
-      feedbackWrong: "The wallet stores keys — not physical coins.",
+      feedbackCorrect: "That's it — exchange = bridge between fiat and BTC.",
+      feedbackWrong: "Think buy/sell with liquidity, not issuing money.",
     },
     es: {
       teach:
-        "Una billetera de Bitcoin no guarda 'monedas' como una de cuero. Guarda las claves que controlan tus bitcoins en la red. Sin la clave, nadie mueve tu dinero — ni nosotros.",
-      question: "¿Qué guarda de verdad una billetera de Bitcoin?",
+        "Los exchanges son el puente entre la moneda local y Bitcoin: depositas dinero, compras BTC y puedes retirar a una cartera. En Brasil hay varios conocidos — lo importante es entender su papel (custodia y liquidez), no hacer propaganda de ninguna marca.",
+      question: "¿Cuál es el papel principal de un exchange de Bitcoin?",
       options: [
-        "Las monedas físicas de bitcoin que compraste",
-        "Las claves que controlan tus bitcoins en la red",
-        "El extracto de tu banco, solo que en dólares",
-        "Un registro fiscal con tu documento",
+        "Sustituir el Bitcoin por otra moneda oficial",
+        "Servir de puente entre moneda local y Bitcoin (comprar, vender, liquidez)",
+        "Guardar tu seed automáticamente con seguridad total",
+        "Emitir bitcoins nuevos como un banco central",
       ],
-      feedbackCorrect: "Eso. La billetera es el control de las claves.",
-      feedbackWrong: "La billetera guarda las claves — no moneditas físicas.",
+      feedbackCorrect: "Eso — exchange = puente entre moneda local y BTC.",
+      feedbackWrong: "Piensa en comprar/vender con liquidez, no en emitir moneda.",
     },
   },
   w2: {
     en: {
       teach:
-        "When you create a wallet, a recovery phrase (seed) appears — several words. It's the master backup. Whoever has that phrase can recreate the wallet. Never photograph it, never send it on chat, never type it on a strange site.",
-      question: "What should you do with the wallet recovery phrase (seed)?",
-      options: [
-        "Send it on WhatsApp to a 'trusted' friend to keep",
-        "Photograph it and save it in phone cloud storage",
-        "Write it offline in a safe place and never share it with anyone",
-        "Post it on Instagram Stories to remember later",
-      ],
-      feedbackCorrect: "Perfect. Offline, safe, only you.",
-      feedbackWrong: "Seed never goes to chat, photo, or cloud — it's the master backup.",
-    },
-    es: {
-      teach:
-        "Cuando creas una billetera aparece una frase de recuperación (seed) — varias palabras. Es el backup maestro. Quien tiene esa frase puede recrear la billetera. Nunca la fotografíes, nunca la mandes por chat, nunca la escribas en un sitio raro.",
-      question: "¿Qué hacer con la frase de recuperación (seed) de la billetera?",
-      options: [
-        "Mandarla por WhatsApp a un amigo 'de confianza' para guardar",
-        "Fotografiarla y guardarla en la nube del celular",
-        "Anotarla offline en un lugar seguro y nunca compartirla con nadie",
-        "Pegarla en Instagram Stories para recordar después",
-      ],
-      feedbackCorrect: "Perfecto. Offline, segura, solo tú.",
-      feedbackWrong: "La seed nunca va a chat, foto o nube — es el backup maestro.",
-    },
-  },
-  w3: {
-    en: {
-      teach:
-        "The Lightning Network is a 'layer' on top of Bitcoin to pay fast and cheap — like instant payments, but in sats. Ideal for daily use.",
+        "Lightning Network is an 'express lane' on top of Bitcoin: near-instant payments with low fees — ideal for everyday use. You use compatible wallets, create or paste an invoice, and the network moves sats quickly.",
       question: "What is the Lightning Network for?",
       options: [
-        "Replacing Bitcoin with another currency",
-        "Paying with sats quickly and with low fees",
-        "Automatically hiding transactions from the government",
-        "Printing new bitcoins faster",
+        "Replace Bitcoin with another currency",
+        "Pay with sats quickly and with low fees",
+        "Automatically hide every transaction from the government",
+        "Print new bitcoins faster",
       ],
-      feedbackCorrect: "Exactly — speed and low fees day to day.",
+      feedbackCorrect: "Exactly — speed and low fees for daily life.",
       feedbackWrong: "Lightning = fast, cheap payments in sats.",
     },
     es: {
       teach:
-        "La red Lightning es una 'capa' sobre Bitcoin para pagar rápido y barato — tipo pagos instantáneos, pero en sats. Ideal para el día a día.",
+        "Lightning Network es una 'vía expresa' sobre Bitcoin: pagos casi instantáneos y con comisiones bajas — ideal para el día a día. Usas carteras compatibles, generas o pegas un cobro (invoice) y la red mueve los sats rápido.",
       question: "¿Para qué sirve la Lightning Network?",
       options: [
         "Sustituir el Bitcoin por otra moneda",
         "Pagar con sats de forma rápida y con comisiones bajas",
-        "Ocultar transacciones del gobierno automáticamente",
+        "Ocultar automáticamente todas las transacciones del gobierno",
         "Imprimir bitcoins nuevos más rápido",
       ],
       feedbackCorrect: "Exacto — velocidad y comisiones bajas en el día a día.",
       feedbackWrong: "Lightning = pagos rápidos y baratos en sats.",
     },
   },
+  w3: {
+    en: {
+      teach:
+        "The classic path: buy Bitcoin on an exchange and, when it makes sense, withdraw to a self-custody wallet. At the exchange you depend on the company; in your own wallet you control the key. 'Not your keys, not your coins' — that's why self-custody matters for sovereignty.",
+      question: "Why withdraw from an exchange to your own wallet?",
+      options: [
+        "Because the exchange cannot store bitcoin",
+        "So you control the keys — less dependence on the company",
+        "Because your own wallet automatically earns interest",
+        "Only to pay less tax right away",
+      ],
+      feedbackCorrect: "That's it — self-custody = you control the key.",
+      feedbackWrong: "The core reason is key control, not interest or tax.",
+    },
+    es: {
+      teach:
+        "El camino clásico: comprar Bitcoin en el exchange y, cuando tenga sentido, retirar a una cartera de autocustodia. En el exchange dependes de la empresa; en la cartera propia controlas la clave. 'No tus claves, no tus monedas' — por eso la autocustodia importa para quien quiere soberanía.",
+      question: "¿Por qué retirar del exchange a una cartera propia?",
+      options: [
+        "Porque el exchange no puede guardar bitcoin",
+        "Para que tú controles las claves — menos dependencia de la empresa",
+        "Porque la cartera propia genera intereses automáticamente",
+        "Solo para pagar menos impuestos al momento",
+      ],
+      feedbackCorrect: "Eso — autocustodia = tú controlas la clave.",
+      feedbackWrong: "El motivo central es el control de las claves, no intereses ni impuestos.",
+    },
+  },
   w4: {
     en: {
       teach:
-        "To receive sats on Lightning, your wallet creates an invoice — a long code. The payer pastes that code and the network sends. You don't need to memorize an address.",
-      question: "How do you receive a Lightning payment?",
+        "A cold wallet stays offline — a hardware wallet or a setup disconnected from the internet. It's for long-term storage with less exposure to malware and online scams. Everyday spending can stay in a hot wallet; the larger stash goes cold.",
+      question: "What defines a cold wallet?",
       options: [
-        "Asking for the payer's tax ID",
-        "Creating an invoice in your wallet and giving it to the payer",
-        "Calling the exchange and requesting a bank transfer",
-        "Sending your SatVantage password to the other person",
+        "A wallet only for coins from cold countries",
+        "An offline wallet, safer for long-term storage",
+        "Any wallet inside an exchange",
+        "A wallet that freezes your balance for 30 days",
       ],
-      feedbackCorrect: "That's it. Invoice = charge created by the wallet.",
-      feedbackWrong: "The receiver creates the invoice; the payer pastes the code.",
+      feedbackCorrect: "Perfect — offline and built for the long term.",
+      feedbackWrong: "Cold = offline / less exposure to the internet.",
     },
     es: {
       teach:
-        "Para recibir sats en Lightning, tu billetera genera un cobro (invoice) — un código largo. Quien paga pega ese código y la red envía. No necesitas memorizar la dirección.",
-      question: "¿Cómo recibes un pago Lightning?",
+        "Una cartera fría (cold wallet) queda offline — hardware wallet o un setup desconectado de internet. Sirve para guardar a largo plazo con menos exposición a virus y estafas online. El día a día (gastar poco) puede quedar en una cartera caliente; el stock mayor, en frío.",
+      question: "¿Qué caracteriza una cartera fría?",
       options: [
-        "Pidiendo el documento de quien va a pagar",
-        "Generando un cobro (invoice) en tu billetera y pasándolo a quien paga",
-        "Llamando al exchange y pidiendo una transferencia bancaria",
-        "Enviando tu contraseña de SatVantage a la otra persona",
+        "Una cartera solo para monedas de países fríos",
+        "Una cartera offline, más segura para guardar a largo plazo",
+        "Cualquier cartera dentro de un exchange",
+        "Una cartera que congela el saldo por 30 días",
       ],
-      feedbackCorrect: "Eso. Invoice = cobro generado por la billetera.",
-      feedbackWrong: "Quien recibe genera el cobro; quien paga pega el código.",
-    },
-  },
-  w5: {
-    en: {
-      teach:
-        "Here on SatVantage we use a test network (MutinyNet). Learning sats are not real money — you can make mistakes and train safely.",
-      question: "Why do we use a test network on this platform?",
-      options: [
-        "Because Lightning doesn't work in Brazil",
-        "So you can learn and practice without risking real money",
-        "Because test sats are worth more than real bitcoin",
-        "So the government can track every click",
-      ],
-      feedbackCorrect: "Nice. This is a safe lab.",
-      feedbackWrong: "Test network = learn without risking real money.",
-    },
-    es: {
-      teach:
-        "Aquí en SatVantage estamos en red de prueba (MutinyNet). Los sats de aprendizaje no son dinero de verdad — puedes equivocarte y entrenar sin miedo.",
-      question: "¿Por qué usamos red de prueba en esta plataforma?",
-      options: [
-        "Porque Lightning no funciona en Brasil",
-        "Para que aprendas y entrenes sin arriesgar dinero real",
-        "Porque los sats de prueba valen más que el bitcoin real",
-        "Para que el gobierno siga cada clic",
-      ],
-      feedbackCorrect: "Bien. Aquí es un laboratorio seguro.",
-      feedbackWrong: "Red de prueba = aprender sin riesgo de dinero real.",
+      feedbackCorrect: "Perfecto — offline y pensada para el largo plazo.",
+      feedbackWrong: "Fría = offline / menos exposición a internet.",
     },
   },
 };
 
-export function normalizeQuizLocale(raw: string | null | undefined): QuizLocale {
-  const v = (raw || "pt").toLowerCase();
+export function normalizeQuizLocale(raw?: string | null): QuizLocale {
+  const v = (raw ?? "pt").toLowerCase();
   if (v.startsWith("en")) return "en";
-  if (v.startsWith("es")) return "es";
+  if (v.startsWith("es") || v.startsWith("es-")) return "es";
   return "pt";
 }
 
-/** Alias usado pelas rotas legadas de missão (main). */
-export function parseQuizLocale(raw: string | null | undefined): QuizLocale {
-  return normalizeQuizLocale(raw);
-}
-
-/** Aplica tradução EN/ES a uma lição vinda da API (fallback no cliente). */
-export function localizeLessonClient<
-  T extends { id: string; teach: string; question: string; options: string[] },
->(lesson: T, locale: QuizLocale | string): T {
+/** Traduz uma lição já sem gabarito (cliente). */
+export function localizeLessonClient(
+  lesson: { id: string; teach: string; question: string; options: string[] },
+  locale: QuizLocale | string,
+): { id: string; teach: string; question: string; options: string[] } {
   const lang = normalizeQuizLocale(locale);
   if (lang === "pt") return lesson;
   const pack = QUIZ_I18N[lesson.id]?.[lang];
   if (!pack) return lesson;
   return {
-    ...lesson,
+    id: lesson.id,
     teach: pack.teach,
     question: pack.question,
     options: [...pack.options],

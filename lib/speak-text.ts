@@ -119,7 +119,7 @@ export function extractReadableText(root?: Element | string | null): string {
   const clone = el.cloneNode(true) as HTMLElement;
   clone
     .querySelectorAll(
-      "script, style, noscript, [aria-hidden='true'], .sv-a11y, .sv-a11y-dock, .sv-a11y-fab, .sv-skip, [vw], .sv-sr-only, #sv-vlibras-root",
+      "script, style, noscript, [aria-hidden='true'], .sv-a11y, .sv-a11y-dock, .sv-a11y-fab, .sv-skip, [vw], .sv-sr-only",
     )
     .forEach((n) => n.remove());
   return (clone.innerText || "").replace(/\s+\n/g, "\n").trim().slice(0, 12000);
