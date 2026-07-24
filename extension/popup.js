@@ -1,8 +1,9 @@
 // popup.js — UI do Copiloto. Texto da página + pergunta, ou captura visual.
 // Usa a origem da aba oficial (localhost ou Vercel) como API — assim o código local vale.
-const API_FALLBACK = "http://localhost:3000";
+const API_FALLBACK = "https://sat-vantage-gislanesena.vercel.app";
 
 const OFFICIAL_HOSTS = [
+  "sat-vantage-gislanesena.vercel.app",
   "sat-vantage-iau60jdhv-gislanesena.vercel.app",
   "localhost",
   "127.0.0.1",
@@ -10,11 +11,13 @@ const OFFICIAL_HOSTS = [
 
 const CHIPS_DEFAULT = [
   { q: "Isso é golpe?", label: "Isso é golpe?" },
+  { q: "Qual o preço do Bitcoin?", label: "Preço do Bitcoin" },
   { q: "Como crio uma carteira aqui?", label: "Como crio uma carteira aqui?" },
 ];
 
 const CHIPS_OFICIAL = [
   { q: "Este é o site oficial SatVantage?", label: "É o site oficial?" },
+  { q: "Qual o preço do Bitcoin?", label: "Preço do Bitcoin" },
   { q: "Me mostra o mapa do site SatVantage", label: "Mapa do site" },
   { q: "Como conecto a carteira aqui?", label: "Conectar carteira" },
   { q: "Onde fica a herança digital?", label: "Herança" },
@@ -59,6 +62,9 @@ function renderChips(official) {
     btn.addEventListener("click", () => {
       perguntaEl.value = item.q;
       perguntaEl.focus();
+      if (/pre[cç]o|cotac|quanto vale|price/i.test(item.q)) {
+        void mostrarPrecoBtc();
+      }
     });
     wrap.appendChild(btn);
   }
@@ -104,6 +110,7 @@ async function refreshPageContext() {
 const perguntaEl = document.getElementById("pergunta");
 const enviarEl = document.getElementById("enviar");
 const capturarEl = document.getElementById("capturar");
+const btnBtcEl = document.getElementById("btn-btc");
 const statusEl = document.getElementById("status");
 const resultadoEl = document.getElementById("resultado");
 const badgeEl = document.getElementById("badge");
@@ -112,6 +119,9 @@ const explicacaoEl = document.getElementById("explicacao");
 const passosTitleEl = document.getElementById("passos-title");
 const passosEl = document.getElementById("passos");
 const resultUrlEl = document.getElementById("result-url");
+const btcCardEl = document.getElementById("btc-card");
+const btcPriceEl = document.getElementById("btc-price");
+const btcMetaEl = document.getElementById("btc-meta");
 
 const cropEl = document.getElementById("crop");
 const cropStageEl = document.getElementById("crop-stage");
@@ -143,7 +153,65 @@ function setStatus(text, isError) {
 function setBusy(busy) {
   enviarEl.disabled = busy;
   capturarEl.disabled = busy;
+  if (btnBtcEl) btnBtcEl.disabled = busy;
   cropOkEl.disabled = busy || !cropSel || cropSel.w < 8 || cropSel.h < 8;
+}
+
+function isPriceQuestion(text) {
+  const s = String(text || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+  return (
+    /preco|cotac|quanto (custa|vale)|price|btc\b|bitcoin/.test(s) &&
+    /preco|cotac|quanto|vale|custa|price|hoje|agora/.test(s)
+  );
+}
+
+function formatBrl(n) {
+  return Number(n).toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+    maximumFractionDigits: 0,
+  });
+}
+
+function formatUsd(n) {
+  return Number(n).toLocaleString("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  });
+}
+
+async function mostrarPrecoBtc() {
+  resultadoEl.hidden = true;
+  hideCrop();
+  setBusy(true);
+  setStatus("Buscando cotação do Bitcoin…");
+
+  try {
+    const base = resolveApiBase(currentPageUrl);
+    const res = await fetch(`${base}/api/market/btc?range=24h`);
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || `Falha na cotação (${res.status})`);
+
+    const change = Number(data.changePct);
+    const sign = change > 0 ? "+" : "";
+    btcPriceEl.textContent = `${formatBrl(data.priceBrl)} · ${formatUsd(data.priceUsd)}`;
+    btcMetaEl.textContent =
+      `24h: ${sign}${change.toFixed(2)}%` +
+      (data.updatedAt
+        ? ` · atualizado ${new Date(data.updatedAt).toLocaleTimeString("pt-BR")}`
+        : "");
+    btcCardEl.hidden = false;
+    setStatus("");
+  } catch (e) {
+    btcCardEl.hidden = true;
+    setStatus(e?.message || "Não foi possível obter a cotação.", true);
+  } finally {
+    setBusy(false);
+  }
 }
 
 function normalizeRisco(raw) {
@@ -157,6 +225,7 @@ function normalizeRisco(raw) {
 }
 
 function showResult(data, pageUrl) {
+  if (btcCardEl) btcCardEl.hidden = true;
   const tipo = data.tipo === "guia" ? "guia" : "avaliacao";
   const url = pageUrl || data.paginaUrl || currentPageUrl || "";
   const oficial = !!data.siteOficial || isOfficialHost(url);
@@ -326,9 +395,14 @@ function resumoOficialLocal(url, texto) {
 
 async function analisar() {
   const pergunta = (perguntaEl.value || "").trim();
-  // pergunta vazia = resumo de onde o usuário está
+
+  if (pergunta && isPriceQuestion(pergunta)) {
+    await mostrarPrecoBtc();
+    return;
+  }
 
   resultadoEl.hidden = true;
+  if (btcCardEl) btcCardEl.hidden = true;
   hideCrop();
   setBusy(true);
   setStatus(pergunta ? "Lendo a página…" : "Preparando resumo da página…");
@@ -571,6 +645,12 @@ async function analisarImagem() {
 enviarEl.addEventListener("click", () => {
   void analisar();
 });
+
+if (btnBtcEl) {
+  btnBtcEl.addEventListener("click", () => {
+    void mostrarPrecoBtc();
+  });
+}
 
 capturarEl.addEventListener("click", () => {
   void startCapture();

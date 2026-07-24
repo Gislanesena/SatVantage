@@ -26,6 +26,12 @@
       <p id="page-url" class="sv-url" title=""></p>
     </div>
 
+    <section id="btc-card" class="sv-btc" hidden>
+      <p class="sv-btc-label">Bitcoin (CoinGecko)</p>
+      <p id="btc-price" class="sv-btc-price">—</p>
+      <p id="btc-meta" class="sv-btc-meta"></p>
+    </section>
+
     <label class="sv-label" for="pergunta">Sua pergunta <span class="sv-optional">(opcional)</span></label>
     <textarea
       id="pergunta"
@@ -35,6 +41,9 @@
 
     <div class="sv-suggestions" role="group" aria-label="Sugestões">
       <button type="button" class="sv-chip" data-q="Isso é golpe?">Isso é golpe?</button>
+      <button type="button" class="sv-chip" data-q="Qual o preço do Bitcoin?">
+        Qual o preço do Bitcoin?
+      </button>
       <button type="button" class="sv-chip" data-q="Como crio uma carteira aqui?">
         Como crio uma carteira aqui?
       </button>
@@ -42,6 +51,7 @@
 
     <div class="sv-actions">
       <button type="button" id="enviar" class="sv-btn">Analisar página</button>
+      <button type="button" id="btn-btc" class="sv-btn sv-btn--ghost">Preço do Bitcoin</button>
       <button type="button" id="capturar" class="sv-btn sv-btn--ghost">
         📷 Selecionar área da tela
       </button>

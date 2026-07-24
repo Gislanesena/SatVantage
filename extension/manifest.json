@@ -1,11 +1,12 @@
 {
   "manifest_version": 3,
   "name": "SatVantage Copiloto",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Guia empático no site oficial SatVantage e análise Bitcoin/segurança em outras páginas.",
   "permissions": ["activeTab", "scripting"],
   "host_permissions": [
     "http://localhost:3000/*",
+    "https://sat-vantage-gislanesena.vercel.app/*",
     "https://sat-vantage-iau60jdhv-gislanesena.vercel.app/*"
   ],
   "icons": {
