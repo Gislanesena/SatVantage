@@ -5,7 +5,10 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "test:smoke": "node scripts/smoke-audit.mjs",
+    "test:e2e": "playwright test",
+    "audit": "node scripts/smoke-audit.mjs && playwright test"
   },
   "dependencies": {
     "@getalby/sdk": "^3.9.0",
@@ -22,6 +25,7 @@
     "ws": "^8.21.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.54.1",
     "@types/node": "^20",
     "@types/qrcode": "^1.5.6",
     "@types/react": "^18",

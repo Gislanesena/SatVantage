@@ -22,8 +22,6 @@ import {
   validateWords,
 } from "nostr-tools/nip06";
 import { sealVault, openVault, hashAnswer, newSalt } from "@/lib/vault";
-import { useI18n } from "@/lib/i18n";
-import LanguageSelect from "@/components/LanguageSelect";
 
 const LOGIN_EVENT_KIND = 22242;
 
@@ -66,14 +64,8 @@ function normalizeMnemonic(input: string): string {
   return input.trim().toLowerCase().replace(/\s+/g, " ");
 }
 
-type RecoveryInputErrors = {
-  invalidKey: string;
-  wrongCount: string;
-  invalidPhrase: string;
-};
-
 /** Deriva a sk das 12 palavras (NIP-06). Aceita nsec1… só para contas legadas. */
-function secretFromRecoveryInput(input: string, errors: RecoveryInputErrors): Uint8Array {
+function secretFromRecoveryInput(input: string): Uint8Array {
   const trimmed = input.trim();
   if (trimmed.toLowerCase().startsWith("nsec1")) {
     try {
@@ -81,17 +73,17 @@ function secretFromRecoveryInput(input: string, errors: RecoveryInputErrors): Ui
       if (decoded.type !== "nsec") throw new Error();
       return decoded.data as Uint8Array;
     } catch {
-      throw new Error(errors.invalidKey);
+      throw new Error("chave de recuperação inválida");
     }
   }
 
   const mnemonic = normalizeMnemonic(trimmed);
   const parts = mnemonic.split(" ").filter(Boolean);
   if (parts.length !== 12) {
-    throw new Error(errors.wrongCount);
+    throw new Error("informe exatamente as 12 palavras de recuperação");
   }
   if (!validateWords(mnemonic)) {
-    throw new Error(errors.invalidPhrase);
+    throw new Error("frase de recuperação inválida — confira as 12 palavras");
   }
   return privateKeyFromSeedWords(mnemonic);
 }
@@ -188,7 +180,6 @@ export default function LoginNostr({
   initialMode?: AuthMode;
   onBack?: () => void;
 }) {
-  const { t } = useI18n();
   const [mode, setMode] = useState<AuthMode>(initialMode);
   // Em "criar conta" começa vazio — não reaproveita o último usuário do login
   const [username, setUsername] = useState(() =>
@@ -294,13 +285,15 @@ export default function LoginNostr({
     if (!/^[a-z0-9_]{3,20}$/.test(raw)) {
       setCheckingUsername(false);
       setUsernameAvailable(false);
-      setUsernameCheckMsg(t.auth.userInvalid);
+      setUsernameCheckMsg(
+        "Usuário inválido (3-20 caracteres: letras minúsculas, números, _).",
+      );
       return;
     }
 
     let cancelled = false;
     setCheckingUsername(true);
-    const debounceTimer = setTimeout(() => {
+    const t = setTimeout(() => {
       void (async () => {
         try {
           const res = await fetch("/api/auth/check-username", {
@@ -312,20 +305,23 @@ export default function LoginNostr({
           if (cancelled) return;
           if (!res.ok) {
             setUsernameAvailable(null);
-            setUsernameCheckMsg(t.auth.createFail);
+            setUsernameCheckMsg("Não foi possível verificar o usuário agora.");
             return;
           }
           if (data.available) {
             setUsernameAvailable(true);
-            setUsernameCheckMsg(t.auth.userAvailable);
+            setUsernameCheckMsg("Usuário disponível.");
           } else {
             setUsernameAvailable(false);
-            setUsernameCheckMsg(data.reason || t.auth.userTaken);
+            setUsernameCheckMsg(
+              data.reason ||
+                "Esse usuário já está em uso. Escolha outro nome.",
+            );
           }
         } catch {
           if (cancelled) return;
           setUsernameAvailable(null);
-          setUsernameCheckMsg(t.auth.createFail);
+          setUsernameCheckMsg("Não foi possível verificar o usuário agora.");
         } finally {
           if (!cancelled) setCheckingUsername(false);
         }
@@ -334,9 +330,9 @@ export default function LoginNostr({
 
     return () => {
       cancelled = true;
-      clearTimeout(debounceTimer);
+      clearTimeout(t);
     };
-  }, [username, mode, t]);
+  }, [username, mode]);
 
   function npubShort(npub: string) {
     return npub.length > 16 ? `${npub.slice(0, 10)}…${npub.slice(-6)}` : npub;
@@ -377,7 +373,7 @@ export default function LoginNostr({
     if (nextSlot < 0) return;
     const expected = keyGaps[nextSlot]!.expected;
     if (item.word !== expected) {
-      setKeyConfirmError(t.auth.wrongOrder);
+      setKeyConfirmError("Ordem errada — confira as palavras e tente de novo");
       resetKeyFill();
       return;
     }
@@ -394,7 +390,7 @@ export default function LoginNostr({
     if (!pendingKey || keyGaps.length < 3) return;
     const ok = keyGaps.every((g, i) => keyFilled[i] === g.expected);
     if (!ok) {
-      setKeyConfirmError(t.auth.wrongOrder);
+      setKeyConfirmError("Ordem errada — confira as palavras e tente de novo");
       resetKeyFill();
       return;
     }
@@ -445,11 +441,12 @@ export default function LoginNostr({
     setError(null);
     const userNorm = username.trim().toLowerCase();
     if (!/^[a-z0-9_]{3,20}$/.test(userNorm)) {
-      return setError(t.auth.userInvalid);
+      return setError("Usuário inválido (3-20 caracteres: letras minúsculas, números, _).");
     }
-    if (password.length < 8) return setError(t.auth.passwordMinPh);
-    if (question.trim().length < 8) return setError(t.auth.questionShort);
-    if (answer.trim().length < 2) return setError(t.auth.answerShort);
+    if (password.length < 8) return setError("A senha precisa de pelo menos 8 caracteres.");
+    if (question.trim().length < 8)
+      return setError("Escreva uma pergunta de segurança (mínimo 8 caracteres).");
+    if (answer.trim().length < 2) return setError("Escreva a resposta da sua pergunta.");
 
     setBusy("create");
     try {
@@ -460,11 +457,14 @@ export default function LoginNostr({
         body: JSON.stringify({ username: userNorm }),
       });
       const checkData = await check.json().catch(() => ({}));
-      if (!check.ok) throw new Error(checkData.error ?? t.auth.createFail);
+      if (!check.ok) throw new Error(checkData.error ?? "erro ao verificar usuário");
       if (!checkData.available) {
         setUsernameAvailable(false);
-        setUsernameCheckMsg(checkData.reason || t.auth.userTaken);
-        throw new Error(checkData.reason || t.auth.userTaken);
+        setUsernameCheckMsg(checkData.reason || "Esse usuário já está em uso.");
+        throw new Error(
+          checkData.reason ||
+            "Esse usuário já está em uso. Escolha outro nome.",
+        );
       }
 
       const mnemonic = generateSeedWords();
@@ -492,7 +492,7 @@ export default function LoginNostr({
       setCopied(false);
       setPendingKey({ words, mnemonic, user });
     } catch (e: any) {
-      setError(e.message ?? t.auth.createFail);
+      setError(e.message ?? "Falha ao criar conta");
     } finally {
       setBusy(null);
     }
@@ -508,7 +508,7 @@ export default function LoginNostr({
       remember(username);
       onLogin?.(user);
     } catch (e: any) {
-      setError(e.message ?? t.auth.loginFail);
+      setError(e.message ?? "Falha no login");
     } finally {
       setBusy(null);
     }
@@ -522,7 +522,7 @@ export default function LoginNostr({
       setRecoverInfo(info);
       setRecoverStep(2);
     } catch (e: any) {
-      setError(e.message ?? t.auth.recoverFail);
+      setError(e.message ?? "Não foi possível iniciar a recuperação");
     } finally {
       setBusy(null);
     }
@@ -530,14 +530,10 @@ export default function LoginNostr({
 
   async function concluirRecuperacao() {
     setError(null);
-    if (password.length < 8) return setError(t.auth.newPasswordPh);
+    if (password.length < 8) return setError("A senha nova precisa de pelo menos 8 caracteres.");
     setBusy("recover");
     try {
-      const sk = secretFromRecoveryInput(mnemonicInput, {
-        invalidKey: t.auth.recoverFail,
-        wrongCount: t.auth.recoverFail,
-        invalidPhrase: t.auth.recoverFail,
-      });
+      const sk = secretFromRecoveryInput(mnemonicInput);
 
       const challenge = await fetchChallenge();
       const signed = finalizeEvent(buildLoginEvent(challenge), sk);
@@ -557,7 +553,7 @@ export default function LoginNostr({
       setAnswer("");
       onLogin?.(user);
     } catch (e: any) {
-      setError(e.message ?? t.auth.recoverFail);
+      setError(e.message ?? "Falha na recuperação");
     } finally {
       setBusy(null);
     }
@@ -568,15 +564,15 @@ export default function LoginNostr({
       const nextGapSlot = keyFilled.findIndex((v) => v === null);
       return (
         <div className="sv-auth">
-          <div className="sv-auth-top">
-            <button type="button" className="linkish sv-back" onClick={goBackToKeyShow}>
-              {t.auth.backToWords}
-            </button>
-            <LanguageSelect />
-          </div>
-          <h2>{t.auth.confirmTitle}</h2>
-          <p>{t.auth.confirmBody}</p>
-          <ol className="sv-mnemonic sv-mnemonic--gaps" aria-label={t.auth.gapsLabel}>
+          <button type="button" className="linkish sv-back" onClick={goBackToKeyShow}>
+            Voltar para ver as palavras
+          </button>
+          <h2>Confirme que anotou</h2>
+          <p>
+            Complete as lacunas na ordem (1 → 2 → 3), clicando nas palavras abaixo.
+            As lacunas não mudam se você voltar para conferir a frase.
+          </p>
+          <ol className="sv-mnemonic sv-mnemonic--gaps" aria-label="Frase com lacunas">
             {pendingKey.words.map((word, i) => {
               const gapSlot = gapOrderByIndex.get(i);
               if (gapSlot === undefined) {
@@ -599,6 +595,7 @@ export default function LoginNostr({
                         ? "sv-mnemonic-item sv-mnemonic-gap sv-mnemonic-gap--next"
                         : "sv-mnemonic-item sv-mnemonic-gap"
                   }
+                  title={`Lacuna ${gapSlot + 1}`}
                 >
                   <span className="sv-mnemonic-num">{i + 1}</span>
                   <span className="sv-mnemonic-gap-slot">
@@ -611,7 +608,7 @@ export default function LoginNostr({
               );
             })}
           </ol>
-          <div className="sv-key-options" role="group" aria-label={t.auth.missingWordsLabel}>
+          <div className="sv-key-options" role="group" aria-label="Palavras que faltam">
             {keyPool.map((item) => {
               const used = keyUsedIds.includes(item.id);
               if (used) return null;
@@ -633,7 +630,7 @@ export default function LoginNostr({
             </p>
           )}
           <button type="button" disabled={!keyConfirmReady} onClick={finishKeyBackup}>
-            {t.auth.confirmContinue}
+            Continuar para o SatVantage
           </button>
         </div>
       );
@@ -641,13 +638,13 @@ export default function LoginNostr({
 
     return (
       <div className="sv-auth">
-        <div className="sv-auth-top">
-          <span className="sv-auth-top-spacer" />
-          <LanguageSelect />
-        </div>
-        <h2>{t.auth.backupTitle}</h2>
-        <p>{t.auth.backupBody}</p>
-        <ol className="sv-mnemonic" aria-label={t.auth.phraseLabel}>
+        <h2>Guarde suas 12 palavras</h2>
+        <p>
+          Esta frase é o documento de posse da sua conta. Você não vai usá-la no
+          dia a dia — só se esquecer a senha (junto com a pergunta de segurança).
+          Anote fora do computador. Ela não será mostrada de novo.
+        </p>
+        <ol className="sv-mnemonic" aria-label="Frase de recuperação">
           {pendingKey.words.map((word, i) => (
             <li key={i} className="sv-mnemonic-item">
               <span className="sv-mnemonic-num">{i + 1}</span>
@@ -666,41 +663,39 @@ export default function LoginNostr({
             } catch {}
           }}
         >
-          {copied ? t.auth.copied : t.auth.copyWords}
+          {copied ? "Copiada" : "Copiar palavras"}
         </button>
         <button type="button" onClick={goToKeyConfirm}>
-          {t.auth.alreadyNoted}
+          Já anotei, continuar
         </button>
       </div>
     );
   }
 
   const titles: Record<AuthMode, string> = {
-    create: t.auth.titleCreate,
-    login: t.auth.titleLogin,
-    recover: t.auth.titleRecover,
+    create: "Criar conta",
+    login: "Entrar",
+    recover: "Recuperar acesso",
   };
 
   return (
     <div className="sv-auth">
-      <div className="sv-auth-top">
-        <button type="button" className="linkish sv-back" onClick={onBack}>
-          {t.auth.back}
-        </button>
-        <LanguageSelect />
-      </div>
+      <button type="button" className="linkish sv-back" onClick={onBack}>
+        Voltar
+      </button>
 
       <h2>{titles[mode]}</h2>
       <p className="sv-auth-lede">
         {mode === "create"
-          ? t.auth.ledeCreate
+          ? "Usuário e senha. Por baixo, uma identidade Nostr real — a chave fica cifrada com a sua senha."
           : mode === "login"
-            ? t.auth.ledeLogin
-            : t.auth.ledeRecover}
+            ? "Abra o cofre da sua conta SatVantage."
+            : "Duas provas: pergunta de segurança e as 12 palavras de recuperação."}
       </p>
 
       <input
-        placeholder={t.auth.usernamePh}
+        placeholder="usuário"
+        aria-label="Nome de usuário"
         value={username}
         onChange={(e) => {
           setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""));
@@ -724,31 +719,34 @@ export default function LoginNostr({
             marginTop: -4,
           }}
         >
-          {checkingUsername ? t.auth.checkingUser : usernameCheckMsg}
+          {checkingUsername ? "Verificando usuário…" : usernameCheckMsg}
         </p>
       )}
 
       {mode === "create" && existingSession && !forceCreate ? (
         <div className="sv-error-box" role="alert">
           <p className="sv-error" style={{ color: "var(--ink)" }}>
-            {t.auth.sessionWarn.replace("{npub}", npubShort(existingSession.npub))}
+            Você já está conectado como {npubShort(existingSession.npub)}. Criar uma conta
+            nova gera uma identidade Nostr diferente — o saldo e o progresso da conta atual
+            ficam nela, não passam para a nova.
           </p>
           <button
             type="button"
             className="sv-error-action"
             onClick={() => onLogin?.(existingSession)}
           >
-            {t.auth.goMyAccount}
+            Ir para minha conta
           </button>
           <button type="button" className="ghost" onClick={() => setForceCreate(true)}>
-            {t.auth.createAnyway}
+            Criar conta nova mesmo assim
           </button>
         </div>
       ) : (
         mode === "create" && (
           <>
             <input
-              placeholder={t.auth.passwordMinPh}
+              placeholder="senha (mínimo 8 caracteres)"
+              aria-label="Senha (mínimo 8 caracteres)"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -756,18 +754,20 @@ export default function LoginNostr({
               style={inputStyle}
             />
             <input
-              placeholder={t.auth.questionPh}
+              placeholder="pergunta de segurança (só você sabe a resposta)"
+              aria-label="Pergunta de segurança"
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               style={inputStyle}
             />
             <input
-              placeholder={t.auth.answerPh}
+              placeholder="resposta"
+              aria-label="Resposta da pergunta de segurança"
               value={answer}
               onChange={(e) => setAnswer(e.target.value)}
               style={inputStyle}
             />
-            <p className="sv-hint">{t.auth.hintSocial}</p>
+            <p className="sv-hint">Evite respostas que estejam nas suas redes sociais.</p>
             <button
               type="button"
               onClick={criarConta}
@@ -779,7 +779,7 @@ export default function LoginNostr({
                 usernameAvailable === false
               }
             >
-              {busy === "create" ? t.auth.creating : t.auth.createBtn}
+              {busy === "create" ? "Criando cofre…" : "Criar conta"}
             </button>
           </>
         )
@@ -788,7 +788,8 @@ export default function LoginNostr({
       {mode === "login" && (
         <>
           <input
-            placeholder={t.auth.passwordPh}
+            placeholder="senha"
+            aria-label="Senha"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -800,23 +801,26 @@ export default function LoginNostr({
             onClick={entrar}
             disabled={busy !== null || !username || !password}
           >
-            {busy === "login" ? t.auth.opening : t.auth.loginBtn}
+            {busy === "login" ? "Abrindo cofre…" : "Entrar"}
           </button>
           <button type="button" className="linkish" onClick={() => go("recover")}>
-            {t.auth.forgotPassword}
+            Esqueci minha senha
           </button>
         </>
       )}
 
       {mode === "recover" && recoverStep === 1 && (
         <>
-          <p className="sv-hint">{t.auth.recoverHint}</p>
+          <p className="sv-hint">
+            Vamos verificar a posse da conta: pergunta de segurança e as 12
+            palavras de recuperação.
+          </p>
           <button
             type="button"
             onClick={iniciarRecuperacao}
             disabled={busy !== null || !username}
           >
-            {busy === "rinfo" ? t.auth.searching : t.auth.continue}
+            {busy === "rinfo" ? "Buscando…" : "Continuar"}
           </button>
         </>
       )}
@@ -827,14 +831,16 @@ export default function LoginNostr({
             <strong>{recoverInfo.question}</strong>
           </p>
           <input
-            placeholder={t.auth.answerYourPh}
+            placeholder="sua resposta"
+            aria-label="Resposta da pergunta de segurança"
             value={answer}
             onChange={(e) => setAnswer(e.target.value)}
             style={inputStyle}
           />
           <textarea
             className="sv-mnemonic-input"
-            placeholder={t.auth.mnemonicPh}
+            placeholder="12 palavras de recuperação (separadas por espaço)"
+            aria-label="12 palavras de recuperação"
             value={mnemonicInput}
             onChange={(e) => setMnemonicInput(e.target.value)}
             rows={3}
@@ -843,7 +849,8 @@ export default function LoginNostr({
             style={inputStyle}
           />
           <input
-            placeholder={t.auth.newPasswordPh}
+            placeholder="senha nova (mínimo 8 caracteres)"
+            aria-label="Nova senha (mínimo 8 caracteres)"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -855,12 +862,14 @@ export default function LoginNostr({
             onClick={concluirRecuperacao}
             disabled={busy !== null || !answer || !mnemonicInput.trim() || !password}
           >
-            {busy === "recover" ? t.auth.verifying : t.auth.resetPassword}
+            {busy === "recover" ? "Verificando posse…" : "Redefinir senha"}
           </button>
         </>
       )}
 
-      <p className="sv-foot">{t.auth.foot}</p>
+      <p className="sv-foot">
+        Sua conta é uma identidade Nostr. Guardamos o cofre, nunca a chave.
+      </p>
 
       {error && (
         <div role="alert" className="sv-error-box">

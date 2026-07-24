@@ -4,9 +4,15 @@ import { LOCALE_OPTIONS, useI18n, type Locale } from "@/lib/i18n";
 import "./a11y.css";
 
 type Props = {
-  variant?: "nav" | "bank";
+  /** nav = header site · bank = dashboard · chat = painel NagAI compacto */
+  variant?: "nav" | "bank" | "chat";
 };
 
+/**
+ * Seletor global PT/EN/ES — lê/escreve o mesmo I18nProvider + localStorage.
+ * Qualquer instância (header ou chat) atualiza todas as outras.
+ * Permanece interativo durante o chat (mesmo após mensagens / busy).
+ */
 export default function LanguageSelect({ variant = "nav" }: Props) {
   const { locale, setLocale, t } = useI18n();
   const [open, setOpen] = useState(false);
@@ -23,10 +29,11 @@ export default function LanguageSelect({ variant = "nav" }: Props) {
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") setOpen(false);
     }
-    document.addEventListener("mousedown", onDoc);
+    // capture: fecha o menu sem perder o clique para outros handlers do documento
+    document.addEventListener("mousedown", onDoc, true);
     document.addEventListener("keydown", onKey);
     return () => {
-      document.removeEventListener("mousedown", onDoc);
+      document.removeEventListener("mousedown", onDoc, true);
       document.removeEventListener("keydown", onKey);
     };
   }, [open]);
@@ -34,10 +41,24 @@ export default function LanguageSelect({ variant = "nav" }: Props) {
   const current =
     LOCALE_OPTIONS.find((o) => o.value === locale)?.label ?? locale.toUpperCase();
 
+  const rootClass =
+    variant === "bank"
+      ? "sv-lang sv-lang--bank"
+      : variant === "chat"
+        ? "sv-lang sv-lang--chat"
+        : "sv-lang";
+
+  function pickLocale(next: Locale) {
+    setLocale(next);
+    setOpen(false);
+  }
+
   return (
     <div
       ref={rootRef}
-      className={variant === "bank" ? "sv-lang sv-lang--bank" : "sv-lang"}
+      className={rootClass}
+      onMouseDown={(e) => e.stopPropagation()}
+      onClick={(e) => e.stopPropagation()}
     >
       <button
         type="button"
@@ -63,9 +84,11 @@ export default function LanguageSelect({ variant = "nav" }: Props) {
                 role="option"
                 aria-selected={opt.value === locale}
                 className={`sv-lang-option${opt.value === locale ? " is-on" : ""}`}
-                onClick={() => {
-                  setLocale(opt.value as Locale);
-                  setOpen(false);
+                onMouseDown={(e) => {
+                  // Evita que mousedown externo feche o menu antes do click
+                  e.preventDefault();
+                  e.stopPropagation();
+                  pickLocale(opt.value as Locale);
                 }}
               >
                 {opt.label}

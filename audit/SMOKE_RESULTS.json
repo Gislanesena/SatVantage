@@ -1,0 +1,118 @@
+{
+  "at": "2026-07-24T03:25:57.230Z",
+  "base": "http://127.0.0.1:3000",
+  "agents": "http://127.0.0.1:8001",
+  "counts": {
+    "PASS": 20,
+    "FAIL": 1,
+    "WARN": 0,
+    "SKIP": 0
+  },
+  "results": [
+    {
+      "id": "site.home",
+      "status": "PASS",
+      "detail": "GET / → 200"
+    },
+    {
+      "id": "api.market.btc",
+      "status": "FAIL",
+      "detail": "status=500 body=null"
+    },
+    {
+      "id": "agents.health",
+      "status": "PASS",
+      "detail": "{\"status\":\"ok\",\"mensagem\":\"SatVantage agents-api online\"}"
+    },
+    {
+      "id": "nagai.chat.send",
+      "status": "PASS",
+      "detail": "reply 518 chars"
+    },
+    {
+      "id": "nagai.quote_and_year",
+      "status": "PASS",
+      "detail": "cotação + 2026 presentes"
+    },
+    {
+      "id": "nagai.scope_bitcoin",
+      "status": "PASS",
+      "detail": "recusa/redireciona para Bitcoin"
+    },
+    {
+      "id": "api.route_api_auth_session",
+      "status": "PASS",
+      "detail": "GET /api/auth/session → 200"
+    },
+    {
+      "id": "api.route_api_missions_overview",
+      "status": "PASS",
+      "detail": "GET /api/missions/overview → 401"
+    },
+    {
+      "id": "api.route_api_rewards_balance",
+      "status": "PASS",
+      "detail": "GET /api/rewards/balance → 401"
+    },
+    {
+      "id": "api.route_api_extension_analisar",
+      "status": "PASS",
+      "detail": "POST /api/extension/analisar → 200"
+    },
+    {
+      "id": "ui.autoscroll_hook",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "id": "ui.mentor_uses_autoscroll",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "id": "ui.freetopic_uses_autoscroll",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "id": "ui.tsim_tooltips",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "id": "ui.a11y_dock_tts",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "id": "ui.vlibras",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "id": "ui.no_bubble_tts",
+      "status": "PASS",
+      "detail": "no bubble SpeakButton usage"
+    },
+    {
+      "id": "ext.front_sidepanel_manifest",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "id": "ext.front_capture",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "id": "ext.root_sidepanel",
+      "status": "PASS",
+      "detail": "ok"
+    },
+    {
+      "id": "ext.root_security_heuristics",
+      "status": "PASS",
+      "detail": "ok"
+    }
+  ]
+}

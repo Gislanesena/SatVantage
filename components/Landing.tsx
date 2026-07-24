@@ -8,6 +8,7 @@ import LandingPlatform from "@/components/LandingPlatform";
 import LandingWhy from "@/components/LandingWhy";
 import LandingAbout from "@/components/LandingAbout";
 import SiteFooter from "@/components/SiteFooter";
+import SkipToContent from "@/components/SkipToContent";
 import { useI18n } from "@/lib/i18n";
 
 type LandingProps = {
@@ -30,13 +31,14 @@ export default function Landing({
 
   return (
     <div className="sv-landing" id="topo" translate="no">
+      <SkipToContent href="#conteudo" />
       <SiteNav
         onStart={() =>
           document.getElementById("acesso")?.scrollIntoView({ behavior: "smooth" })
         }
       />
 
-      <div className="sv-landing-body">
+      <div className="sv-landing-body" id="conteudo" tabIndex={-1}>
         <section className="sv-hero" aria-label={t.landing.presentation} id="plataforma">
           <div className="sv-hero-main">
             <div className="sv-hero-intro" key={locale}>

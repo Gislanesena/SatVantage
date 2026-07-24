@@ -117,12 +117,20 @@ export default function QrScanButton({ onScan, label }: Props) {
           {btnLabel}
         </button>
       ) : (
-        <div className="sv-qr-panel">
+        <div
+          className="sv-qr-panel"
+          role="dialog"
+          aria-modal="true"
+          aria-label={t.auth.pointCamera}
+        >
           <div className="sv-qr-panel-head">
-            <span className="sv-wallet-meta">{t.auth.pointCamera}</span>
+            <span className="sv-wallet-meta" id={`${regionId}-title`}>
+              {t.auth.pointCamera}
+            </span>
             <button
               type="button"
               className="linkish"
+              aria-label={t.mentor.close}
               onClick={() => {
                 void close();
               }}

@@ -9,15 +9,17 @@ import WalletNwc from "@/components/WalletNwc";
 import BtcMarket from "@/components/BtcMarket";
 import MentorChat from "@/components/MentorChat";
 import FreeTopicChat from "@/components/FreeTopicChat";
-import LanguageSelect from "@/components/LanguageSelect";
 import EmergencyMode from "@/components/EmergencyMode";
 import HerancaPanel from "@/components/HerancaPanel";
 import QrScanButton from "@/components/QrScanButton";
+import SkipToContent from "@/components/SkipToContent";
+import A11yDialog from "@/components/A11yDialog";
+import LanguageSelect from "@/components/LanguageSelect";
+import { useFocusTrap } from "@/lib/use-focus-trap";
 import { fmtBtc, fmtMoney, satsToFiat, useI18n } from "@/lib/i18n";
 import { isMutinyNetBolt11, MUTINYNET_ONLY_MSG, normalizeBolt11 } from "@/lib/mutinynet";
 import { MISSION_1_SLUG, MISSION_2_SLUG } from "@/lib/missions";
 import {
-  KNOW_QUESTIONS,
   MENTOR_SUGGESTIONS,
   topicById,
   type OptionalTopic,
@@ -29,6 +31,12 @@ import "./wallet.css";
 type DashboardProps = {
   user: { npub?: string; knowledgeLevel?: string };
   onExitToHome: () => void;
+  /** Abre Mentoria NagAI em tela cheia (fora do balão flutuante). */
+  onOpenMentorFull?: (
+    step: "m1" | "m2",
+    intent?: "chat" | "quiz" | "pratico",
+    opts?: { practiceConfirmed?: boolean },
+  ) => void;
 };
 
 type Panel = "home" | "receber" | "enviar" | "conectar";
@@ -37,48 +45,82 @@ type Theme = "dark" | "light";
 type CardView = "balance" | "statement";
 
 type LedgerKind = "in" | "out" | "transfer";
-type LedgerSource = "mission" | "voucher" | "wallet";
 
 type LedgerItem = {
   id: string;
   kind: LedgerKind;
   sats: number;
-  source: LedgerSource;
-  label: string;
+  fromKey: "mission" | "voucher" | "wallet" | "binance" | "mb" | "external";
   when: string;
 };
 
-function ledgerSourceLabel(item: LedgerItem, locale: "pt" | "en" | "es") {
-  if (item.label?.trim()) return item.label.trim();
+/** Extrato ilustrativo para a demo (hackathon) — entradas/saídas/transferências. */
+const DEMO_LEDGER: LedgerItem[] = [
+  {
+    id: "1",
+    kind: "in",
+    sats: 100,
+    fromKey: "mission",
+    when: "2026-07-18",
+  },
+  {
+    id: "2",
+    kind: "transfer",
+    sats: 50,
+    fromKey: "binance",
+    when: "2026-07-19",
+  },
+  {
+    id: "3",
+    kind: "out",
+    sats: 25,
+    fromKey: "wallet",
+    when: "2026-07-20",
+  },
+  {
+    id: "4",
+    kind: "in",
+    sats: 40,
+    fromKey: "mb",
+    when: "2026-07-20",
+  },
+  {
+    id: "5",
+    kind: "out",
+    sats: 15,
+    fromKey: "external",
+    when: "2026-07-21",
+  },
+];
+
+function ledgerSourceLabel(key: LedgerItem["fromKey"], locale: "pt" | "en" | "es") {
   const map = {
     pt: {
-      mission: "Mentoria SatVantage",
-      voucher: "Saque para carteira",
-      wallet: "Envio Lightning",
+      mission: "Mentoria SatVantage (recompensa)",
+      voucher: "Voucher SatVantage",
+      wallet: "Carteira Lightning",
+      binance: "Binance",
+      mb: "Mercado Bitcoin",
+      external: "Invoice externa",
     },
     en: {
-      mission: "SatVantage mentorship",
-      voucher: "Withdraw to wallet",
-      wallet: "Lightning send",
+      mission: "SatVantage mentorship (reward)",
+      voucher: "SatVantage voucher",
+      wallet: "Lightning wallet",
+      binance: "Binance",
+      mb: "Mercado Bitcoin",
+      external: "External invoice",
     },
     es: {
-      mission: "Mentoría SatVantage",
-      voucher: "Retiro a billetera",
-      wallet: "Envío Lightning",
+      mission: "Mentoría SatVantage (recompensa)",
+      voucher: "Voucher SatVantage",
+      wallet: "Cartera Lightning",
+      binance: "Binance",
+      mb: "Mercado Bitcoin",
+      external: "Invoice externa",
     },
   } as const;
-  return map[locale][item.source] ?? item.source;
-}
-
-function formatLedgerWhen(iso: string, locale: "pt" | "en" | "es") {
-  try {
-    return new Date(iso).toLocaleString(
-      locale === "en" ? "en-US" : locale === "es" ? "es-ES" : "pt-BR",
-      { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" },
-    );
-  } catch {
-    return iso.slice(0, 16);
-  }
+  return map[locale][key];
 }
 
 function avatarKey(npub?: string) {
@@ -105,7 +147,7 @@ function applyTheme(next: Theme) {
   }
 }
 
-export default function Dashboard({ user, onExitToHome }: DashboardProps) {
+export default function Dashboard({ user, onExitToHome, onOpenMentorFull }: DashboardProps) {
   const { t, locale } = useI18n();
   const [panel, setPanel] = useState<Panel>("home");
   const [mentorStep, setMentorStep] = useState<MentorStep>(null);
@@ -114,6 +156,7 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
   const [canEarn, setCanEarn] = useState(false);
   const [m1Eligible, setM1Eligible] = useState(true);
   const [m2Eligible, setM2Eligible] = useState(true);
+  const [satsAlreadyModal, setSatsAlreadyModal] = useState(false);
   const [satsBalance, setSatsBalance] = useState<number | null>(null);
   const [walletSats, setWalletSats] = useState<number | null>(null);
   const [walletConnected, setWalletConnected] = useState(false);
@@ -138,7 +181,6 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
   const [claimBusy, setClaimBusy] = useState(false);
   const [claimNotice, setClaimNotice] = useState<string | null>(null);
   const [claimError, setClaimError] = useState<string | null>(null);
-  const [ledger, setLedger] = useState<LedgerItem[]>([]);
   const fileRef = useRef<HTMLInputElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const mentorFabRef = useRef<HTMLDivElement>(null);
@@ -184,35 +226,6 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
         setM2Eligible(!!j.mentoria2?.rewardEligible);
       })
       .catch(() => {});
-
-    fetch("/api/rewards/ledger")
-      .then((r) => (r.ok ? r.json() : null))
-      .then((j) => {
-        if (!j || !Array.isArray(j.items)) {
-          setLedger([]);
-          return;
-        }
-        setLedger(
-          j.items.map(
-            (row: {
-              id: string;
-              kind: LedgerKind;
-              sats: number;
-              source: LedgerSource;
-              label?: string;
-              when: string;
-            }) => ({
-              id: row.id,
-              kind: row.kind,
-              sats: row.sats,
-              source: row.source,
-              label: row.label || "",
-              when: row.when,
-            }),
-          ),
-        );
-      })
-      .catch(() => setLedger([]));
 
     fetch("/api/market/btc?range=24h")
       .then((r) => (r.ok ? r.json() : null))
@@ -386,7 +399,7 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
     const topic = topicById(id);
     if (!topic) return;
     setMentorStep(null);
-    setFreeTopic(localizeTopic(topic, locale));
+    setFreeTopic(topic);
     setMentorOpen(true);
   }
 
@@ -405,8 +418,44 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
   }
 
+  const herancaTrapRef = useFocusTrap(herancaOpen, () => setHerancaOpen(false));
+  const mentorSheetTrapRef = useFocusTrap(mentorOpen, endMentorChat);
+
+  /** Fecha o balão e abre Mentoria em layout de página inteira (ideal p/ simulador). */
+  function openMentorFullScreen(
+    intent: "chat" | "quiz" | "pratico" = "chat",
+    opts?: { practiceConfirmed?: boolean },
+  ) {
+    // No quiz com sats pendentes, prioriza a trilha ainda elegível a prêmio.
+    let step: "m1" | "m2" = mentorStep === "m2" ? "m2" : "m1";
+    if (intent === "quiz") {
+      if (m1Eligible) step = "m1";
+      else if (m2Eligible) step = "m2";
+    }
+    setSatsAlreadyModal(false);
+    setMentorOpen(false);
+    setMentorStep(null);
+    setFreeTopic(null);
+    if (onOpenMentorFull) {
+      onOpenMentorFull(step, intent, opts);
+      return;
+    }
+    setMentorStep(step);
+    setMentorOpen(true);
+  }
+
+  function onKnowledgeTestClick() {
+    if (canEarn) {
+      openMentorFullScreen("quiz");
+      return;
+    }
+    // Sats já creditados: confirmação antes de ir à revisão.
+    setSatsAlreadyModal(true);
+  }
+
   return (
     <div className="sv-bank">
+      <SkipToContent href="#conteudo" />
       <header className="sv-bank-top">
         <SiteNav variant="dash" />
         <div className="sv-bank-settings" ref={menuRef}>
@@ -556,9 +605,10 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
                   {soonMsg && <p className="sv-bank-menu-note">{soonMsg}</p>}
                 </>
               ) : (
-                <div className="sv-bank-profile">
+                <div className="sv-bank-profile" role="group" aria-label={t.dash.profile}>
                   <button
                     type="button"
+                    role="menuitem"
                     className="sv-bank-profile-preview"
                     onClick={() => fileRef.current?.click()}
                     aria-label={t.dash.pickPhotoAria}
@@ -581,6 +631,7 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
                   />
                   <button
                     type="button"
+                    role="menuitem"
                     className="sv-bank-profile-btn"
                     onClick={() => fileRef.current?.click()}
                   >
@@ -589,6 +640,7 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
                   {user.npub && (
                     <button
                       type="button"
+                      role="menuitem"
                       className="sv-bank-profile-btn sv-bank-profile-btn--ghost"
                       onClick={() => {
                         setNostrKeyOpen(true);
@@ -601,6 +653,7 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
                   {avatarUrl && (
                     <button
                       type="button"
+                      role="menuitem"
                       className="sv-bank-menu-item sv-bank-menu-item--muted"
                       onClick={removePhoto}
                     >
@@ -609,6 +662,7 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
                   )}
                   <button
                     type="button"
+                    role="menuitem"
                     className="sv-bank-menu-item sv-bank-menu-item--muted"
                     onClick={() => setProfileOpen(false)}
                   >
@@ -621,7 +675,7 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
         </div>
       </header>
 
-      <main className="sv-bank-main">
+      <main className="sv-bank-main" id="conteudo" tabIndex={-1}>
         <div className="sv-bank-home-grid">
           <div className="sv-bank-home-left">
             <section
@@ -778,10 +832,15 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
                               }
                             }}
                           />
+                          <label className="sv-sr-only" htmlFor="sv-saque-bolt">
+                            Fatura Lightning para saque (bolt11 MutinyNet)
+                          </label>
                           <input
+                            id="sv-saque-bolt"
                             className="sv-bank-saque-input"
                             placeholder="lntbs1… (MutinyNet)"
                             value={claimBolt}
+                            aria-label="Fatura Lightning para saque (bolt11 MutinyNet)"
                             onChange={(e) => {
                               setClaimBolt(e.target.value);
                               setClaimError(null);
@@ -793,6 +852,10 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
                             type="button"
                             className="sv-bank-voucher-cta"
                             disabled={!claimBolt || claimBusy}
+                            aria-busy={claimBusy}
+                            aria-label={
+                              claimBusy ? t.a11y.loading : t.dash.withdrawSats
+                            }
                             onClick={() => void resgatarVoucher()}
                           >
                             {claimBusy ? "…" : t.dash.withdrawSats}
@@ -812,11 +875,11 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
                 </>
               ) : (
                 <>
-                  {ledger.length === 0 ? (
+                  {DEMO_LEDGER.length === 0 ? (
                     <p className="sv-bank-ledger-empty">{t.dash.statementEmpty}</p>
                   ) : (
                     <ul className="sv-bank-ledger">
-                      {ledger.map((item) => (
+                      {DEMO_LEDGER.map((item) => (
                         <li key={item.id} className="sv-bank-ledger-row">
                           <p className="sv-bank-ledger-kind">{kindLabel(item.kind)}</p>
                           <p className={`sv-bank-ledger-amt is-${item.kind}`}>
@@ -824,8 +887,7 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
                             {hideBalance ? "••••" : fmtBtc(item.sats, locale)}
                           </p>
                           <p className="sv-bank-ledger-from">
-                            {ledgerSourceLabel(item, locale)} ·{" "}
-                            {formatLedgerWhen(item.when, locale)}
+                            {ledgerSourceLabel(item.fromKey, locale)} · {item.when}
                           </p>
                         </li>
                       ))}
@@ -918,7 +980,14 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
       </main>
 
       {herancaOpen && (
-        <div className="sv-heranca-screen" role="dialog" aria-modal="true" aria-label={t.dash.estate}>
+        <div
+          ref={herancaTrapRef}
+          className="sv-heranca-screen"
+          role="dialog"
+          aria-modal="true"
+          aria-label={t.dash.estate}
+          tabIndex={-1}
+        >
           <div className="sv-heranca-screen-bar">
             <button
               type="button"
@@ -938,29 +1007,32 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
       <div className={`sv-mentor-fab-wrap${chatActive ? " is-chat" : ""}`} ref={mentorFabRef}>
         {mentorOpen && (
           <div
+            ref={mentorSheetTrapRef}
             className={`sv-mentor-sheet${chatActive ? " sv-mentor-sheet--chat" : ""}`}
             role="dialog"
+            aria-modal="true"
             aria-label={`${t.mentor.name} SatVantage`}
+            tabIndex={-1}
           >
             <div className="sv-mentor-sheet-head">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/satvantage-mentor.png" alt="" width={40} height={40} />
               <div className="sv-mentor-sheet-titles">
-                <strong>{t.mentor.name}</strong>
+                <strong>NagAI</strong>
                 <p>
                   {freeTopic
-                    ? freeTopic.label
+                    ? localizeTopic(freeTopic, locale).label
                     : mentorStep === "m1"
-                      ? t.mentor.sheetM1
+                      ? t.nagai.titleM1Short
                       : mentorStep === "m2"
-                        ? t.mentor.sheetM2
-                        : t.mentor.helpPrompt}
+                        ? t.nagai.titleM2Short
+                        : t.nagai.helpTitle}
                 </p>
               </div>
               <button
                 type="button"
                 className="sv-mentor-sheet-close"
-                aria-label={t.mentor.closeNagAI}
+                aria-label={t.a11y.closeDialog}
                 onClick={endMentorChat}
               >
                 <span aria-hidden="true">×</span>
@@ -992,39 +1064,15 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
               ) : null
             ) : (
               <>
-                <p className="sv-mentor-sheet-label">{t.mentor.importantDoubts}</p>
-                <div className="sv-mentor-chips">
-                  {KNOW_QUESTIONS.map((s) => {
-                    const knowLabel =
-                      s.id === "imposto-quando"
-                        ? t.know.qImpostoQuando
-                        : s.id === "ir-2027"
-                          ? t.know.qIr2027
-                          : s.id === "patrimonio-crypto"
-                            ? t.know.qPatrimonio
-                            : t.know.qInforme;
-                    return (
-                      <button
-                        key={s.id}
-                        type="button"
-                        className="sv-mentor-chip"
-                        onClick={() => openGuideTopic(s.id)}
-                      >
-                        {knowLabel}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                <p className="sv-mentor-sheet-label">{t.mentor.suggestions}</p>
+                <p className="sv-mentor-sheet-label">{t.know.suggestions}</p>
                 <div className="sv-mentor-chips">
                   {MENTOR_SUGGESTIONS.map((s) => {
-                    const sugLabel =
+                    const label =
                       s.id === "patrimonio"
-                        ? t.mentor.sugPatrimonio
+                        ? t.know.sPatrimonio
                         : s.id === "comprar"
-                          ? t.mentor.sugComprar
-                          : t.mentor.sugGeopolitica;
+                          ? t.know.sComprar
+                          : t.know.sGeopolitica;
                     return (
                       <button
                         key={s.id}
@@ -1032,14 +1080,15 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
                         className="sv-mentor-chip"
                         onClick={() => openGuideTopic(s.id)}
                       >
-                        {sugLabel}
+                        {label}
                       </button>
                     );
                   })}
                 </div>
 
                 <p className="sv-mentor-sheet-label">
-                  {t.mentor.withSats} {canEarn ? "" : t.mentor.satsAlready}
+                  {t.nagai.withNagai}
+                  {canEarn ? "" : ` ${t.nagai.satsAlready}`}
                 </p>
                 <div className="sv-mentor-chips">
                   <button
@@ -1051,31 +1100,59 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
                       setMentorStep("m1");
                     }}
                   >
-                    {t.mentor.name} · Bitcoin{" "}
-                    {m1Eligible ? `· ${t.mentor.earnSats}` : `· ${t.mentor.practice}`}
+                    {t.nagai.askNagai}
+                  </button>
+                  <button
+                    type="button"
+                    className={`sv-mentor-chip${
+                      canEarn ? " sv-mentor-chip--sats-cta" : " sv-mentor-chip--earn"
+                    }`}
+                    onClick={onKnowledgeTestClick}
+                    title={canEarn ? t.nagai.earnTitle : t.nagai.practiceTitle}
+                  >
+                    {canEarn ? t.nagai.earnSats : t.nagai.testKnowledge}
                   </button>
                   <button
                     type="button"
                     className="sv-mentor-chip sv-mentor-chip--earn"
-                    onClick={() => {
-                      setFreeTopic(null);
-                      setMentorOpen(true);
-                      setMentorStep("m2");
-                    }}
+                    onClick={() => openMentorFullScreen("pratico")}
                   >
-                    {t.mentor.m2Title}{" "}
-                    {m2Eligible ? `· ${t.mentor.earnSats}` : `· ${t.mentor.practice}`}
+                    {t.nagai.tradeSim}
                   </button>
                 </div>
               </>
             )}
+
+            {chatActive && !freeTopic ? (
+              <div className="sv-mentor-sheet-foot">
+                <button
+                  type="button"
+                  className="sv-mentor-chip sv-mentor-chip--fullscreen"
+                  onClick={() => openMentorFullScreen("chat")}
+                  aria-label={t.nagai.openFullscreen}
+                >
+                  <span className="sv-mentor-chip-ico" aria-hidden>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                      <path
+                        d="M9 3H3v6M15 3h6v6M9 21H3v-6M21 15v6h-6"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </span>
+                  {t.nagai.openFullscreen}
+                </button>
+              </div>
+            ) : null}
           </div>
         )}
 
         <button
           type="button"
           className="sv-mentor-fab"
-          aria-label={mentorOpen ? t.mentor.closeNagAI : t.mentor.openNagAI}
+          aria-label={mentorOpen ? t.a11y.closeDialog : t.nagai.withNagai}
           aria-expanded={mentorOpen}
           onClick={() => {
             if (mentorOpen) endMentorChat();
@@ -1101,49 +1178,75 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
       />
 
       {nostrKeyOpen && user.npub && (
-        <div
-          className="sv-key-modal-backdrop"
-          role="presentation"
-          onClick={() => setNostrKeyOpen(false)}
+        <A11yDialog
+          open={nostrKeyOpen}
+          onClose={() => setNostrKeyOpen(false)}
+          labelledBy="sv-nostr-key-title"
+          className="sv-key-modal"
+          backdropClassName="sv-key-modal-backdrop"
         >
-          <div
-            className="sv-key-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="sv-nostr-key-title"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 id="sv-nostr-key-title" className="sv-key-modal-title">
-              {t.dash.nostrKeyTitle}
-            </h2>
-            <p className="sv-key-modal-hint">{t.dash.nostrKeyHint}</p>
-            <code className="sv-key-modal-npub">{user.npub}</code>
-            <div className="sv-key-modal-actions">
-              <button
-                type="button"
-                className="sv-bank-profile-btn"
-                onClick={async () => {
-                  try {
-                    await navigator.clipboard.writeText(user.npub!);
-                    setKeyCopied(true);
-                    setTimeout(() => setKeyCopied(false), 2000);
-                  } catch {
-                    /* ignore */
-                  }
-                }}
-              >
-                {keyCopied ? t.dash.keyCopied : t.dash.copyKey}
-              </button>
-              <button
-                type="button"
-                className="sv-bank-profile-btn sv-bank-profile-btn--ghost"
-                onClick={() => setNostrKeyOpen(false)}
-              >
-                {t.dash.closeKeyModal}
-              </button>
-            </div>
+          <h2 id="sv-nostr-key-title" className="sv-key-modal-title">
+            {t.dash.nostrKeyTitle}
+          </h2>
+          <p className="sv-key-modal-hint">{t.dash.nostrKeyHint}</p>
+          <code className="sv-key-modal-npub">{user.npub}</code>
+          <div className="sv-key-modal-actions">
+            <button
+              type="button"
+              className="sv-bank-profile-btn"
+              onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(user.npub!);
+                  setKeyCopied(true);
+                  setTimeout(() => setKeyCopied(false), 2000);
+                } catch {
+                  /* ignore */
+                }
+              }}
+            >
+              {keyCopied ? t.dash.keyCopied : t.dash.copyKey}
+            </button>
+            <button
+              type="button"
+              className="sv-bank-profile-btn sv-bank-profile-btn--ghost"
+              onClick={() => setNostrKeyOpen(false)}
+            >
+              {t.dash.closeKeyModal}
+            </button>
           </div>
-        </div>
+        </A11yDialog>
+      )}
+
+      {satsAlreadyModal && (
+        <A11yDialog
+          open={satsAlreadyModal}
+          onClose={() => setSatsAlreadyModal(false)}
+          labelledBy="sv-sats-confirm-title"
+          className="sv-sats-confirm-modal"
+          backdropClassName="sv-sats-confirm-backdrop"
+        >
+          <h2 id="sv-sats-confirm-title">{t.dash.satsAlreadyTitle}</h2>
+          <p>
+            {t.dash.satsAlreadyBefore}{" "}
+            <strong>{t.dash.satsAlreadyStrong}</strong> {t.dash.satsAlreadyAfter}
+          </p>
+          <div className="sv-sats-confirm-actions">
+            <button
+              type="button"
+              className="sv-sats-confirm-btn sv-sats-confirm-btn--ghost"
+              onClick={() => setSatsAlreadyModal(false)}
+            >
+              {t.dash.satsAlreadyCancel}
+            </button>
+            <button
+              type="button"
+              className="sv-sats-confirm-btn"
+              onClick={() => openMentorFullScreen("quiz", { practiceConfirmed: true })}
+            >
+              {t.dash.satsAlreadyProceed}
+            </button>
+          </div>
+        </A11yDialog>
       )}
     </div>
   );

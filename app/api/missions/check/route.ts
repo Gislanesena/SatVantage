@@ -16,13 +16,14 @@ import { ensureMission } from "@/lib/ensure-mission";
 import {
   isMissionSlug,
   MISSION_1_SLUG,
+  localizedQuestion,
   questionsFor,
   SATS_CORRECT,
   SATS_TRIED,
   type MissionSlug,
 } from "@/lib/quiz";
+import { normalizeQuizLocale } from "@/lib/quiz-i18n";
 import { recordSatsMovement } from "@/lib/sats-ledger";
-import { parseQuizLocale, QUIZ_I18N } from "@/lib/quiz-i18n";
 
 function wasRewarded(marker: string | null | undefined): boolean {
   if (!marker) return false;
@@ -36,7 +37,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "faça login" }, { status: 401 });
   }
 
-  let body: { slug?: string; lessonIndex?: number; answer?: number; locale?: string };
+  let body: {
+    slug?: string;
+    lessonIndex?: number;
+    answer?: number;
+    locale?: string;
+    idioma?: string;
+  };
   try {
     body = await req.json();
   } catch {
@@ -49,7 +56,7 @@ export async function POST(req: NextRequest) {
   }
   const slug: MissionSlug = rawSlug;
   const questions = questionsFor(slug);
-  const locale = parseQuizLocale(body.locale);
+  const lang = normalizeQuizLocale(body.locale ?? body.idioma);
 
   const i = body.lessonIndex;
   const answer = body.answer;
@@ -63,11 +70,9 @@ export async function POST(req: NextRequest) {
   }
 
   const q = questions[i];
+  const qLocal = localizedQuestion(slug, q.id, lang) ?? q;
   const correct = answer === q.correct;
   const sats = correct ? SATS_CORRECT : SATS_TRIED;
-  const pack = locale === "pt" ? null : QUIZ_I18N[locale]?.[q.id];
-  const feedbackCorrect = pack?.feedbackCorrect ?? q.feedbackCorrect;
-  const feedbackWrong = pack?.feedbackWrong ?? q.feedbackWrong;
 
   let satsCredited = 0;
   let satsBalance: number | undefined;
@@ -206,7 +211,7 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({
     correct,
-    feedback: correct ? feedbackCorrect : feedbackWrong,
+    feedback: correct ? qLocal.feedbackCorrect : qLocal.feedbackWrong,
     sats,
     satsCredited,
     satsBalance,

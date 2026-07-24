@@ -5,13 +5,20 @@
     satvantage: [
       "sat-vantage-gislanesena.vercel.app",
       "sat-vantage-iau60jdhv-gislanesena.vercel.app",
+      "satvantage.com.br",
+      "www.satvantage.com.br",
       "localhost",
       "127.0.0.1",
     ],
+    bitcoin: ["bitcoin.org", "mempool.space", "blockstream.info"],
     mercadobitcoin: ["mercadobitcoin.com.br", "mercadobitcoin.com"],
     foxbit: ["foxbit.com.br", "foxbit.com"],
     novadax: ["novadax.com.br", "novadax.com"],
     binance: ["binance.com", "binance.us", "binance.com.br"],
+    coinbase: ["coinbase.com", "www.coinbase.com"],
+    kraken: ["kraken.com", "www.kraken.com"],
+    trezor: ["trezor.io"],
+    muun: ["muun.com"],
   };
 
   const ALL_OFFICIAL = Object.values(OFFICIAL_DOMAINS).flat();

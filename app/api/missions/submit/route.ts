@@ -54,10 +54,19 @@ export async function POST(req: NextRequest) {
   if (skipAll) {
     responses = questions.map(() => ({ answer: null, skipped: true }));
   } else {
-    responses = body.responses ?? [];
-    if (!Array.isArray(responses) || responses.length !== questions.length) {
+    const raw = body.responses ?? [];
+    if (!Array.isArray(raw) || raw.length === 0) {
       return NextResponse.json({ error: "respostas incompletas" }, { status: 400 });
     }
+    // Cliente envia 1 pergunta; completa o restante como pulado (0 sats).
+    responses = questions.map((_, i) => {
+      const r = raw[i];
+      if (!r || typeof r !== "object") return { answer: null, skipped: true };
+      return {
+        answer: typeof r.answer === "number" ? r.answer : null,
+        skipped: !!r.skipped || r.answer === null,
+      };
+    });
   }
 
   const graded = gradeMentor(slug, responses);

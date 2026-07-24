@@ -108,6 +108,12 @@ export type Dict = {
     estateHowContactsBody: string;
     estateHowTimeline: string;
     estateHowExtTip: string;
+    satsAlreadyTitle: string;
+    satsAlreadyBefore: string;
+    satsAlreadyStrong: string;
+    satsAlreadyAfter: string;
+    satsAlreadyCancel: string;
+    satsAlreadyProceed: string;
   };
   btc: {
     live: string;
@@ -133,6 +139,26 @@ export type Dict = {
     helpVlibrasTitle: string;
     helpVlibrasBody: string;
     helpClose: string;
+    closeDialog: string;
+    loading: string;
+    optionsLabel: string;
+    panelTitle: string;
+    panelIntro: string;
+    panelTts: string;
+    panelVlibras: string;
+    panelSkip: string;
+    listenMessage: string;
+    listen: string;
+    skipToContent: string;
+    micStart: string;
+    micStop: string;
+    sendMessage: string;
+    chatInput: string;
+    vlibrasLoading: string;
+    vlibrasFallbackAria: string;
+    vlibrasFallbackTitle: string;
+    vlibrasFallbackShort: string;
+    vlibrasFallbackHint: string;
   };
   mentor: {
     name: string;
@@ -181,6 +207,9 @@ export type Dict = {
     guideScript3: string;
     guideScript4: string;
     freeTopicLead: string;
+    freeTopicTag: string;
+    freeTopicIntro: string;
+    freeTopicNoSats: string;
     freeTopicDoneEmbedded: string;
     freeTopicDoneDash: string;
     askMore: string;
@@ -229,6 +258,10 @@ export type Dict = {
     qIr2027: string;
     qPatrimonio: string;
     qInforme: string;
+    suggestions: string;
+    sPatrimonio: string;
+    sComprar: string;
+    sGeopolitica: string;
   };
   landing: {
     nostrNotice: string;
@@ -304,6 +337,153 @@ export type Dict = {
     copyright: string;
     risk: string;
   };
+  tsim: {
+    regionLabel: string;
+    realAccount: string;
+    simulator: string;
+    equity: string;
+    equityTip: string;
+    grossResult: string;
+    grossResultTip: string;
+    cash: string;
+    cashTip: string;
+    btcLabel: string;
+    btcTip: string;
+    statsHoverHint: string;
+    resetAll: string;
+    backToChat: string;
+    tourCta: string;
+    requestTour: string;
+    closeFlash: string;
+    time: string;
+    tf1m: string;
+    tf5m: string;
+    tf15m: string;
+    tf1h: string;
+    chartAria: string;
+    orderTicket: string;
+    orderTicketAria: string;
+    asset: string;
+    assetTip: string;
+    buy: string;
+    sell: string;
+    type: string;
+    market: string;
+    limit: string;
+    validity: string;
+    today: string;
+    gtc: string;
+    qtyBtc: string;
+    priceBrl: string;
+    takeProfit: string;
+    takeProfitTip: string;
+    takeProfitPh: string;
+    stopLoss: string;
+    stopLossTip: string;
+    stopLossPh: string;
+    clear: string;
+    buyAction: string;
+    sellAction: string;
+    assetsAria: string;
+    assetCodePh: string;
+    assetCodeTip: string;
+    featuredAssets: string;
+    hint: string;
+    stepOf: string;
+    skipTour: string;
+    next: string;
+    finish: string;
+    flashReset: string;
+    flashTourDone: string;
+    flashBadQty: string;
+    flashBadPrice: string;
+    flashNoCash: string;
+    flashNoBtc: string;
+    flashBuy: string;
+    flashSell: string;
+    requiredLegend: string;
+    requiredMark: string;
+    optionalNote: string;
+    tour: {
+      mode: { title: string; body: string };
+      stats: { title: string; body: string };
+      chart: { title: string; body: string };
+      timeframe: { title: string; body: string };
+      ativos: { title: string; body: string };
+      side: { title: string; body: string };
+      tipo: { title: string; body: string };
+      qty: { title: string; body: string };
+      price: { title: string; body: string };
+      risk: { title: string; body: string };
+      order: { title: string; body: string };
+    };
+  },
+  nagai: {
+    titleM1: string;
+    titleM2: string;
+    introM1: string;
+    introM2: string;
+    opening: string;
+    knowledgeTest: string;
+    backToChat: string;
+    dashboard: string;
+    practiceMode: string;
+    simTag: string;
+    simTitle: string;
+    askPlaceholder: string;
+    skipQuestion: string;
+    skipTest: string;
+    voiceHint: string;
+    voiceListening: string;
+    thisTest: string;
+    accountBalance: string;
+    pickTestTitle: string;
+    pickTestDesc: string;
+    theoretical: string;
+    theoreticalDesc: string;
+    practical: string;
+    practicalDesc: string;
+    cancel: string;
+    agentError: string;
+    skipAllAgent: string;
+    wantTheoretical: string;
+    quizIntroEarn: string;
+    quizIntroPractice: string;
+    quizGateBodyBefore: string;
+    quizGateBodyStrong: string;
+    quizGateBodyAfter: string;
+    quizGateRetry: string;
+    quizGateBackChat: string;
+    quizEmpty: string;
+    reformulate: string;
+    backToDashboard: string;
+    hitSats: string;
+    trySats: string;
+    practiceNoSats: string;
+    skipThisQuestion: string;
+    zeroSatsTest: string;
+    zeroSatsClosed: string;
+    zeroSatsQuestion: string;
+    helpTitle: string;
+    withNagai: string;
+    satsAlready: string;
+    askNagai: string;
+    earnSats: string;
+    testKnowledge: string;
+    tradeSim: string;
+    openFullscreen: string;
+    earnTitle: string;
+    practiceTitle: string;
+    titleM1Short: string;
+    titleM2Short: string;
+    historyTitle: string;
+    historyDesc: string;
+    historyEmpty: string;
+    historyMessages: string;
+    historyDelete: string;
+    historyOpen: string;
+    historyNew: string;
+  },
   auth: {
     back: string;
     titleCreate: string;
@@ -487,6 +667,13 @@ const dictionaries: Record<Locale, Dict> = {
         "Linha do tempo (demo para testes): sem confirmar por 30 minutos → pedimos prova de vida por e-mail. Sem resposta por mais 20 minutos → enviamos ao e-mail do herdeiro as informações de como acessar a herança.",
       estateHowExtTip:
         "Dica: use nossa extensão SatVantage para te auxiliar como guia no processo — ela ajuda a explicar passos e dúvidas enquanto você configura o plano.",
+      satsAlreadyTitle: "Sats já resgatados",
+      satsAlreadyBefore: "Os satoshis desta etapa",
+      satsAlreadyStrong: "já foram creditados",
+      satsAlreadyAfter:
+        "nesta conta. Você pode revisar o teste para praticar, mas não ganha sats de novo.",
+      satsAlreadyCancel: "Cancelar",
+      satsAlreadyProceed: "Prosseguir para revisar",
     },
     btc: {
       live: "Bitcoin ao vivo",
@@ -514,6 +701,30 @@ const dictionaries: Record<Locale, Dict> = {
       helpVlibrasBody:
         "O botão VLibras (acima da ajuda de acessibilidade) traduz o conteúdo para Libras. Você pode configurar o idioma e as opções no próprio widget, do jeito que preferir.",
       helpClose: "Fechar",
+      closeDialog: "Fechar",
+      loading: "Carregando",
+      optionsLabel: "Opções de Acessibilidade",
+      panelTitle: "Acessibilidade",
+      panelIntro:
+        "Ferramentas no canto inferior direito: VLibras (Libras) acima e leitura em voz alta abaixo. Use também o símbolo de acessibilidade no topo.",
+      panelTts:
+        "Leitura em voz alta: o botão 🔊 no canto inferior direito lê o conteúdo principal (play, pausa e parar).",
+      panelVlibras:
+        "VLibras: o ícone oficial fica imediatamente acima do botão de leitura e traduz o conteúdo para Libras (também no celular).",
+      panelSkip: "Ir para o conteúdo: atalho no topo da página.",
+      listenMessage: "Ouvir mensagem",
+      listen: "Ouvir",
+      skipToContent: "Ir para o conteúdo",
+      micStart: "Microfone de voz",
+      micStop: "Parar microfone",
+      sendMessage: "Enviar mensagem",
+      chatInput: "Mensagem para a NagAI",
+      vlibrasLoading: "Carregando VLibras…",
+      vlibrasFallbackAria: "VLibras indisponível — abrir ajuda de acessibilidade",
+      vlibrasFallbackTitle: "VLibras temporariamente indisponível",
+      vlibrasFallbackShort: "Libras",
+      vlibrasFallbackHint:
+        "O serviço VLibras não carregou. Use a ajuda de acessibilidade ou tente de novo mais tarde.",
     },
     mentor: {
       name: "NagAI",
@@ -571,10 +782,15 @@ const dictionaries: Record<Locale, Dict> = {
       guideScript4:
         "Pode criar a conta simplificada agora, ou abrir a extensão se já tiver. Qualquer dúvida, é só voltar aqui.",
       freeTopicLead: "Boa pergunta. Vou te explicar com calma.",
+      freeTopicTag: "Assunto livre · sem sats de missão",
+      freeTopicIntro:
+        "Esse assunto é só aprendizado — sem sats de missão. Vamos com calma.",
+      freeTopicNoSats:
+        "Boa pergunta. Neste assunto livre não creditamos sats — anote a ideia e, se quiser recompensa, use o Teste de Conhecimento na mentoria principal.",
       freeTopicDoneEmbedded:
-        "Pode fechar o chat ou abrir outro assunto no NagAI — o dashboard continua aí.",
+        "Pode fechar o chat ou abrir outro assunto no mentor — o dashboard continua aí. Se quiser, digite outra dúvida abaixo.",
       freeTopicDoneDash:
-        "Pode voltar ao dashboard quando quiser — ou abrir outro assunto no NagAI.",
+        "Pode voltar ao dashboard quando quiser — ou digite outra dúvida abaixo.",
       askMore: "Quer perguntar mais alguma coisa sobre este assunto?",
       practiceIntro:
         "Vamos praticar de novo. Lembre: os sats desta conversa já foram creditados na sua conta — agora é só aprendizado.",
@@ -630,6 +846,10 @@ const dictionaries: Record<Locale, Dict> = {
       qIr2027: "Preciso declarar bitcoin no IR 2027?",
       qPatrimonio: "Como o bitcoin entra no meu patrimônio?",
       qInforme: "A corretora me dá informe para o IR?",
+      suggestions: "Sugestões",
+      sPatrimonio: "Como conquistar seu primeiro patrimônio",
+      sComprar: "Como comprar bitcoin",
+      sGeopolitica: "Geopolítica e por que acompanhar",
     },
     landing: {
       nostrNotice:
@@ -741,6 +961,206 @@ const dictionaries: Record<Locale, Dict> = {
       supportSubject: "Suporte SatVantage",
       copyright: "© 2026 SatVantage. Todos os direitos reservados.",
       risk: "Investir em Bitcoin envolve riscos. Estude antes de investir.",
+    },
+    tsim: {
+      regionLabel: "Simulador de trade Bitcoin",
+      realAccount: "CONTA REAL",
+      simulator: "SIMULADOR",
+      equity: "Patrimônio",
+      equityTip:
+        "Valor total atual da conta: Caixa + valor de mercado das posições em Bitcoin.",
+      grossResult: "Resultado bruto",
+      grossResultTip:
+        "Lucro ou prejuízo acumulado das operações realizadas e em andamento nesta sessão simulada.",
+      cash: "Caixa",
+      cashTip:
+        "Dinheiro disponível em reais, pronto para novas compras no simulador.",
+      btcLabel: "BTC",
+      btcTip:
+        "Quantidade total de Bitcoins atualmente na carteira simulada.",
+      statsHoverHint: "Passe o mouse sobre cada item para entender os detalhes",
+      resetAll: "ZERAR TUDO",
+      backToChat: "Voltar ao chat",
+      tourCta:
+        "Novo no terminal? Peça um tour guiado da boleta, do gráfico e dos indicadores.",
+      requestTour: "Solicitar tutoria",
+      closeFlash: "Fechar aviso",
+      time: "Tempo",
+      tf1m: "1 minuto",
+      tf5m: "5 minutos",
+      tf15m: "15 minutos",
+      tf1h: "1 hora",
+      chartAria: "Gráfico candlestick {asset}",
+      orderTicket: "Boleta",
+      orderTicketAria: "Boleta de ordens",
+      asset: "Ativo",
+      assetTip: "Par negociado na ordem (ex.: BTC/BRL).",
+      buy: "Compra",
+      sell: "Venda",
+      type: "Tipo",
+      market: "Mercado",
+      limit: "Limitada",
+      validity: "Validade",
+      today: "Hoje",
+      gtc: "Até executar",
+      qtyBtc: "Quantidade (BTC)",
+      priceBrl: "Preço (R$)",
+      takeProfit: "Objetivo",
+      takeProfitTip:
+        "Meta de preço (take profit) para encerrar a operação com lucro.",
+      takeProfitPh: "Take profit",
+      stopLoss: "Stop loss",
+      stopLossTip:
+        "Limite de preço para encerrar a operação e conter perdas.",
+      stopLossPh: "Stop",
+      clear: "LIMPAR",
+      buyAction: "COMPRAR",
+      sellAction: "VENDER",
+      assetsAria: "Lista de ativos",
+      assetCodePh: "Código do ativo",
+      assetCodeTip:
+        "Identificador do ticker para busca rápida nos destaques.",
+      featuredAssets: "Ativos em destaque",
+      hint: "Ambiente 100% simulado · patrimônio inicial R$ {cash} · sem sats reais.",
+      stepOf: "Passo {current} de {total}",
+      skipTour: "Pular tutorial",
+      next: "Avançar",
+      finish: "Concluir",
+      flashReset: "Posição e caixa zerados no simulador.",
+      flashTourDone: "Tutorial concluído — boa prática no simulador!",
+      flashBadQty: "Informe uma quantidade válida.",
+      flashBadPrice: "Informe um preço válido.",
+      flashNoCash: "Saldo insuficiente no simulador.",
+      flashNoBtc: "Você não tem BTC suficiente para vender.",
+      flashBuy:
+        "Compra: investiu R$ {notional} ({qty} BTC @ R$ {price}). Saída do caixa. Caixa agora: R$ {cashAfter}. BTC: {btcAfter}.",
+      flashSell:
+        "Venda: entrou R$ {notional} no caixa ({qty} BTC @ R$ {price}). Caixa agora: R$ {cashAfter}. BTC: {btcAfter}.",
+      requiredLegend: "* Campos obrigatórios para enviar a ordem",
+      requiredMark: "*",
+      optionalNote: "Opcional",
+      tour: {
+        mode: {
+          title: "Modo Simulador",
+          body: "Você está em conta simulada — nenhum sat real é movido. O seletor deixa claro que isto não é a carteira real.",
+        },
+        stats: {
+          title: "Patrimônio e resultado",
+          body: "Acompanhe caixa em R$, BTC na posição, patrimônio total e o resultado bruto desta sessão fictícia. Passe o mouse nos títulos para ver o significado de cada indicador.",
+        },
+        chart: {
+          title: "Gráfico candlestick",
+          body: "As velas mostram abertura, máxima, mínima e fechamento do BTC. Azul sobe; laranja desce. Use para ler o movimento antes de operar.",
+        },
+        timeframe: {
+          title: "Tempo do gráfico",
+          body: "Escolha a granularidade (1m, 5m, 15m, 1h). Intervalos menores reagem mais rápido; maiores suavizam o ruído.",
+        },
+        ativos: {
+          title: "Lista de ativos",
+          body: "Aqui você alterna o par em destaque (BTC/BRL, sats, etc.). O preço e a variação ajudam a escolher o que observar.",
+        },
+        side: {
+          title: "Compra ou venda",
+          body: "Na boleta, escolha Compra para adquirir BTC com o caixa simulado, ou Venda para liquidar uma posição que você já tem.",
+        },
+        tipo: {
+          title: "Tipo de ordem",
+          body: "Mercado executa já no preço atual. Limitada só entra se o mercado atingir o preço que você definir.",
+        },
+        qty: {
+          title: "Quantidade",
+          body: "Informe quanto BTC deseja negociar. Comece com valores pequenos (ex.: 0,01) para entender o impacto no caixa.",
+        },
+        price: {
+          title: "Preço",
+          body: "Em ordem a mercado o preço é o último trade. Em limitada, digite o valor em R$ que você aceita pagar ou receber.",
+        },
+        risk: {
+          title: "Objetivo e stop",
+          body: "Campos de gestão de risco: objetivo (take profit) e stop loss. No simulador servem para praticar o hábito — anote suas metas.",
+        },
+        order: {
+          title: "Confirmar ordem",
+          body: "LIMPAR zera a boleta. COMPRAR / VENDER executa a ordem simulada e atualiza caixa, BTC e resultado bruto.",
+        },
+      },
+    },
+    nagai: {
+      titleM1: "NagAI · Primeiros passos",
+      titleM2: "NagAI · Carteira e Lightning",
+      introM1:
+        "Olá! Sou NagAI, posso tirar dúvidas sobre Bitcoin, finanças descentralizadas, segurança de chaves e o funcionamento do protocolo. Como posso ajudar você hoje?",
+      introM2:
+        "Oi! Aqui a gente fala de carteira, frase de recuperação e Lightning no dia a dia. Pergunte o que quiser — ou use Teste de Conhecimento para praticar.",
+      opening: "Abrindo NagAI…",
+      knowledgeTest: "Teste de Conhecimento",
+      backToChat: "Voltar ao chat NagAI",
+      dashboard: "Dashboard",
+      practiceMode: "Modo prática · sem novos sats",
+      simTag: "Terminal simulado · patrimônio fictício · sem saldo real",
+      simTitle: "Simulador · Teste Prático",
+      askPlaceholder: "Digite sua dúvida sobre Bitcoin aqui...",
+      skipQuestion: "Pular pergunta",
+      skipTest: "Pular teste",
+      voiceHint: "Toque no microfone para responder por voz",
+      voiceListening: "Ouvindo… diga a resposta ou o número da opção (1–4)",
+      thisTest: "Neste teste: +{sats} sats",
+      accountBalance: "Saldo na conta: ⚡ {sats}",
+      pickTestTitle: "Como quer testar seus conhecimentos?",
+      pickTestDesc:
+        "Teórico: uma pergunta estratégica. Prático abre o terminal de simulação de trade Bitcoin.",
+      theoretical: "Teórica",
+      theoreticalDesc: "responder uma pergunta estratégica ganhando sats ao acertar",
+      practical: "Prática",
+      practicalDesc: "usar o simulador de trade de Bitcoin",
+      cancel: "Cancelar",
+      agentError:
+        "Não consegui falar com o mentor agora. Tente de novo em instantes — ou use Teste de Conhecimento.",
+      skipAllAgent:
+        "Tudo bem. Você pode voltar ao dashboard ou continuar no chat livre.",
+      wantTheoretical: "Quero o teste teórico",
+      quizIntroEarn:
+        "Beleza — você responde uma pergunta estratégica e ganha sats ao acertar: 5 se acertar, 3 se tentar e errar, e 0 se pular",
+      quizIntroPractice:
+        "Perfeito! Vamos revisar com uma pergunta rápida — nesta conta é só prática, sem novos sats.",
+      quizGateBodyBefore: "Nesta conta os sats deste teste",
+      quizGateBodyStrong: "já foram creditados",
+      quizGateBodyAfter:
+        ". Você pode refazer para praticar, mas não ganhará novos sats.",
+      quizGateRetry: "Refazer sem novos sats",
+      quizGateBackChat: "Voltar ao chat",
+      quizEmpty: "Ainda não há perguntas nesta trilha. Pode continuar no chat livre.",
+      reformulate: "Pode reformular? Falo só de Bitcoin e autocustódia.",
+      backToDashboard: "Voltar para Dashboard",
+      hitSats: "Você acertou — +{sats} sats!",
+      trySats: "Participação registrada — +{sats} sats por tentar.",
+      practiceNoSats: "Prática — sem novos sats nesta conta.",
+      skipThisQuestion: "Pular esta pergunta",
+      zeroSatsTest: "Você ganhou 0 sats neste teste.",
+      zeroSatsClosed: "Teste encerrado. Você ganhou 0 sats desta vez.",
+      zeroSatsQuestion: "Sem problema. Você ganhou 0 sats nesta pergunta.",
+      helpTitle: "Em que posso te ajudar?",
+      withNagai: "Com NagAI",
+      satsAlready: "(já creditados nesta conta)",
+      askNagai: "Tirar Dúvidas com NagAI",
+      earnSats: "Ganhar sats respondendo",
+      testKnowledge: "Testar conhecimentos",
+      tradeSim: "Simulador de Trade",
+      openFullscreen: "Abrir em tela grande",
+      earnTitle: "Retome o quiz e conquiste sats (5 no acerto · 3 na tentativa)",
+      practiceTitle:
+        "Revise o teste de conhecimentos — prática sem novos sats nesta conta",
+      titleM1Short: "Primeiros passos no Bitcoin",
+      titleM2Short: "Carteira e Lightning",
+      historyTitle: "Histórico NagAI",
+      historyDesc:
+        "Conversas anteriores neste idioma. Abrimos só o resumo na lista; as mensagens completas carregam quando você escolhe uma.",
+      historyEmpty: "Nenhuma conversa salva ainda neste idioma.",
+      historyMessages: "{n} mensagens",
+      historyDelete: "Apagar conversa",
+      historyOpen: "Histórico",
+      historyNew: "Nova conversa",
     },
     auth: {
       back: "Voltar",
@@ -929,6 +1349,13 @@ const dictionaries: Record<Locale, Dict> = {
         "Timeline (demo for testing): no confirmation for 30 minutes → we ask for a life check by email. No reply for another 20 minutes → we send the heir's email the information on how to access the inheritance.",
       estateHowExtTip:
         "Tip: use our SatVantage extension as a guide through the process — it helps explain steps and questions while you set up the plan.",
+      satsAlreadyTitle: "Sats already claimed",
+      satsAlreadyBefore: "The satoshis from this stage",
+      satsAlreadyStrong: "have already been credited",
+      satsAlreadyAfter:
+        "to this account. You can review the test for practice, but you won’t earn sats again.",
+      satsAlreadyCancel: "Cancel",
+      satsAlreadyProceed: "Proceed to review",
     },
     btc: {
       live: "Live Bitcoin",
@@ -956,6 +1383,31 @@ const dictionaries: Record<Locale, Dict> = {
       helpVlibrasBody:
         "The VLibras button (above the accessibility help icon) translates content into Brazilian Sign Language (Libras). You can set the language and options in the widget itself.",
       helpClose: "Close",
+      closeDialog: "Close",
+      loading: "Loading",
+      optionsLabel: "Accessibility options",
+      panelTitle: "Accessibility",
+      panelIntro:
+        "Tools in the bottom-right: VLibras (sign language) above and read-aloud below. You can also use the accessibility symbol in the header.",
+      panelTts:
+        "Read aloud: the 🔊 button at the bottom-right reads the main page content (play, pause and stop).",
+      panelVlibras:
+        "VLibras: the official icon sits right above the read-aloud button and translates content to Brazilian Sign Language (also on mobile).",
+      panelSkip:
+        "At the start of each page there is a “Skip to content” link to bypass navigation.",
+      listenMessage: "Listen to message",
+      listen: "Listen",
+      skipToContent: "Skip to content",
+      micStart: "Voice microphone",
+      micStop: "Stop microphone",
+      sendMessage: "Send message",
+      chatInput: "Message for NagAI",
+      vlibrasLoading: "Loading VLibras…",
+      vlibrasFallbackAria: "VLibras unavailable — open accessibility help",
+      vlibrasFallbackTitle: "VLibras temporarily unavailable",
+      vlibrasFallbackShort: "Sign",
+      vlibrasFallbackHint:
+        "VLibras did not load. Open accessibility help or try again later.",
     },
     mentor: {
       name: "NagAI",
@@ -1013,10 +1465,15 @@ const dictionaries: Record<Locale, Dict> = {
       guideScript4:
         "You can create the simplified account now, or open the extension if you already have one. Any questions, just come back here.",
       freeTopicLead: "Good question. I’ll explain it calmly.",
+      freeTopicTag: "Free topic · no mission sats",
+      freeTopicIntro:
+        "This topic is just for learning — no mission sats. Let’s take it easy.",
+      freeTopicNoSats:
+        "Good question. On free topics we don’t credit sats — note the idea, and if you want a reward, use the Knowledge Test in the main mentorship.",
       freeTopicDoneEmbedded:
-        "You can close the chat or open another topic in NagAI — the dashboard is still there.",
+        "You can close the chat or open another topic in the mentor — the dashboard is still there. If you want, type another question below.",
       freeTopicDoneDash:
-        "You can go back to the dashboard whenever you want — or open another topic in NagAI.",
+        "You can go back to the dashboard whenever you want — or type another question below.",
       askMore: "Want to ask anything else about this topic?",
       practiceIntro:
         "Let’s practice again. Remember: sats for this conversation were already credited to your account — now it’s just learning.",
@@ -1072,6 +1529,10 @@ const dictionaries: Record<Locale, Dict> = {
       qIr2027: "Do I need to declare bitcoin on the 2027 tax return?",
       qPatrimonio: "How does bitcoin enter my net worth?",
       qInforme: "Does the exchange give me a tax report?",
+      suggestions: "Suggestions",
+      sPatrimonio: "How to build your first wealth",
+      sComprar: "How to buy bitcoin",
+      sGeopolitica: "Geopolitics and why it matters",
     },
     landing: {
       nostrNotice:
@@ -1183,6 +1644,206 @@ const dictionaries: Record<Locale, Dict> = {
       supportSubject: "SatVantage Support",
       copyright: "© 2026 SatVantage. All rights reserved.",
       risk: "Investing in Bitcoin involves risks. Study before you invest.",
+    },
+    tsim: {
+      regionLabel: "Bitcoin trade simulator",
+      realAccount: "REAL ACCOUNT",
+      simulator: "SIMULATOR",
+      equity: "Equity",
+      equityTip:
+        "Current total account value: Cash + market value of Bitcoin positions.",
+      grossResult: "Gross result",
+      grossResultTip:
+        "Accumulated profit or loss from completed and open trades in this simulated session.",
+      cash: "Cash",
+      cashTip:
+        "Available cash in BRL, ready for new purchases in the simulator.",
+      btcLabel: "BTC",
+      btcTip:
+        "Total amount of Bitcoin currently in the simulated wallet.",
+      statsHoverHint: "Hover over each item to see details",
+      resetAll: "RESET ALL",
+      backToChat: "Back to chat",
+      tourCta:
+        "New to the terminal? Request a guided tour of the order ticket, chart, and indicators.",
+      requestTour: "Request tutorial",
+      closeFlash: "Dismiss notice",
+      time: "Time",
+      tf1m: "1 minute",
+      tf5m: "5 minutes",
+      tf15m: "15 minutes",
+      tf1h: "1 hour",
+      chartAria: "Candlestick chart {asset}",
+      orderTicket: "Order ticket",
+      orderTicketAria: "Order ticket",
+      asset: "Asset",
+      assetTip: "The pair traded on the order (e.g. BTC/BRL).",
+      buy: "Buy",
+      sell: "Sell",
+      type: "Type",
+      market: "Market",
+      limit: "Limit",
+      validity: "Validity",
+      today: "Today",
+      gtc: "Good till filled",
+      qtyBtc: "Quantity (BTC)",
+      priceBrl: "Price (R$)",
+      takeProfit: "Target",
+      takeProfitTip:
+        "Price target (take profit) to close the trade with a gain.",
+      takeProfitPh: "Take profit",
+      stopLoss: "Stop loss",
+      stopLossTip:
+        "Price limit to close the trade and contain losses.",
+      stopLossPh: "Stop",
+      clear: "CLEAR",
+      buyAction: "BUY",
+      sellAction: "SELL",
+      assetsAria: "Asset list",
+      assetCodePh: "Asset code",
+      assetCodeTip:
+        "Ticker identifier for quick search in the featured list.",
+      featuredAssets: "Featured assets",
+      hint: "100% simulated environment · starting balance R$ {cash} · no real sats.",
+      stepOf: "Step {current} of {total}",
+      skipTour: "Skip tutorial",
+      next: "Next",
+      finish: "Finish",
+      flashReset: "Position and cash reset in the simulator.",
+      flashTourDone: "Tutorial complete — good practice in the simulator!",
+      flashBadQty: "Enter a valid quantity.",
+      flashBadPrice: "Enter a valid price.",
+      flashNoCash: "Insufficient balance in the simulator.",
+      flashNoBtc: "You don't have enough BTC to sell.",
+      flashBuy:
+        "Buy: invested R$ {notional} ({qty} BTC @ R$ {price}). Cash outflow. Cash now: R$ {cashAfter}. BTC: {btcAfter}.",
+      flashSell:
+        "Sell: R$ {notional} added to cash ({qty} BTC @ R$ {price}). Cash now: R$ {cashAfter}. BTC: {btcAfter}.",
+      requiredLegend: "* Required fields to submit the order",
+      requiredMark: "*",
+      optionalNote: "Optional",
+      tour: {
+        mode: {
+          title: "Simulator mode",
+          body: "You're on a simulated account — no real sats move. The selector makes it clear this isn't the real wallet.",
+        },
+        stats: {
+          title: "Equity and result",
+          body: "Track cash in R$, BTC in position, total equity, and gross result for this fictional session. Hover the labels to see what each indicator means.",
+        },
+        chart: {
+          title: "Candlestick chart",
+          body: "Candles show BTC open, high, low, and close. Blue up; orange down. Use them to read the move before trading.",
+        },
+        timeframe: {
+          title: "Chart timeframe",
+          body: "Choose granularity (1m, 5m, 15m, 1h). Shorter intervals react faster; longer ones smooth out noise.",
+        },
+        ativos: {
+          title: "Asset list",
+          body: "Switch the highlighted pair here (BTC/BRL, sats, etc.). Price and change help you choose what to watch.",
+        },
+        side: {
+          title: "Buy or sell",
+          body: "On the order ticket, choose Buy to acquire BTC with simulated cash, or Sell to close a position you already hold.",
+        },
+        tipo: {
+          title: "Order type",
+          body: "Market executes at the current price. Limit only fills if the market reaches the price you set.",
+        },
+        qty: {
+          title: "Quantity",
+          body: "Enter how much BTC you want to trade. Start with small amounts (e.g. 0.01) to see the impact on cash.",
+        },
+        price: {
+          title: "Price",
+          body: "For market orders the price is the last trade. For limit orders, enter the R$ value you're willing to pay or receive.",
+        },
+        risk: {
+          title: "Target and stop",
+          body: "Risk management fields: target (take profit) and stop loss. In the simulator they're for building the habit — note your goals.",
+        },
+        order: {
+          title: "Confirm order",
+          body: "CLEAR resets the ticket. BUY / SELL executes the simulated order and updates cash, BTC, and gross result.",
+        },
+      },
+    },
+    nagai: {
+      titleM1: "NagAI · First steps",
+      titleM2: "NagAI · Wallet and Lightning",
+      introM1:
+        "Hi! I'm NagAI — I can help with Bitcoin, decentralized finance, key security, and how the protocol works. How can I help you today?",
+      introM2:
+        "Hi! Here we talk about wallets, recovery phrases, and Lightning day to day. Ask anything — or use Knowledge Test to practice.",
+      opening: "Opening NagAI…",
+      knowledgeTest: "Knowledge Test",
+      backToChat: "Back to NagAI chat",
+      dashboard: "Dashboard",
+      practiceMode: "Practice mode · no new sats",
+      simTag: "Simulated terminal · fictional balance · no real funds",
+      simTitle: "Simulator · Practical Test",
+      askPlaceholder: "Type your Bitcoin question here...",
+      skipQuestion: "Skip question",
+      skipTest: "Skip test",
+      voiceHint: "Tap the microphone to answer by voice",
+      voiceListening: "Listening… say your answer or the option number (1–4)",
+      thisTest: "This test: +{sats} sats",
+      accountBalance: "Account balance: ⚡ {sats}",
+      pickTestTitle: "How do you want to test your knowledge?",
+      pickTestDesc:
+        "Theoretical: one strategic question. Practical opens the Bitcoin trade simulation terminal.",
+      theoretical: "Theoretical",
+      theoreticalDesc: "answer one strategic question and earn sats when you get it right",
+      practical: "Practical",
+      practicalDesc: "use the Bitcoin trade simulator",
+      cancel: "Cancel",
+      agentError:
+        "I couldn't reach the mentor right now. Try again in a moment — or use Knowledge Test.",
+      skipAllAgent:
+        "That's fine. You can go back to the dashboard or continue in free chat.",
+      wantTheoretical: "I want the theoretical test",
+      quizIntroEarn:
+        "Alright — you answer one strategic question and earn sats for it: 5 if you get it right, 3 if you try and miss, and 0 if you skip",
+      quizIntroPractice:
+        "Perfect! Let's review with a quick question — on this account it's practice only, no new sats.",
+      quizGateBodyBefore: "On this account, sats for this test",
+      quizGateBodyStrong: "were already credited",
+      quizGateBodyAfter:
+        ". You can redo it to practice, but you won't earn new sats.",
+      quizGateRetry: "Redo without new sats",
+      quizGateBackChat: "Back to chat",
+      quizEmpty: "There are no questions in this track yet. You can continue in free chat.",
+      reformulate: "Can you rephrase? I only talk about Bitcoin and self-custody.",
+      backToDashboard: "Back to Dashboard",
+      hitSats: "You got it — +{sats} sats!",
+      trySats: "Participation recorded — +{sats} sats for trying.",
+      practiceNoSats: "Practice — no new sats on this account.",
+      skipThisQuestion: "Skip this question",
+      zeroSatsTest: "You earned 0 sats on this test.",
+      zeroSatsClosed: "Test closed. You earned 0 sats this time.",
+      zeroSatsQuestion: "No problem. You earned 0 sats on this question.",
+      helpTitle: "How can I help you?",
+      withNagai: "With NagAI",
+      satsAlready: "(already credited on this account)",
+      askNagai: "Ask NagAI",
+      earnSats: "Earn sats by answering",
+      testKnowledge: "Test your knowledge",
+      tradeSim: "Trade Simulator",
+      openFullscreen: "Open fullscreen",
+      earnTitle: "Resume the quiz and earn sats (5 correct · 3 for trying)",
+      practiceTitle:
+        "Review the knowledge test — practice with no new sats on this account",
+      titleM1Short: "First steps in Bitcoin",
+      titleM2Short: "Wallet and Lightning",
+      historyTitle: "NagAI history",
+      historyDesc:
+        "Previous conversations in this language. We only show the summary in the list; full messages load when you pick one.",
+      historyEmpty: "No saved conversations yet in this language.",
+      historyMessages: "{n} messages",
+      historyDelete: "Delete conversation",
+      historyOpen: "History",
+      historyNew: "New conversation",
     },
     auth: {
       back: "Back",
@@ -1371,6 +2032,13 @@ const dictionaries: Record<Locale, Dict> = {
         "Línea de tiempo (demo para pruebas): sin confirmar por 30 minutos → pedimos prueba de vida por correo. Sin respuesta por otros 20 minutos → enviamos al correo del heredero la información de cómo acceder a la herencia.",
       estateHowExtTip:
         "Consejo: usa nuestra extensión SatVantage como guía en el proceso — ayuda a explicar pasos y dudas mientras configuras el plan.",
+      satsAlreadyTitle: "Sats ya canjeados",
+      satsAlreadyBefore: "Los satoshis de esta etapa",
+      satsAlreadyStrong: "ya fueron acreditados",
+      satsAlreadyAfter:
+        "en esta cuenta. Puedes revisar el test para practicar, pero no ganas sats de nuevo.",
+      satsAlreadyCancel: "Cancelar",
+      satsAlreadyProceed: "Continuar para revisar",
     },
     btc: {
       live: "Bitcoin en vivo",
@@ -1398,6 +2066,31 @@ const dictionaries: Record<Locale, Dict> = {
       helpVlibrasBody:
         "El botón VLibras (encima de la ayuda de accesibilidad) traduce el contenido a lengua de señas. Puedes configurar el idioma y las opciones en el propio widget.",
       helpClose: "Cerrar",
+      closeDialog: "Cerrar",
+      loading: "Cargando",
+      optionsLabel: "Opciones de accesibilidad",
+      panelTitle: "Accesibilidad",
+      panelIntro:
+        "Herramientas abajo a la derecha: VLibras (señas) arriba y lectura en voz alta abajo. También puedes usar el símbolo de accesibilidad arriba.",
+      panelTts:
+        "Lectura en voz alta: el botón 🔊 abajo a la derecha lee el contenido principal (play, pausa y parar).",
+      panelVlibras:
+        "VLibras: el icono oficial queda justo encima del botón de lectura y traduce el contenido a lengua de señas (también en móvil).",
+      panelSkip:
+        "Al inicio de cada página hay el enlace “Ir al contenido” para saltar la navegación.",
+      listenMessage: "Escuchar mensaje",
+      listen: "Escuchar",
+      skipToContent: "Ir al contenido",
+      micStart: "Micrófono de voz",
+      micStop: "Detener micrófono",
+      sendMessage: "Enviar mensaje",
+      chatInput: "Mensaje para NagAI",
+      vlibrasLoading: "Cargando VLibras…",
+      vlibrasFallbackAria: "VLibras no disponible — abrir ayuda de accesibilidad",
+      vlibrasFallbackTitle: "VLibras temporalmente no disponible",
+      vlibrasFallbackShort: "Señas",
+      vlibrasFallbackHint:
+        "VLibras no cargó. Usa la ayuda de accesibilidad o inténtalo más tarde.",
     },
     mentor: {
       name: "NagAI",
@@ -1455,10 +2148,15 @@ const dictionaries: Record<Locale, Dict> = {
       guideScript4:
         "Puedes crear la cuenta simplificada ahora, o abrir la extensión si ya tienes una. Cualquier duda, vuelve aquí.",
       freeTopicLead: "Buena pregunta. Te lo explico con calma.",
+      freeTopicTag: "Tema libre · sin sats de misión",
+      freeTopicIntro:
+        "Este tema es solo aprendizaje — sin sats de misión. Vamos con calma.",
+      freeTopicNoSats:
+        "Buena pregunta. En este tema libre no acreditamos sats — anota la idea y, si quieres recompensa, usa el Test de Conocimiento en la mentoría principal.",
       freeTopicDoneEmbedded:
-        "Puedes cerrar el chat o abrir otro tema en NagAI — el dashboard sigue ahí.",
+        "Puedes cerrar el chat o abrir otro tema en el mentor — el dashboard sigue ahí. Si quieres, escribe otra duda abajo.",
       freeTopicDoneDash:
-        "Puedes volver al dashboard cuando quieras — o abrir otro tema en NagAI.",
+        "Puedes volver al dashboard cuando quieras — o escribe otra duda abajo.",
       askMore: "¿Quieres preguntar algo más sobre este tema?",
       practiceIntro:
         "Vamos a practicar de nuevo. Recuerda: los sats de esta conversación ya fueron acreditados en tu cuenta — ahora es solo aprendizaje.",
@@ -1514,6 +2212,10 @@ const dictionaries: Record<Locale, Dict> = {
       qIr2027: "¿Debo declarar bitcoin en el IR 2027?",
       qPatrimonio: "¿Cómo entra el bitcoin en mi patrimonio?",
       qInforme: "¿El exchange me da informe para el IR?",
+      suggestions: "Sugerencias",
+      sPatrimonio: "Cómo conquistar tu primer patrimonio",
+      sComprar: "Cómo comprar bitcoin",
+      sGeopolitica: "Geopolítica y por qué seguirla",
     },
     landing: {
       nostrNotice:
@@ -1626,6 +2328,206 @@ const dictionaries: Record<Locale, Dict> = {
       copyright: "© 2026 SatVantage. Todos los derechos reservados.",
       risk: "Invertir en Bitcoin implica riesgos. Estudia antes de invertir.",
     },
+    tsim: {
+      regionLabel: "Simulador de trade de Bitcoin",
+      realAccount: "CUENTA REAL",
+      simulator: "SIMULADOR",
+      equity: "Patrimonio",
+      equityTip:
+        "Valor total actual de la cuenta: efectivo + valor de mercado de las posiciones en Bitcoin.",
+      grossResult: "Resultado bruto",
+      grossResultTip:
+        "Ganancia o pérdida acumulada de operaciones realizadas y abiertas en esta sesión simulada.",
+      cash: "Efectivo",
+      cashTip:
+        "Dinero disponible en reales, listo para nuevas compras en el simulador.",
+      btcLabel: "BTC",
+      btcTip:
+        "Cantidad total de Bitcoin en la cartera simulada.",
+      statsHoverHint: "Pasa el cursor sobre cada ítem para ver los detalles",
+      resetAll: "REINICIAR TODO",
+      backToChat: "Volver al chat",
+      tourCta:
+        "¿Nuevo en el terminal? Pide un tour guiado de la boleta, el gráfico y los indicadores.",
+      requestTour: "Solicitar tutorial",
+      closeFlash: "Cerrar aviso",
+      time: "Tiempo",
+      tf1m: "1 minuto",
+      tf5m: "5 minutos",
+      tf15m: "15 minutos",
+      tf1h: "1 hora",
+      chartAria: "Gráfico de velas {asset}",
+      orderTicket: "Boleta",
+      orderTicketAria: "Boleta de órdenes",
+      asset: "Activo",
+      assetTip: "El par negociado en la orden (ej.: BTC/BRL).",
+      buy: "Compra",
+      sell: "Venta",
+      type: "Tipo",
+      market: "Mercado",
+      limit: "Limitada",
+      validity: "Validez",
+      today: "Hoy",
+      gtc: "Hasta ejecutar",
+      qtyBtc: "Cantidad (BTC)",
+      priceBrl: "Precio (R$)",
+      takeProfit: "Objetivo",
+      takeProfitTip:
+        "Meta de precio (take profit) para cerrar la operación con ganancia.",
+      takeProfitPh: "Take profit",
+      stopLoss: "Stop loss",
+      stopLossTip:
+        "Límite de precio para cerrar la operación y contener pérdidas.",
+      stopLossPh: "Stop",
+      clear: "LIMPIAR",
+      buyAction: "COMPRAR",
+      sellAction: "VENDER",
+      assetsAria: "Lista de activos",
+      assetCodePh: "Código del activo",
+      assetCodeTip:
+        "Identificador del ticker para búsqueda rápida en los destacados.",
+      featuredAssets: "Activos destacados",
+      hint: "Entorno 100% simulado · patrimonio inicial R$ {cash} · sin sats reales.",
+      stepOf: "Paso {current} de {total}",
+      skipTour: "Saltar tutorial",
+      next: "Avanzar",
+      finish: "Finalizar",
+      flashReset: "Posición y efectivo reiniciados en el simulador.",
+      flashTourDone: "Tutorial completado — ¡buena práctica en el simulador!",
+      flashBadQty: "Ingresa una cantidad válida.",
+      flashBadPrice: "Ingresa un precio válido.",
+      flashNoCash: "Saldo insuficiente en el simulador.",
+      flashNoBtc: "No tienes suficiente BTC para vender.",
+      flashBuy:
+        "Compra: invertiste R$ {notional} ({qty} BTC @ R$ {price}). Salida de efectivo. Efectivo ahora: R$ {cashAfter}. BTC: {btcAfter}.",
+      flashSell:
+        "Venta: entraron R$ {notional} en efectivo ({qty} BTC @ R$ {price}). Efectivo ahora: R$ {cashAfter}. BTC: {btcAfter}.",
+      requiredLegend: "* Campos obligatorios para enviar la orden",
+      requiredMark: "*",
+      optionalNote: "Opcional",
+      tour: {
+        mode: {
+          title: "Modo simulador",
+          body: "Estás en cuenta simulada — no se mueven sats reales. El selector deja claro que esto no es la cartera real.",
+        },
+        stats: {
+          title: "Patrimonio y resultado",
+          body: "Sigue el efectivo en R$, BTC en posición, patrimonio total y el resultado bruto de esta sesión ficticia. Pasa el cursor sobre los títulos para ver el significado de cada indicador.",
+        },
+        chart: {
+          title: "Gráfico de velas",
+          body: "Las velas muestran apertura, máxima, mínima y cierre del BTC. Azul sube; naranja baja. Úsalas para leer el movimiento antes de operar.",
+        },
+        timeframe: {
+          title: "Tiempo del gráfico",
+          body: "Elige la granularidad (1m, 5m, 15m, 1h). Intervalos menores reaccionan más rápido; mayores suavizan el ruido.",
+        },
+        ativos: {
+          title: "Lista de activos",
+          body: "Aquí alternas el par destacado (BTC/BRL, sats, etc.). El precio y la variación ayudan a elegir qué observar.",
+        },
+        side: {
+          title: "Compra o venta",
+          body: "En la boleta, elige Compra para adquirir BTC con el efectivo simulado, o Venta para liquidar una posición que ya tienes.",
+        },
+        tipo: {
+          title: "Tipo de orden",
+          body: "Mercado ejecuta al precio actual. Limitada solo entra si el mercado alcanza el precio que defines.",
+        },
+        qty: {
+          title: "Cantidad",
+          body: "Indica cuánto BTC deseas negociar. Empieza con valores pequeños (ej.: 0,01) para entender el impacto en el efectivo.",
+        },
+        price: {
+          title: "Precio",
+          body: "En orden a mercado el precio es el último trade. En limitada, escribe el valor en R$ que aceptas pagar o recibir.",
+        },
+        risk: {
+          title: "Objetivo y stop",
+          body: "Campos de gestión de riesgo: objetivo (take profit) y stop loss. En el simulador sirven para practicar el hábito — anota tus metas.",
+        },
+        order: {
+          title: "Confirmar orden",
+          body: "LIMPIAR reinicia la boleta. COMPRAR / VENDER ejecuta la orden simulada y actualiza efectivo, BTC y resultado bruto.",
+        },
+      },
+    },
+    nagai: {
+      titleM1: "NagAI · Primeros pasos",
+      titleM2: "NagAI · Cartera y Lightning",
+      introM1:
+        "¡Hola! Soy NagAI — puedo ayudarte con Bitcoin, finanzas descentralizadas, seguridad de claves y el funcionamiento del protocolo. ¿Cómo puedo ayudarte hoy?",
+      introM2:
+        "¡Hola! Aquí hablamos de cartera, frase de recuperación y Lightning en el día a día. Pregunta lo que quieras — o usa Test de Conocimiento para practicar.",
+      opening: "Abriendo NagAI…",
+      knowledgeTest: "Test de Conocimiento",
+      backToChat: "Volver al chat NagAI",
+      dashboard: "Dashboard",
+      practiceMode: "Modo práctica · sin nuevos sats",
+      simTag: "Terminal simulado · patrimonio ficticio · sin saldo real",
+      simTitle: "Simulador · Test Práctico",
+      askPlaceholder: "Escribe tu duda sobre Bitcoin aquí...",
+      skipQuestion: "Saltar pregunta",
+      skipTest: "Saltar test",
+      voiceHint: "Toca el micrófono para responder por voz",
+      voiceListening: "Escuchando… di la respuesta o el número de la opción (1–4)",
+      thisTest: "En este test: +{sats} sats",
+      accountBalance: "Saldo en la cuenta: ⚡ {sats}",
+      pickTestTitle: "¿Cómo quieres probar tus conocimientos?",
+      pickTestDesc:
+        "Teórico: una pregunta estratégica. Práctico abre el terminal de simulación de trade de Bitcoin.",
+      theoretical: "Teórica",
+      theoreticalDesc: "responder una pregunta estratégica ganando sats al acertar",
+      practical: "Práctica",
+      practicalDesc: "usar el simulador de trade de Bitcoin",
+      cancel: "Cancelar",
+      agentError:
+        "No pude hablar con el mentor ahora. Intenta de nuevo en un momento — o usa Test de Conocimiento.",
+      skipAllAgent:
+        "Está bien. Puedes volver al dashboard o continuar en el chat libre.",
+      wantTheoretical: "Quiero el test teórico",
+      quizIntroEarn:
+        "Perfecto — respondes una pregunta estratégica y ganas sats al acertar: 5 si aciertas, 3 si intentas y fallas, y 0 si saltas",
+      quizIntroPractice:
+        "¡Perfecto! Vamos a repasar con una pregunta rápida — en esta cuenta es solo práctica, sin nuevos sats.",
+      quizGateBodyBefore: "En esta cuenta los sats de este test",
+      quizGateBodyStrong: "ya fueron acreditados",
+      quizGateBodyAfter:
+        ". Puedes repetir para practicar, pero no ganarás nuevos sats.",
+      quizGateRetry: "Repetir sin nuevos sats",
+      quizGateBackChat: "Volver al chat",
+      quizEmpty: "Aún no hay preguntas en esta ruta. Puedes continuar en el chat libre.",
+      reformulate: "¿Puedes reformular? Solo hablo de Bitcoin y autocustodia.",
+      backToDashboard: "Volver al Dashboard",
+      hitSats: "¡Acertaste — +{sats} sats!",
+      trySats: "Participación registrada — +{sats} sats por intentar.",
+      practiceNoSats: "Práctica — sin nuevos sats en esta cuenta.",
+      skipThisQuestion: "Saltar esta pregunta",
+      zeroSatsTest: "Ganaste 0 sats en este test.",
+      zeroSatsClosed: "Test cerrado. Ganaste 0 sats esta vez.",
+      zeroSatsQuestion: "Sin problema. Ganaste 0 sats en esta pregunta.",
+      helpTitle: "¿En qué puedo ayudarte?",
+      withNagai: "Con NagAI",
+      satsAlready: "(ya acreditados en esta cuenta)",
+      askNagai: "Consultar con NagAI",
+      earnSats: "Ganar sats respondiendo",
+      testKnowledge: "Probar conocimientos",
+      tradeSim: "Simulador de Trade",
+      openFullscreen: "Abrir en pantalla completa",
+      earnTitle: "Retoma el quiz y conquista sats (5 al acertar · 3 al intentar)",
+      practiceTitle:
+        "Repasa el test de conocimientos — práctica sin nuevos sats en esta cuenta",
+      titleM1Short: "Primeros pasos en Bitcoin",
+      titleM2Short: "Cartera y Lightning",
+      historyTitle: "Historial NagAI",
+      historyDesc:
+        "Conversaciones anteriores en este idioma. Solo mostramos el resumen en la lista; los mensajes completos cargan cuando eliges una.",
+      historyEmpty: "Ninguna conversación guardada aún en este idioma.",
+      historyMessages: "{n} mensajes",
+      historyDelete: "Eliminar conversación",
+      historyOpen: "Historial",
+      historyNew: "Nueva conversación",
+    },
     auth: {
       back: "Volver",
       titleCreate: "Crear cuenta",
@@ -1712,6 +2614,8 @@ type I18nCtx = {
 
 const I18nContext = createContext<I18nCtx | null>(null);
 
+const LOCALE_EVENT = "sv-locale-change";
+
 function readLocale(): Locale {
   if (typeof window === "undefined") return "pt";
   try {
@@ -1730,6 +2634,7 @@ function htmlLang(locale: Locale) {
 }
 
 export function I18nProvider({ children }: { children: ReactNode }) {
+  // Sempre "pt" no 1º render (SSR + hidratação). O idioma salvo aplica só após mount.
   const [locale, setLocaleState] = useState<Locale>("pt");
 
   useEffect(() => {
@@ -1738,6 +2643,35 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     document.documentElement.lang = htmlLang(next);
     document.documentElement.setAttribute("translate", "no");
     document.documentElement.classList.add("notranslate");
+
+    function applyLocale(nextLocale: Locale) {
+      setLocaleState(nextLocale);
+      document.documentElement.lang = htmlLang(nextLocale);
+      document.documentElement.setAttribute("translate", "no");
+      document.documentElement.classList.add("notranslate");
+    }
+
+    function onStorage(e: StorageEvent) {
+      if (e.key !== STORAGE_KEY) return;
+      if (e.newValue === "pt" || e.newValue === "en" || e.newValue === "es") {
+        applyLocale(e.newValue);
+      }
+    }
+
+    function onLocaleEvent(e: Event) {
+      const detail = (e as CustomEvent<{ locale?: string }>).detail;
+      const nextLocale = detail?.locale;
+      if (nextLocale === "pt" || nextLocale === "en" || nextLocale === "es") {
+        applyLocale(nextLocale);
+      }
+    }
+
+    window.addEventListener("storage", onStorage);
+    window.addEventListener(LOCALE_EVENT, onLocaleEvent as EventListener);
+    return () => {
+      window.removeEventListener("storage", onStorage);
+      window.removeEventListener(LOCALE_EVENT, onLocaleEvent as EventListener);
+    };
   }, []);
 
   const setLocale = useCallback((next: Locale) => {
@@ -1748,6 +2682,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     try {
       localStorage.setItem(STORAGE_KEY, next);
       (window as Window & { __SV_LOCALE__?: string }).__SV_LOCALE__ = next;
+      window.dispatchEvent(new CustomEvent(LOCALE_EVENT, { detail: { locale: next } }));
     } catch {
       /* ignore */
     }
@@ -1774,6 +2709,11 @@ export function useI18n(): I18nCtx {
     return { locale: "pt", setLocale: () => {}, t: dictionaries.pt };
   }
   return ctx;
+}
+
+/** Dicionário de um locale específico (útil para textos alinhados a um idioma fixo). */
+export function dictFor(locale: Locale): Dict {
+  return dictionaries[locale] ?? dictionaries.pt;
 }
 
 export const LOCALE_OPTIONS: { value: Locale; label: string }[] = [

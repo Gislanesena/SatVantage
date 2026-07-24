@@ -1,13 +1,15 @@
 {
   "manifest_version": 3,
   "name": "SatVantage Copiloto",
-  "version": "0.5.0",
-  "description": "Side Panel: domínio oficial, análise Bitcoin/segurança, captura, cotação BTC e mapa do site SatVantage.",
-  "permissions": ["activeTab", "scripting", "sidePanel", "storage"],
+  "version": "1.0.0",
+  "description": "Extensão oficial SatVantage: Side Panel com verificação de domínio/phishing, análise de página, captura de tela e cotação Bitcoin.",
+  "permissions": ["activeTab", "scripting", "sidePanel", "storage", "tabs"],
   "host_permissions": [
     "https://sat-vantage-gislanesena.vercel.app/*",
     "https://sat-vantage-iau60jdhv-gislanesena.vercel.app/*",
     "http://localhost:3000/*",
+    "http://127.0.0.1:3000/*",
+    "https://api.coingecko.com/*",
     "http://*/*",
     "https://*/*"
   ],
@@ -17,11 +19,10 @@
     "128": "icons/icon128.png"
   },
   "action": {
-    "default_title": "SatVantage Copiloto",
+    "default_title": "Abrir SatVantage Copiloto",
     "default_icon": {
       "16": "icons/icon16.png",
-      "48": "icons/icon48.png",
-      "128": "icons/icon128.png"
+      "48": "icons/icon48.png"
     }
   },
   "side_panel": {
@@ -33,7 +34,7 @@
   "content_scripts": [
     {
       "matches": ["http://*/*", "https://*/*"],
-      "js": ["content.js"],
+      "js": ["domain-check.js", "content.js"],
       "run_at": "document_idle"
     }
   ]

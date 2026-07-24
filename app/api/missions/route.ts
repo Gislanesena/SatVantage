@@ -8,7 +8,7 @@ import {
   lessonsForClient,
   MISSION_1_SLUG,
 } from "@/lib/quiz";
-import { parseQuizLocale } from "@/lib/quiz-i18n";
+import { normalizeQuizLocale } from "@/lib/quiz-i18n";
 
 function wasRewarded(marker: string | null | undefined): boolean {
   if (!marker) return false;
@@ -27,7 +27,8 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "missão inválida" }, { status: 400 });
   }
   const slug = raw;
-  const locale = parseQuizLocale(req.nextUrl.searchParams.get("locale"));
+  const rawLocale = req.nextUrl.searchParams.get("locale") ?? "pt";
+  const locale = normalizeQuizLocale(rawLocale);
 
   let mission;
   try {
@@ -74,6 +75,7 @@ export async function GET(req: NextRequest) {
     hasProgress: !!progress,
     xp: user?.xp ?? 0,
     satsBalance: user?.sats_balance ?? 0,
+    locale: rawLocale,
     lessons: lessonsForClient(slug, locale),
   });
 }
