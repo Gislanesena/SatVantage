@@ -148,7 +148,7 @@ Desenhamos o SatVantage sob um princípio: **quanto menos soubermos sobre você,
 - **Pagamentos:** Lightning Network via Voltage (ambiente de testes MutinyNet) + Nostr Wallet Connect para carteiras de usuário
 - **Prova de herança:** OpenTimestamps, ancorado na blockchain do Bitcoin
 - **Notificações:** Resend (e-mail) + DM Nostr (NIP-04) como reforço redundante
-- **IA:** agentes de inteligência artificial reais (LLM), desenvolvidos em Python/FastAPI pela dupla — não um fluxo de chat programado com respostas fixas. O Mentor interpreta a mensagem do usuário a cada turno, adapta a explicação ao nível de conhecimento demonstrado e responde de forma genuinamente conversacional; o agente Comportamental redige o texto de cada alerta com base nos números do caso real. A decisão de pagar, creditar ou ativar algo nunca é da IA (fica em código determinístico e auditável) — mas a conversa em si é raciocínio de IA de ponta a ponta, com um fallback local apenas para o caso raro de indisponibilidade, garantindo que a experiência nunca trave.
+- **IA:** agentes de inteligência artificial reais (LLM), desenvolvidos em Python/FastAPI — não um fluxo de chat programado com respostas fixas. O Mentor interpreta a mensagem do usuário a cada turno, adapta a explicação ao nível de conhecimento demonstrado e responde de forma genuinamente conversacional; o agente Comportamental redige o texto de cada alerta com base nos números do caso real. A decisão de pagar, creditar ou ativar algo nunca é da IA (fica em código determinístico e auditável) — mas a conversa em si é raciocínio de IA de ponta a ponta, com um fallback local apenas para o caso raro de indisponibilidade, garantindo que a experiência nunca trave.
 - **Extensão de navegador:** Manifest V3, leitura de página em tempo real, análise via IA restrita ao escopo de segurança em Bitcoin
 
 ### Arquitetura de decisão
@@ -167,7 +167,7 @@ Regra de ouro seguida em todo o sistema: **a matemática e as travas de seguran�
 - [x] Modo Emergência (revogação de conexões sensíveis)
 - [x] Herança: cadastro de herdeiros, prova via OpenTimestamps, prova de vida com lembretes escalonados, página pública de verificação
 - [x] Extensão de navegador (copiloto de segurança) — funcional, apresentada na homepage; instalação local para demonstração (publicação na Chrome Web Store no roadmap imediato)
-- [x] Acessibilidade: VLibras, leitura em voz alta, modo claro/escuro (desenvolvido por nós, com atenção especial a fotossensibilidade) e tradução PT/EN/ES (desenvolvida por nós)
+- [x] Acessibilidade: VLibras, leitura em voz alta, modo claro/escuro (desenvolvido por nós, com atenção especial a fotossensibilidade), Chat com fala ativa (microfone) e tradução PT/EN/ES (desenvolvida por nós)
 - [x] Deploy público e funcional
 
 ## 💰 Modelo de sustentabilidade financeira
