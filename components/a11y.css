@@ -85,57 +85,30 @@
   line-height: 1;
 }
 
-/* VLibras — um único FAB no meio da borda direita */
-#sv-vlibras-root,
-.sv-vlibras,
+/* VLibras — aparência 100% do plugin oficial (gov.br). Sem fundo/tamanho custom. */
 div[vw],
 div[vw].enabled {
   z-index: 2147483000 !important;
 }
 
-/* Botão oficial (marcador ou .access-button que o plugin injeta) */
-.access-button,
-[vw-access-button].active,
-[vw-access-button].access-button,
-div[vw] .access-button {
-  position: fixed !important;
-  right: 18px !important;
-  top: 50% !important;
-  bottom: auto !important;
-  left: auto !important;
-  transform: translateY(-50%) !important;
-  z-index: 2147483000 !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-  pointer-events: auto !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  width: 64px !important;
-  height: 64px !important;
-  max-width: none !important;
-  max-height: none !important;
-  min-width: 56px !important;
-  min-height: 56px !important;
+/*
+ * Marcador do snippet oficial: NÃO estilizar.
+ * O fundo #0f172a + 64×64 era o “quadrado preto” (mobile vazio / desktop atrás do ícone).
+ */
+[vw-access-button]:empty {
+  background: none !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  width: auto !important;
+  height: auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  padding: 0 !important;
   margin: 0 !important;
-  clip: auto !important;
-  clip-path: none !important;
-  overflow: visible !important;
-  border-radius: 12px !important;
-  background: #0f172a !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35) !important;
 }
 
-.access-button img,
-[vw-access-button].active img,
-[vw-access-button].access-button img {
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: contain !important;
-  display: block !important;
-}
-
-/* Se existir .access-button separado, esconde só o marcador vazio (evita 2 ícones) */
+/* Com botão real montado, esconde marcador ainda vazio (evita duplicata visual) */
 body:has(.access-button) [vw-access-button]:not(.access-button):empty {
   display: none !important;
 }
@@ -376,18 +349,6 @@ body:has(.access-button) [vw-access-button]:not(.access-button):empty {
   .sv-a11y-fab--tts .sv-a11y-tts-ico {
     width: 26px;
     height: 26px;
-  }
-
-  .access-button,
-  [vw-access-button].active,
-  [vw-access-button].access-button,
-  div[vw] .access-button {
-    right: 12px !important;
-    top: 50% !important;
-    bottom: auto !important;
-    transform: translateY(-50%) !important;
-    width: 56px !important;
-    height: 56px !important;
   }
 }
 

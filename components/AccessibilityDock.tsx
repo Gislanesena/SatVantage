@@ -24,8 +24,9 @@ export function openAccessibilityPanel() {
 }
 
 /**
- * Dock flutuante (canto inferior direito), de cima para baixo:
- * 1) menu de acessibilidade · 2) VLibras (plugin) · 3) leitura em voz alta
+ * Dock flutuante (canto inferior direito):
+ * 1) menu de acessibilidade · 2) leitura em voz alta
+ * (VLibras é o widget oficial do gov.br, separado — não faz parte deste dock)
  */
 export default function AccessibilityDock() {
   const { t, locale } = useI18n();

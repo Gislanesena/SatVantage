@@ -1,6 +1,7 @@
 "use client";
 /**
- * VLibras oficial (gov.br) — markup idêntico ao snippet público:
+ * VLibras oficial (gov.br) — markup e init idênticos ao snippet público.
+ * Sem customização visual do ícone: o plugin traz a aparência oficial.
  *
  * <div vw class="enabled">
  *   <div vw-access-button class="active"></div>
@@ -30,50 +31,26 @@ const READY_TIMEOUT_MS = 12_000;
 
 type Status = "loading" | "ready" | "failed";
 
-function findAccessButton(): HTMLElement | null {
-  const real = document.querySelector(".access-button") as HTMLElement | null;
-  if (real) return real;
-  return document.querySelector("[vw-access-button]") as HTMLElement | null;
+function findRealAccessButton(): HTMLElement | null {
+  return document.querySelector(".access-button") as HTMLElement | null;
 }
 
-function hideDuplicateMarkers(keep: HTMLElement) {
+/** Esconde marcadores vazios quando o plugin já montou o botão real (evita “dois” VLibras). */
+function hideEmptyMarkers(keep: HTMLElement) {
   document.querySelectorAll("[vw-access-button]").forEach((el) => {
     if (el === keep || el.contains(keep) || keep.contains(el)) return;
-    // Só esconde marcadores vazios / sem o botão real
     if (el.querySelector(".access-button")) return;
-    if ((el as HTMLElement).childElementCount > 0 && el !== keep) {
-      const hasImg = !!el.querySelector("img, svg, canvas");
-      if (hasImg) return;
-    }
-    const node = el as HTMLElement;
-    node.style.setProperty("display", "none", "important");
+    const hasVisual = !!el.querySelector("img, svg, canvas, .pop-up");
+    if (hasVisual) return;
+    if ((el as HTMLElement).childElementCount > 0) return;
+    (el as HTMLElement).style.setProperty("display", "none", "important");
   });
 }
 
-function pinAccessButton() {
-  const btn = findAccessButton();
+function pinIfReady(): boolean {
+  const btn = findRealAccessButton();
   if (!btn) return false;
-
-  hideDuplicateMarkers(btn);
-
-  const mobile = window.matchMedia("(max-width: 640px)").matches;
-  btn.classList.add("active");
-  btn.style.setProperty("position", "fixed", "important");
-  btn.style.setProperty("right", mobile ? "12px" : "18px", "important");
-  btn.style.setProperty("top", "50%", "important");
-  btn.style.setProperty("bottom", "auto", "important");
-  btn.style.setProperty("left", "auto", "important");
-  btn.style.setProperty("transform", "translateY(-50%)", "important");
-  btn.style.setProperty("z-index", "2147483000", "important");
-  btn.style.setProperty("opacity", "1", "important");
-  btn.style.setProperty("visibility", "visible", "important");
-  btn.style.setProperty("pointer-events", "auto", "important");
-  btn.style.setProperty("display", "flex", "important");
-  btn.style.setProperty("width", mobile ? "56px" : "64px", "important");
-  btn.style.setProperty("height", mobile ? "56px" : "64px", "important");
-  btn.style.setProperty("margin", "0", "important");
-  btn.style.setProperty("clip", "auto", "important");
-  btn.style.setProperty("overflow", "visible", "important");
+  hideEmptyMarkers(btn);
   return true;
 }
 
@@ -101,12 +78,12 @@ export default function VLibrasWidget() {
 
   const markReady = useCallback(() => {
     if (failedRef.current) return;
-    if (!pinAccessButton()) return;
+    if (!pinIfReady()) return;
     setStatus("ready");
   }, []);
 
   const markFailed = useCallback((reason: string) => {
-    if (findAccessButton() && pinAccessButton()) {
+    if (findRealAccessButton() && pinIfReady()) {
       failedRef.current = false;
       setStatus("ready");
       return;
@@ -120,12 +97,12 @@ export default function VLibrasWidget() {
     failedRef.current = false;
 
     const obs = new MutationObserver(() => {
-      if (pinAccessButton()) markReady();
+      if (pinIfReady()) markReady();
     });
     obs.observe(document.body, { childList: true, subtree: true });
 
     const tick = window.setInterval(() => {
-      if (pinAccessButton()) {
+      if (pinIfReady()) {
         markReady();
         window.clearInterval(tick);
       }
@@ -134,7 +111,7 @@ export default function VLibrasWidget() {
     const timeout = window.setTimeout(() => {
       window.clearInterval(tick);
       obs.disconnect();
-      if (findAccessButton() && pinAccessButton()) markReady();
+      if (findRealAccessButton() && pinIfReady()) markReady();
       else if (!window.VLibras) markFailed("timeout sem plugin");
       else markFailed("plugin sem botão após timeout");
     }, READY_TIMEOUT_MS);
@@ -145,17 +122,14 @@ export default function VLibrasWidget() {
         window.__svVLibrasWidget = false;
       }
       if (window.VLibras) startWidget();
-      if (pinAccessButton()) markReady();
+      if (pinIfReady()) markReady();
     }
 
     window.addEventListener("sv-vlibras-repin", onRepin);
 
-    // Enquanto o CDN não monta o ícone, o marcador oficial já fica no lugar
-    pinAccessButton();
-
     if (window.VLibras) {
       startWidget();
-      if (pinAccessButton()) markReady();
+      if (pinIfReady()) markReady();
     }
 
     return () => {
@@ -168,7 +142,7 @@ export default function VLibrasWidget() {
 
   return (
     <>
-      {/* Markup oficial VLibras — um único ponto de entrada */}
+      {/* Markup oficial VLibras — um único ponto de entrada (desktop e mobile) */}
       <div vw="" className="enabled">
         <div vw-access-button="" className="active" />
         <div vw-plugin-wrapper="">
@@ -187,7 +161,7 @@ export default function VLibrasWidget() {
             return;
           }
           window.setTimeout(() => {
-            if (pinAccessButton()) markReady();
+            if (pinIfReady()) markReady();
           }, 300);
         }}
         onError={() => markFailed("falha ao baixar CDN vlibras.gov.br")}

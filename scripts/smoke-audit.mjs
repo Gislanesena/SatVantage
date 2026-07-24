@@ -271,8 +271,9 @@ async function main() {
       "ui.vlibras",
       () =>
         fileHas("components/VLibrasWidget.tsx", [
-          "sv-vlibras-root",
-          "vlibras",
+          "vw-access-button",
+          "vlibras.gov.br",
+          "VLibras.Widget",
         ]),
     ],
     [
