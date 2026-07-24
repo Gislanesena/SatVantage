@@ -320,8 +320,15 @@ async def interact(
     service: LLMService = Depends(get_llm_service),
 ) -> dict[str, str]:
     try:
-        historico = [{"role": m.role, "content": m.content} for m in data.messages]
-        lang = _lang(data.idioma)
+        msgs = data.resolved_messages()
+        if not msgs:
+            raise HTTPException(
+                status_code=422,
+                detail="Envie messages[] ou mensagem_usuario",
+            )
+
+        historico = [{"role": m.role, "content": m.content} for m in msgs]
+        lang = _lang(data.resolved_idioma())
 
         if data.missao_id and historico:
             ultima_mensagem = historico[-1]["content"]
@@ -352,7 +359,14 @@ async def interact(
             level="iniciante",
             idioma=lang,
         )
-        return {"status": "chat", "resposta": resultado}
+        # Next lê resposta_ia; Streamlit/legado lê resposta
+        return {
+            "status": "chat",
+            "resposta": resultado,
+            "resposta_ia": resultado,
+        }
+    except HTTPException:
+        raise
     except Exception as exc:
         logger.exception("Erro na rota /interact: %s", exc)
         raise HTTPException(status_code=500, detail=str(exc)) from exc

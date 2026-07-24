@@ -53,10 +53,39 @@ class MensagemChat(BaseModel):
 
 
 class InteractionRequest(BaseModel):
-    messages: list[MensagemChat]
+    """Aceita o body do Next (mensagem_usuario) ou o formato chat (messages)."""
+
+    messages: list[MensagemChat] | None = None
+    mensagem_usuario: str | None = Field(
+        default=None,
+        description="Atalho do front Next — equivalente a messages=[{role:user,content}]",
+    )
+    mensagem: str | None = None
+    message: str | None = None
     missao_id: str | None = None
     tema_atual: str | None = "Bitcoin"
     idioma: Idioma = "pt"
+    locale: str | None = None
+
+    def resolved_idioma(self) -> Idioma:
+        raw = (self.idioma or self.locale or "pt").lower()
+        if raw.startswith("en"):
+            return "en"
+        if raw.startswith("es"):
+            return "es"
+        return "pt"
+
+    def resolved_messages(self) -> list[MensagemChat]:
+        if self.messages:
+            return self.messages
+        text = (
+            (self.mensagem_usuario or "").strip()
+            or (self.mensagem or "").strip()
+            or (self.message or "").strip()
+        )
+        if not text:
+            return []
+        return [MensagemChat(role="user", content=text)]
 
 
 class TaskValidation(BaseModel):

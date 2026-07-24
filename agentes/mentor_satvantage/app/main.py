@@ -43,13 +43,22 @@ app = FastAPI(title="SatVantage - AI Mentor API", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    ],
+    # Front em Vercel / preview + Render docs
+    allow_origin_regex=r"https://.*\.(vercel\.app|onrender\.com)",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-app.include_router(mentor_router, prefix="/api/api", tags=["Mentor"])
+# Contrato do SatVantage Next: /api/agents/* → AGENTS_API_URL + /api/mentor|interact
+# (antes estava /api/api/... e o proxy do front recebia 404)
+app.include_router(mentor_router, prefix="/api", tags=["Mentor"])
+# Alias compatível com Streamlit / clients antigos que ainda usam /api/api/...
+app.include_router(mentor_router, prefix="/api/api", tags=["Mentor"], include_in_schema=False)
 
 
 @app.get("/", include_in_schema=False)

@@ -10,7 +10,7 @@ from __future__ import annotations
 import streamlit as st
 import requests
 
-API_URL = "http://127.0.0.1:8000/api/api/interact"
+API_URL = "http://127.0.0.1:8000/api/interact"
 
 st.title("Mentor SatVantage")
 
