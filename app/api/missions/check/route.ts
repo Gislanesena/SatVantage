@@ -21,6 +21,7 @@ import {
   SATS_TRIED,
   type MissionSlug,
 } from "@/lib/quiz";
+import { parseQuizLocale, QUIZ_I18N } from "@/lib/quiz-i18n";
 
 function wasRewarded(marker: string | null | undefined): boolean {
   if (!marker) return false;
@@ -34,7 +35,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "faça login" }, { status: 401 });
   }
 
-  let body: { slug?: string; lessonIndex?: number; answer?: number };
+  let body: { slug?: string; lessonIndex?: number; answer?: number; locale?: string };
   try {
     body = await req.json();
   } catch {
@@ -47,6 +48,7 @@ export async function POST(req: NextRequest) {
   }
   const slug: MissionSlug = rawSlug;
   const questions = questionsFor(slug);
+  const locale = parseQuizLocale(body.locale);
 
   const i = body.lessonIndex;
   const answer = body.answer;
@@ -62,6 +64,9 @@ export async function POST(req: NextRequest) {
   const q = questions[i];
   const correct = answer === q.correct;
   const sats = correct ? SATS_CORRECT : SATS_TRIED;
+  const pack = locale === "pt" ? null : QUIZ_I18N[locale]?.[q.id];
+  const feedbackCorrect = pack?.feedbackCorrect ?? q.feedbackCorrect;
+  const feedbackWrong = pack?.feedbackWrong ?? q.feedbackWrong;
 
   let satsCredited = 0;
   let satsBalance: number | undefined;
@@ -187,7 +192,7 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({
     correct,
-    feedback: correct ? q.feedbackCorrect : q.feedbackWrong,
+    feedback: correct ? feedbackCorrect : feedbackWrong,
     sats,
     satsCredited,
     satsBalance,

@@ -235,7 +235,7 @@ export default function ReceivePanel({ connected, mode = "full", onChanged }: Pr
             </div>
             {invoice && (
               <>
-                <InvoiceQr value={invoice} label="Escaneie para pagar (MutinyNet)" />
+                <InvoiceQr value={invoice} label={t.auth.scanToPay} />
                 <textarea
                   className="sv-wallet-input sv-wallet-textarea"
                   readOnly

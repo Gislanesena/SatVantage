@@ -11,17 +11,19 @@ const META: Record<
   { title: string; description: string; xp_reward: number; sats_reward: number }
 > = {
   [MISSION_1_SLUG]: {
-    title: "O que é Bitcoin?",
-    description: "Conversa introdutória com o Mentor.",
+    title: "Primeiros Passos no Bitcoin",
+    description:
+      "Bitcoin, golpes, carteira e imposto — conversa introdutória com o Mentor.",
     xp_reward: 20,
-    sats_reward: 25,
+    // Máximo teórico se acertar as 4 perguntas (4 × 5). Só metadata de seed; o crédito real é por resposta.
+    sats_reward: 20,
   },
   [MISSION_2_SLUG]: {
-    title: "Carteira e Lightning",
+    title: "Corretoras e Lightning",
     description:
-      "Aprenda o que é carteira, seed e pagamentos Lightning — no seu ritmo.",
+      "Corretoras, Lightning, autocustódia e carteira fria — no seu ritmo.",
     xp_reward: 20,
-    sats_reward: 25,
+    sats_reward: 20,
   },
 };
 

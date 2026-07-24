@@ -2,6 +2,7 @@
 // QR de cobrança Lightning — prefixo lightning: para apps de carteira reconhecerem.
 import { useEffect, useState } from "react";
 import QRCode from "qrcode";
+import { useI18n } from "@/lib/i18n";
 
 type Props = {
   value: string;
@@ -12,8 +13,10 @@ type Props = {
 export default function InvoiceQr({
   value,
   size = 220,
-  label = "Escaneie para pagar",
+  label,
 }: Props) {
+  const { t } = useI18n();
+  const caption = label ?? t.auth.scanToPay;
   const [dataUrl, setDataUrl] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
 
@@ -63,7 +66,7 @@ export default function InvoiceQr({
 
   return (
     <div className="sv-invoice-qr">
-      <p className="sv-wallet-meta">{label}</p>
+      <p className="sv-wallet-meta">{caption}</p>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={dataUrl} alt="QR code da cobrança Lightning" width={size} height={size} />
     </div>

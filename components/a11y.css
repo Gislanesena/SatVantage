@@ -1,4 +1,4 @@
-/* Acessibilidade: leitura por voz (footer) + VLibras compacto */
+/* Acessibilidade: leitura por voz (FAB) + VLibras compacto */
 
 .sv-sr-only {
   position: absolute;
@@ -12,80 +12,163 @@
   border: 0;
 }
 
-.sv-a11y {
-  margin-top: 48px;
-  padding: 20px 18px 28px;
-  border-top: 1px solid var(--line);
-  background: color-mix(in srgb, var(--surface) 80%, transparent);
-}
-
-.sv-a11y--embedded {
-  margin: 0;
+/* FAB voz — base da coluna (canto inferior direito) */
+.sv-a11y-fab {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 2147482900;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 2px solid color-mix(in srgb, var(--accent) 45%, transparent);
   padding: 0;
-  border-top: none;
-  background: transparent;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  background: var(--surface);
+  color: var(--accent);
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.28);
+  transition:
+    transform 0.15s ease,
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
 }
 
-.sv-a11y--embedded .sv-a11y-inner {
-  max-width: none;
+.sv-a11y-fab:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.sv-a11y-fab.is-on {
+  background: color-mix(in srgb, var(--accent) 22%, var(--surface));
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.sv-a11y-fab.is-paused {
+  color: var(--ink);
+}
+
+.sv-a11y-fab:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  outline-offset: 3px;
+}
+
+/* Ajuda de acessibilidade — logo acima do ler em voz alta */
+.sv-a11y-help {
+  position: fixed;
+  right: 18px;
+  bottom: 88px;
+  z-index: 2147482950;
+}
+
+.sv-a11y-help-fab {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 2px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  padding: 0;
+  overflow: hidden;
+  cursor: pointer;
+  background: #ffffff;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.3);
+  display: grid;
+  place-items: center;
+  transition: transform 0.15s ease;
+}
+
+.sv-a11y-help-fab img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+  border-radius: 50%;
+}
+
+.sv-a11y-help-fab:hover,
+.sv-a11y-help-fab.is-on {
+  transform: translateY(-2px);
+}
+
+.sv-a11y-help-fab:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  outline-offset: 3px;
+}
+
+.sv-a11y-help-panel {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 12px);
+  width: min(300px, calc(100vw - 36px));
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  /* Fundo sólido — --surface do tema é transparente e deixa o site vazar */
+  background: #f8fafc;
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.28);
+  display: grid;
+  gap: 12px;
+}
+
+[data-theme="dark"] .sv-a11y-help-panel {
+  background: #0f172a;
+}
+
+.sv-a11y-help-title {
   margin: 0;
-}
-
-.sv-a11y--embedded .sv-a11y-voice {
-  padding: 8px 14px;
-  font-size: 0.86rem;
-}
-
-.sv-a11y-inner {
-  max-width: 1100px;
-  margin: 0 auto;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 12px 18px;
-}
-
-.sv-a11y-label {
-  margin: 0;
-  font-size: 0.85rem;
+  font-family: var(--font-hero, "Space Grotesk", sans-serif);
+  font-size: 1.05rem;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  color: var(--ink);
+}
+
+.sv-a11y-help-block {
+  display: grid;
+  gap: 4px;
+}
+
+.sv-a11y-help-label {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
+  color: var(--accent);
+}
+
+.sv-a11y-help-text {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.45;
   color: var(--ink-muted);
 }
 
-.sv-a11y-voice {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  border-radius: 999px;
+.sv-a11y-help-close {
+  justify-self: start;
   border: 1px solid var(--line);
-  background: var(--surface);
+  border-radius: 10px;
+  padding: 8px 14px;
+  background: #ffffff;
   color: var(--ink);
-  font-family: var(--font-body);
-  font-size: 0.92rem;
   font-weight: 600;
+  font-size: 0.88rem;
   cursor: pointer;
 }
 
-.sv-a11y-voice:hover {
+[data-theme="dark"] .sv-a11y-help-close {
+  background: #1e293b;
+}
+
+.sv-a11y-help-close:hover {
   border-color: var(--accent);
   color: var(--accent);
 }
 
-.sv-a11y-voice.is-on {
-  background: color-mix(in srgb, var(--accent) 16%, transparent);
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-.sv-a11y-ico {
-  font-size: 0.95rem;
-  line-height: 1;
-}
-
-/* VLibras — canto inferior direito (botão real .access-button) */
+/* VLibras — acima da ajuda de acessibilidade */
 #sv-vlibras-root,
 .sv-vlibras,
 div[vw] {
@@ -95,13 +178,34 @@ div[vw] {
 .access-button {
   position: fixed !important;
   right: 18px !important;
-  bottom: 18px !important;
+  bottom: 158px !important;
   left: auto !important;
   top: auto !important;
   z-index: 2147483000 !important;
   opacity: 1 !important;
   visibility: visible !important;
   pointer-events: auto !important;
+  display: block !important;
+}
+
+@media (max-width: 800px) {
+  .access-button {
+    right: max(12px, env(safe-area-inset-right)) !important;
+    bottom: calc(158px + env(safe-area-inset-bottom, 0px)) !important;
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  .sv-a11y-fab {
+    right: max(12px, env(safe-area-inset-right));
+    bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .sv-a11y-help {
+    right: max(12px, env(safe-area-inset-right));
+    bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+  }
 }
 
 .sv-lang {

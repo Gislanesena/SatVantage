@@ -6,6 +6,18 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
+// HACKATHON: CORS amplo (*) para a extensão (origem chrome-extension://…).
+// Depois do hackathon: restringir a chrome-extension://[ids] + domínio oficial.
+const corsHeaders: Record<string, string> = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
+
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 204, headers: corsHeaders });
+}
+
 export type BtcRange = "24h" | "8h" | "4h" | "1m";
 
 type Point = { t: number; price: number };
@@ -54,7 +66,10 @@ export async function GET(req: NextRequest) {
   const cfg = RANGES[range];
   const hit = cache.get(range);
   if (hit && Date.now() - hit.at < CACHE_TTL_MS) {
-    return NextResponse.json({ ...hit.payload, cached: true });
+    return NextResponse.json(
+      { ...hit.payload, cached: true },
+      { headers: corsHeaders },
+    );
   }
 
   try {
@@ -102,9 +117,20 @@ export async function GET(req: NextRequest) {
     };
 
     cache.set(range, { at: Date.now(), payload });
-    return NextResponse.json({ ...payload, cached: false });
+    return NextResponse.json(
+      { ...payload, cached: false },
+      { headers: corsHeaders },
+    );
   } catch {
-    if (hit) return NextResponse.json({ ...hit.payload, cached: true, stale: true });
-    return NextResponse.json({ error: "mercado indisponível agora" }, { status: 502 });
+    if (hit) {
+      return NextResponse.json(
+        { ...hit.payload, cached: true, stale: true },
+        { headers: corsHeaders },
+      );
+    }
+    return NextResponse.json(
+      { error: "mercado indisponível agora" },
+      { status: 502, headers: corsHeaders },
+    );
   }
 }
