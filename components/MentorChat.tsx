@@ -31,9 +31,9 @@ import {
 } from "@/lib/nagai-history";
 
 /** Quantas perguntas a mentoria inicial apresenta. */
-const MENTORSHIP_QUESTIONS = 4;
+const MENTORSHIP_QUESTIONS = 1;
 /** Só anuncia sats ao usuário se respondeu (não pulou) pelo menos este número. */
-const MIN_ANSWERED_FOR_SATS_REVEAL = 4;
+const MIN_ANSWERED_FOR_SATS_REVEAL = 1;
 import "./mentor.css";
 
 /** Espelha quiz.ts — não importar quiz no cliente (contém gabarito). */
@@ -1136,13 +1136,19 @@ export default function MentorChat({
             ? SATS_CORRECT
             : SATS_TRIED;
 
-      const satsNote = check.correct
-        ? t.nagai.hitSats.replace("{sats}", String(sats))
-        : t.nagai.trySats.replace("{sats}", String(sats));
-      const highlight = rewardEligible ? satsNote : t.nagai.practiceNoSats;
+      // Fonte da verdade é o backend: satsCredited > 0 só quando a recompensa
+      // foi de fato creditada. Missão já concluída/paga volta 0 → não reconta.
+      const credited =
+        typeof check.satsCredited === "number" ? check.satsCredited : 0;
+      const earnedNow = rewardEligible && credited > 0;
 
-      if (rewardEligible) {
-        setSessionSats((prev) => prev + sats);
+      const satsNote = check.correct
+        ? t.nagai.hitSats.replace("{sats}", String(credited || sats))
+        : t.nagai.trySats.replace("{sats}", String(credited || sats));
+      const highlight = earnedNow ? satsNote : t.nagai.practiceNoSats;
+
+      if (earnedNow) {
+        setSessionSats((prev) => prev + credited);
       }
 
       try {
@@ -1159,7 +1165,7 @@ export default function MentorChat({
       await sleep(180);
       await typeAgent(feedbackText, runId, {
         satsNote: highlight,
-        sats: rewardEligible ? sats : 0,
+        sats: earnedNow ? credited : 0,
       });
       if (!alive(runId)) return;
       await advance(nextResponses, idx + 1);

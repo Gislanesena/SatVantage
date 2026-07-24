@@ -22,7 +22,7 @@ export const SATS_TRIED = 3;
 export const SATS_SKIP = 0;
 
 /** Quantas etapas o Teste de conhecimento apresenta por mentoria. */
-export const MENTORSHIP_LESSON_COUNT = 4;
+export const MENTORSHIP_LESSON_COUNT = 1;
 
 interface QuizQuestion {
   id: string;
