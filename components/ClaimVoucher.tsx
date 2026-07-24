@@ -1,6 +1,7 @@
 "use client";
 // Resgate do voucher da mentoria → Lightning (Tesouraria MutinyNet).
 import { useCallback, useEffect, useState } from "react";
+import { useI18n } from "@/lib/i18n";
 import "./wallet.css";
 
 type Props = {
@@ -9,11 +10,14 @@ type Props = {
 };
 
 export default function ClaimVoucher({ embedded, onClaimed }: Props) {
+  const { t, locale } = useI18n();
   const [satsBalance, setSatsBalance] = useState<number | null>(null);
   const [bolt11, setBolt11] = useState("");
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const numberLocale = locale === "en" ? "en-US" : locale === "es" ? "es-ES" : "pt-BR";
 
   const load = useCallback(async () => {
     const res = await fetch("/api/rewards/balance");
@@ -40,19 +44,22 @@ export default function ClaimVoucher({ embedded, onClaimed }: Props) {
       if (!res.ok) throw new Error(json.error);
       setBolt11("");
       setNotice(
-        `Pronto: ⚡ ${Number(json.satsPaid).toLocaleString("pt-BR")} sats foram para a sua carteira.`,
+        t.auth.claimOk.replace(
+          "{n}",
+          Number(json.satsPaid).toLocaleString(numberLocale),
+        ),
       );
       setSatsBalance(json.satsBalance ?? 0);
       onClaimed?.();
     } catch (e: any) {
-      setError(e.message ?? "falha no resgate");
+      setError(e.message ?? t.auth.claimFail);
     } finally {
       setBusy(false);
     }
   }
 
   if (satsBalance === null) {
-    return <p className="sv-wallet-loading">Carregando…</p>;
+    return <p className="sv-wallet-loading">{t.auth.loading}</p>;
   }
 
   return (
@@ -60,28 +67,28 @@ export default function ClaimVoucher({ embedded, onClaimed }: Props) {
       {!embedded && (
         <div className="sv-wallet-head">
           <h2 id="sv-voucher-title" className="sv-wallet-title">
-            Saldo SatVantage
+            {t.auth.claimTitle}
           </h2>
           <span className="sv-wallet-balance">
-            ⚡ {satsBalance.toLocaleString("pt-BR")} sats
+            ⚡ {satsBalance.toLocaleString(numberLocale)} sats
           </span>
         </div>
       )}
 
       {embedded && (
         <h2 id="sv-voucher-title" className="sv-wallet-title">
-          Receber sats da mentoria
+          {t.auth.claimMentorTitle}
         </h2>
       )}
 
       <p className="sv-wallet-copy">
-        Gere na carteira <strong>MutinyNet</strong> uma cobrança de exatamente{" "}
-        <strong>{satsBalance.toLocaleString("pt-BR")} sats</strong> (começa com{" "}
-        <code>lntbs</code>) e cole abaixo.
+        {t.auth.claimCopyBefore}{" "}
+        <strong>{satsBalance.toLocaleString(numberLocale)} sats</strong>{" "}
+        {t.auth.claimCopyAfter}
       </p>
 
       {satsBalance <= 0 ? (
-        <p className="sv-wallet-meta">Sem saldo para receber agora.</p>
+        <p className="sv-wallet-meta">{t.auth.claimEmpty}</p>
       ) : (
         <>
           <input
@@ -99,7 +106,7 @@ export default function ClaimVoucher({ embedded, onClaimed }: Props) {
               disabled={!bolt11 || busy}
               onClick={() => void resgatar()}
             >
-              {busy ? "Recebendo…" : "Confirmar recebimento"}
+              {busy ? t.auth.claimBusy : t.auth.claimConfirm}
             </button>
           </div>
         </>

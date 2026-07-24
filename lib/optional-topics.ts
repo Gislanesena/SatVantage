@@ -364,10 +364,17 @@ function normalize(s: string) {
 }
 
 /** Escolhe a melhor resposta do FAQ / textos do tópico pela pergunta do usuário. */
-export function matchTopicAnswer(topic: OptionalTopic, userText: string): string {
+export function matchTopicAnswer(
+  topic: OptionalTopic,
+  userText: string,
+  messages?: { empty?: string; noMatch?: string },
+): string {
   const q = normalize(userText.trim());
   if (!q) {
-    return "Pode escrever sua dúvida com suas palavras — por exemplo sobre imposto, declaração ou carteira.";
+    return (
+      messages?.empty ??
+      "Pode escrever sua dúvida com suas palavras — por exemplo sobre imposto, declaração ou carteira."
+    );
   }
 
   let best: { score: number; answer: string } | null = null;
@@ -400,8 +407,9 @@ export function matchTopicAnswer(topic: OptionalTopic, userText: string): string
   if (best && best.score >= 3) return best.answer;
 
   return (
+    messages?.noMatch ??
     "Não peguei um encaixe claro com o que tenho neste assunto. Tente perguntar com outras palavras " +
-    "(por exemplo: imposto na venda, declarar no IR, extrato da corretora, carteira própria). " +
-    "E lembre: sou orientação educativa — para fechar o seu caso, um contador ajuda."
+      "(por exemplo: imposto na venda, declarar no IR, extrato da corretora, carteira própria). " +
+      "E lembre: sou orientação educativa — para fechar o seu caso, um contador ajuda."
   );
 }

@@ -136,6 +136,31 @@ html[data-theme="light"] .sv-chat-panel,
   display: flex;
   align-items: center;
   gap: 10px;
+  width: 100%;
+}
+
+.sv-mentor-head-row h1 {
+  flex: 1;
+  min-width: 0;
+}
+
+.sv-mentor-exit {
+  flex-shrink: 0;
+  margin-left: auto;
+  border: none;
+  background: transparent;
+  padding: 4px 2px;
+  font-family: var(--font-body, "Figtree", system-ui, sans-serif);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.sv-mentor-exit:hover {
+  color: var(--orange-deep, var(--accent));
 }
 
 .sv-mentor-head-face {

@@ -1,6 +1,7 @@
 "use client";
 // Lê QR (câmera) e devolve o texto — invoices Lightning / NWC etc.
 import { useEffect, useId, useRef, useState } from "react";
+import { useI18n } from "@/lib/i18n";
 
 type Props = {
   onScan: (value: string) => void;
@@ -22,7 +23,9 @@ export function normalizeQrPayload(raw: string): string {
   return t.trim();
 }
 
-export default function QrScanButton({ onScan, label = "Ler QR code" }: Props) {
+export default function QrScanButton({ onScan, label }: Props) {
+  const { t } = useI18n();
+  const btnLabel = label ?? t.auth.scanQr;
   const reactId = useId().replace(/:/g, "");
   const regionId = `sv-qr-${reactId}`;
   const [open, setOpen] = useState(false);
@@ -111,12 +114,12 @@ export default function QrScanButton({ onScan, label = "Ler QR code" }: Props) {
             setOpen(true);
           }}
         >
-          {label}
+          {btnLabel}
         </button>
       ) : (
         <div className="sv-qr-panel">
           <div className="sv-qr-panel-head">
-            <span className="sv-wallet-meta">Aponte a câmera para o QR</span>
+            <span className="sv-wallet-meta">{t.auth.pointCamera}</span>
             <button
               type="button"
               className="linkish"
@@ -124,7 +127,7 @@ export default function QrScanButton({ onScan, label = "Ler QR code" }: Props) {
                 void close();
               }}
             >
-              Fechar
+              {t.mentor.close}
             </button>
           </div>
           <div id={regionId} className="sv-qr-viewport" />

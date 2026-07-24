@@ -1,6 +1,7 @@
 "use client";
 // Guia da homepage: mapa do site em chat. Por enquanto só "Como entrar usando Nostr".
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useI18n } from "@/lib/i18n";
 import "./guide.css";
 import "./mentor.css";
 
@@ -11,20 +12,13 @@ type Props = {
   onExtension: () => void;
 };
 
-const NUDGE_LABEL = "Como entrar usando nostr";
-
-const SCRIPT = [
-  "Oi! Aqui no SatVantage a conta é uma identidade Nostr — um par de chaves. Assim você não precisa de e-mail, e a chave privada nunca fica no nosso servidor.",
-  "Por que Nostr? Porque provar quem você é na internet não precisa ser um formulário com dado pessoal. Você assina um desafio; a gente só verifica a assinatura.",
-  "Tem dois caminhos pra entrar:\n\n1) Conta simplificada — usuário e senha. Sua chave fica cifrada no navegador (o cofre). A gente guarda o cofre, nunca a chave em claro.\n\n2) Extensão Nostr (Alby ou nos2x) — a chave fica no seu dispositivo; no login você só autoriza uma assinatura.",
-  "Pode criar a conta simplificada agora, ou abrir a extensão se já tiver. Qualquer dúvida, é só voltar aqui.",
-] as const;
-
 function sleep(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
 }
 
 export default function LandingGuide({ onCreateAccount, onExtension }: Props) {
+  const { t, locale } = useI18n();
+  const m = t.mentor;
   const [open, setOpen] = useState(false);
   const [nudgeOn, setNudgeOn] = useState(false);
   const [nudgeExiting, setNudgeExiting] = useState(false);
@@ -125,19 +119,20 @@ export default function LandingGuide({ onCreateAccount, onExtension }: Props) {
 
   const runScript = useCallback(async () => {
     const runId = ++runIdRef.current;
+    const script = [m.guideScript1, m.guideScript2, m.guideScript3, m.guideScript4];
     setBusy(true);
     setShowActions(false);
     setLines([]);
-    setLines([{ kind: "user", text: NUDGE_LABEL }]);
+    setLines([{ kind: "user", text: m.nudgeNostr }]);
     await sleep(800);
-    for (const msg of SCRIPT) {
+    for (const msg of script) {
       if (runIdRef.current !== runId) return;
       await typeAgent(msg, runId);
     }
     if (runIdRef.current !== runId) return;
     setShowActions(true);
     setBusy(false);
-  }, [typeAgent]);
+  }, [typeAgent, m.guideScript1, m.guideScript2, m.guideScript3, m.guideScript4, m.nudgeNostr]);
 
   function openChat() {
     setOpen(true);
@@ -154,24 +149,31 @@ export default function LandingGuide({ onCreateAccount, onExtension }: Props) {
     openChat();
   }
 
+  // Se o idioma mudar com o chat aberto, reinicia o roteiro no novo idioma
+  useEffect(() => {
+    if (!open) return;
+    void runScript();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [locale]);
+
   return (
     <div
       ref={wrapRef}
       className={`sv-guide-fab-wrap${open ? " is-chat" : ""}`}
     >
       {open && (
-        <div className="sv-guide-sheet" role="dialog" aria-label="NagAI SatVantage">
+        <div className="sv-guide-sheet" role="dialog" aria-label={`${m.name} SatVantage`}>
           <div className="sv-guide-sheet-head">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/satvantage-mentor.png" alt="" width={40} height={40} />
             <div className="sv-guide-sheet-titles">
-              <strong>NagAI</strong>
-              <p>Mapa rápido do SatVantage</p>
+              <strong>{m.name}</strong>
+              <p>{m.guideSubtitle}</p>
             </div>
             <button
               type="button"
               className="sv-guide-close"
-              aria-label="Fechar NagAI"
+              aria-label={m.closeNagAI}
               onClick={closeChat}
             >
               <span aria-hidden="true">×</span>
@@ -192,7 +194,7 @@ export default function LandingGuide({ onCreateAccount, onExtension }: Props) {
                       className="sv-guide-avatar"
                     />
                     <div className="sv-bubble sv-bubble--agent">
-                      <span className="sv-bubble-label">NagAI</span>
+                      <span className="sv-bubble-label">{m.name}</span>
                       <span className="sv-bubble-text">{line.text}</span>
                     </div>
                   </div>
@@ -202,7 +204,7 @@ export default function LandingGuide({ onCreateAccount, onExtension }: Props) {
                   </div>
                 ),
               )}
-              {typing && <p className="sv-guide-typing">digitando…</p>}
+              {typing && <p className="sv-guide-typing">{m.typing}</p>}
               <div ref={bottomRef} />
             </div>
 
@@ -218,7 +220,7 @@ export default function LandingGuide({ onCreateAccount, onExtension }: Props) {
                         onCreateAccount();
                       }}
                     >
-                      Criar conta simplificada
+                      {m.createSimple}
                     </button>
                     <button
                       type="button"
@@ -228,7 +230,7 @@ export default function LandingGuide({ onCreateAccount, onExtension }: Props) {
                         onExtension();
                       }}
                     >
-                      Entrar com extensão Nostr
+                      {m.enterExt}
                     </button>
                     <a
                       className="sv-chat-option sv-guide-ext-link"
@@ -236,10 +238,10 @@ export default function LandingGuide({ onCreateAccount, onExtension }: Props) {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      Baixar extensão Alby
+                      {m.downloadAlby}
                     </a>
                     <button type="button" className="sv-chat-option" onClick={closeChat}>
-                      Entendi, obrigado
+                      {m.thanks}
                     </button>
                   </div>
                 </div>
@@ -253,7 +255,7 @@ export default function LandingGuide({ onCreateAccount, onExtension }: Props) {
         <button
           type="button"
           className={`sv-guide-fab${fabAbsorbing ? " is-absorbing" : ""}`}
-          aria-label={open ? "Fechar NagAI" : "Abrir NagAI"}
+          aria-label={open ? m.closeNagAI : m.openNagAI}
           aria-expanded={open}
           onClick={toggleFab}
         >
@@ -264,12 +266,13 @@ export default function LandingGuide({ onCreateAccount, onExtension }: Props) {
         {!open && nudgeOn && (
           <button
             type="button"
+            key={locale}
             className={`sv-guide-nudge${nudgeExiting ? " is-exiting" : ""}`}
             onClick={openChat}
             onAnimationEnd={handleNudgeAnimationEnd}
-            aria-label={NUDGE_LABEL}
+            aria-label={m.nudgeNostr}
           >
-            <span className="sv-guide-nudge-text">{NUDGE_LABEL}</span>
+            <span className="sv-guide-nudge-text">{m.nudgeNostr}</span>
           </button>
         )}
       </div>
