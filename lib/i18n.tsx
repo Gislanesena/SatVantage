@@ -457,6 +457,7 @@ export type Dict = {
     quizEmpty: string;
     reformulate: string;
     backToDashboard: string;
+    continueMentorship: string;
     hitSats: string;
     trySats: string;
     practiceNoSats: string;
@@ -667,11 +668,11 @@ const dictionaries: Record<Locale, Dict> = {
         "Linha do tempo (demo para testes): sem confirmar por 30 minutos → pedimos prova de vida por e-mail. Sem resposta por mais 20 minutos → enviamos ao e-mail do herdeiro as informações de como acessar a herança.",
       estateHowExtTip:
         "Dica: use nossa extensão SatVantage para te auxiliar como guia no processo — ela ajuda a explicar passos e dúvidas enquanto você configura o plano.",
-      satsAlreadyTitle: "Sats já resgatados",
-      satsAlreadyBefore: "Os satoshis desta etapa",
-      satsAlreadyStrong: "já foram creditados",
+      satsAlreadyTitle: "Mentoria já concluída",
+      satsAlreadyBefore: "Esta mentoria",
+      satsAlreadyStrong: "já foi concluída",
       satsAlreadyAfter:
-        "nesta conta. Você pode revisar o teste para praticar, mas não ganha sats de novo.",
+        "nesta conta. Você pode revisar o teste para praticar.",
       satsAlreadyCancel: "Cancelar",
       satsAlreadyProceed: "Prosseguir para revisar",
     },
@@ -740,10 +741,10 @@ const dictionaries: Record<Locale, Dict> = {
       closeChat: "Fechar chat",
       backToTopics: "Voltar aos assuntos",
       backToDashboard: "Voltar ao dashboard",
-      practiceMode: "Modo prática · sem novos sats",
-      redoWithoutSats: "Refazer sem novos sats",
+      practiceMode: "Modo prática",
+      redoWithoutSats: "Refazer para praticar",
       gateBody:
-        "Você já recebeu os sats desta mentoria nesta conta. Pode refazer a conversa para praticar — sem crédito extra.",
+        "Você já concluiu esta mentoria nesta conta. Pode refazer a conversa para praticar.",
       send: "Enviar",
       askPlaceholder: "Digite sua dúvida…",
       openNagAI: "Abrir NagAI",
@@ -751,9 +752,9 @@ const dictionaries: Record<Locale, Dict> = {
       helpPrompt: "Em que posso te ajudar?",
       importantDoubts: "Dúvidas importantes",
       suggestions: "Sugestões",
-      withSats: "Com NagAI · sats",
-      satsAlready: "(já creditados nesta conta)",
-      earnSats: "ganha sats",
+      withSats: "Com NagAI",
+      satsAlready: "(já concluída nesta conta)",
+      earnSats: "mentoria inicial",
       practice: "prática",
       m1Title: "NagAI · Primeiros passos",
       m2Title: "NagAI · Corretoras e Lightning",
@@ -782,24 +783,24 @@ const dictionaries: Record<Locale, Dict> = {
       guideScript4:
         "Pode criar a conta simplificada agora, ou abrir a extensão se já tiver. Qualquer dúvida, é só voltar aqui.",
       freeTopicLead: "Boa pergunta. Vou te explicar com calma.",
-      freeTopicTag: "Assunto livre · sem sats de missão",
+      freeTopicTag: "Assunto livre",
       freeTopicIntro:
-        "Esse assunto é só aprendizado — sem sats de missão. Vamos com calma.",
+        "Esse assunto é só aprendizado. Vamos com calma.",
       freeTopicNoSats:
-        "Boa pergunta. Neste assunto livre não creditamos sats — anote a ideia e, se quiser recompensa, use o Teste de Conhecimento na mentoria principal.",
+        "Boa pergunta. Neste assunto livre a gente só conversa — se quiser a mentoria inicial, use o atalho no menu do NagAI.",
       freeTopicDoneEmbedded:
         "Pode fechar o chat ou abrir outro assunto no mentor — o dashboard continua aí. Se quiser, digite outra dúvida abaixo.",
       freeTopicDoneDash:
         "Pode voltar ao dashboard quando quiser — ou digite outra dúvida abaixo.",
       askMore: "Quer perguntar mais alguma coisa sobre este assunto?",
       practiceIntro:
-        "Vamos praticar de novo. Lembre: os sats desta conversa já foram creditados na sua conta — agora é só aprendizado.",
+        "Vamos praticar de novo. Nesta conta a mentoria inicial já foi concluída — agora é só reforçar o aprendizado.",
       alreadySkipped:
         "Você já tinha pulado esta conversa. Pode reler o que quiser acima ou seguir em frente.",
       alreadyDone:
         "Você já tinha concluído esta conversa. A conversa fica aqui se quiser reler.",
       skipAllOk:
-        "Conversa pulada — sem problema. Enquanto você só pular, ainda pode voltar depois e ganhar sats na primeira conclusão de verdade.",
+        "Conversa pulada — sem problema. Você pode voltar depois e concluir com calma.",
       satsWon:
         "Satoshis conquistados nesta conversa: ⚡ {n}. Eles ficam no saldo SatVantage da sua conta (ainda não foram para a carteira Lightning).",
       withdrawHint:
@@ -807,8 +808,8 @@ const dictionaries: Record<Locale, Dict> = {
       balanceLine: "Saldo na conta: ⚡ {n} sats.",
       balanceGuaranteed: "Saldo garantido na conta: ⚡ {n} sats · saque em Receber",
       practiceDone:
-        "Prática concluída. Nesta conta os sats desta conversa já foram creditados antes — refazer não gera saldo novo nem a diferença do que errou.",
-      noNewSats: "Pronto. Desta vez não entrou sats novos (perguntas puladas).",
+        "Prática concluída. Nesta conta a mentoria já foi feita antes — refazer é só para reforçar o aprendizado.",
+      noNewSats: "Pronto. Mentoria encerrada por aqui.",
       continuePromptM1:
         "Quando quiser, seguimos para carteira e Lightning — ou você pode ir ao dashboard financeiro. A conversa continua visível se precisar reler.",
       optionalTopicsPrompt:
@@ -1097,7 +1098,7 @@ const dictionaries: Record<Locale, Dict> = {
       knowledgeTest: "Teste de Conhecimento",
       backToChat: "Voltar ao chat NagAI",
       dashboard: "Dashboard",
-      practiceMode: "Modo prática · sem novos sats",
+      practiceMode: "Modo prática",
       simTag: "Terminal simulado · patrimônio fictício · sem saldo real",
       simTitle: "Simulador · Teste Prático",
       askPlaceholder: "Digite sua dúvida sobre Bitcoin aqui...",
@@ -1109,9 +1110,9 @@ const dictionaries: Record<Locale, Dict> = {
       accountBalance: "Saldo na conta: ⚡ {sats}",
       pickTestTitle: "Como quer testar seus conhecimentos?",
       pickTestDesc:
-        "Teórico: uma pergunta estratégica. Prático abre o terminal de simulação de trade Bitcoin.",
+        "Teórico: algumas perguntas estratégicas. Prático abre o terminal de simulação de trade Bitcoin.",
       theoretical: "Teórica",
-      theoreticalDesc: "responder uma pergunta estratégica ganhando sats ao acertar",
+      theoreticalDesc: "responder algumas perguntas estratégicas sobre Bitcoin",
       practical: "Prática",
       practicalDesc: "usar o simulador de trade de Bitcoin",
       cancel: "Cancelar",
@@ -1121,36 +1122,37 @@ const dictionaries: Record<Locale, Dict> = {
         "Tudo bem. Você pode voltar ao dashboard ou continuar no chat livre.",
       wantTheoretical: "Quero o teste teórico",
       quizIntroEarn:
-        "Beleza — você responde uma pergunta estratégica e ganha sats ao acertar: 5 se acertar, 3 se tentar e errar, e 0 se pular",
+        "Beleza — vou te fazer algumas perguntas estratégicas. Responda com calma; a gente avança uma a uma.",
       quizIntroPractice:
-        "Perfeito! Vamos revisar com uma pergunta rápida — nesta conta é só prática, sem novos sats.",
-      quizGateBodyBefore: "Nesta conta os sats deste teste",
-      quizGateBodyStrong: "já foram creditados",
+        "Perfeito! Vamos revisar com algumas perguntas rápidas — nesta conta é só prática.",
+      quizGateBodyBefore: "Nesta conta esta mentoria",
+      quizGateBodyStrong: "já foi concluída",
       quizGateBodyAfter:
-        ". Você pode refazer para praticar, mas não ganhará novos sats.",
-      quizGateRetry: "Refazer sem novos sats",
+        ". Você pode refazer para praticar.",
+      quizGateRetry: "Refazer para praticar",
       quizGateBackChat: "Voltar ao chat",
       quizEmpty: "Ainda não há perguntas nesta trilha. Pode continuar no chat livre.",
       reformulate: "Pode reformular? Falo só de Bitcoin e autocustódia.",
       backToDashboard: "Voltar para Dashboard",
+      continueMentorship: "Continuar mentoria",
       hitSats: "Você acertou — +{sats} sats!",
       trySats: "Participação registrada — +{sats} sats por tentar.",
-      practiceNoSats: "Prática — sem novos sats nesta conta.",
+      practiceNoSats: "Prática — reforço sem crédito novo nesta conta.",
       skipThisQuestion: "Pular esta pergunta",
-      zeroSatsTest: "Você ganhou 0 sats neste teste.",
-      zeroSatsClosed: "Teste encerrado. Você ganhou 0 sats desta vez.",
-      zeroSatsQuestion: "Sem problema. Você ganhou 0 sats nesta pergunta.",
+      zeroSatsTest: "Mentoria encerrada por aqui.",
+      zeroSatsClosed: "Mentoria encerrada. Quando quiser, volte e continue.",
+      zeroSatsQuestion: "Sem problema. Seguimos.",
       helpTitle: "Em que posso te ajudar?",
       withNagai: "Com NagAI",
-      satsAlready: "(já creditados nesta conta)",
+      satsAlready: "(já concluída nesta conta)",
       askNagai: "Tirar Dúvidas com NagAI",
-      earnSats: "Ganhar sats respondendo",
+      earnSats: "Realizar mentoria inicial",
       testKnowledge: "Testar conhecimentos",
       tradeSim: "Simulador de Trade",
       openFullscreen: "Abrir em tela grande",
-      earnTitle: "Retome o quiz e conquiste sats (5 no acerto · 3 na tentativa)",
+      earnTitle: "Comece a mentoria inicial com o NagAI",
       practiceTitle:
-        "Revise o teste de conhecimentos — prática sem novos sats nesta conta",
+        "Revise o teste de conhecimentos — prática nesta conta",
       titleM1Short: "Primeiros passos no Bitcoin",
       titleM2Short: "Carteira e Lightning",
       historyTitle: "Histórico NagAI",
@@ -1349,11 +1351,11 @@ const dictionaries: Record<Locale, Dict> = {
         "Timeline (demo for testing): no confirmation for 30 minutes → we ask for a life check by email. No reply for another 20 minutes → we send the heir's email the information on how to access the inheritance.",
       estateHowExtTip:
         "Tip: use our SatVantage extension as a guide through the process — it helps explain steps and questions while you set up the plan.",
-      satsAlreadyTitle: "Sats already claimed",
-      satsAlreadyBefore: "The satoshis from this stage",
-      satsAlreadyStrong: "have already been credited",
+      satsAlreadyTitle: "Mentorship already completed",
+      satsAlreadyBefore: "This mentorship",
+      satsAlreadyStrong: "was already completed",
       satsAlreadyAfter:
-        "to this account. You can review the test for practice, but you won’t earn sats again.",
+        "on this account. You can review the test for practice.",
       satsAlreadyCancel: "Cancel",
       satsAlreadyProceed: "Proceed to review",
     },
@@ -1423,7 +1425,7 @@ const dictionaries: Record<Locale, Dict> = {
       closeChat: "Close chat",
       backToTopics: "Back to topics",
       backToDashboard: "Back to dashboard",
-      practiceMode: "Practice mode · no new sats",
+      practiceMode: "Practice mode",
       redoWithoutSats: "Redo without new sats",
       gateBody:
         "You already received sats for this mentorship on this account. You can redo the conversation to practice — with no extra credit.",
@@ -1434,9 +1436,9 @@ const dictionaries: Record<Locale, Dict> = {
       helpPrompt: "How can I help you?",
       importantDoubts: "Important questions",
       suggestions: "Suggestions",
-      withSats: "With NagAI · sats",
+      withSats: "With NagAI",
       satsAlready: "(already credited on this account)",
-      earnSats: "earn sats",
+      earnSats: "initial mentorship",
       practice: "practice",
       m1Title: "NagAI · First steps",
       m2Title: "NagAI · Exchanges and Lightning",
@@ -1465,24 +1467,24 @@ const dictionaries: Record<Locale, Dict> = {
       guideScript4:
         "You can create the simplified account now, or open the extension if you already have one. Any questions, just come back here.",
       freeTopicLead: "Good question. I’ll explain it calmly.",
-      freeTopicTag: "Free topic · no mission sats",
+      freeTopicTag: "Free topic",
       freeTopicIntro:
-        "This topic is just for learning — no mission sats. Let’s take it easy.",
+        "This topic is just for learning. Let’s take it easy.",
       freeTopicNoSats:
-        "Good question. On free topics we don’t credit sats — note the idea, and if you want a reward, use the Knowledge Test in the main mentorship.",
+        "Good question. On free topics we just chat — if you want the initial mentorship, use the shortcut in the NagAI menu.",
       freeTopicDoneEmbedded:
         "You can close the chat or open another topic in the mentor — the dashboard is still there. If you want, type another question below.",
       freeTopicDoneDash:
         "You can go back to the dashboard whenever you want — or type another question below.",
       askMore: "Want to ask anything else about this topic?",
       practiceIntro:
-        "Let’s practice again. Remember: sats for this conversation were already credited to your account — now it’s just learning.",
+        "Let’s practice again. On this account the initial mentorship is already done — now it’s just reinforcing what you learned.",
       alreadySkipped:
         "You had already skipped this conversation. You can reread anything above or move on.",
       alreadyDone:
         "You had already finished this conversation. It stays here if you want to reread.",
       skipAllOk:
-        "Conversation skipped — no problem. While you only skip, you can still come back later and earn sats on the first real completion.",
+        "Conversation skipped — no problem. You can come back later and finish at your own pace.",
       satsWon:
         "Satoshis earned in this conversation: ⚡ {n}. They sit in your SatVantage account balance (not yet in your Lightning wallet).",
       withdrawHint:
@@ -1490,8 +1492,8 @@ const dictionaries: Record<Locale, Dict> = {
       balanceLine: "Account balance: ⚡ {n} sats.",
       balanceGuaranteed: "Guaranteed balance: ⚡ {n} sats · withdraw in Receive",
       practiceDone:
-        "Practice complete. On this account, sats for this conversation were already credited — redoing doesn’t add new balance or make up what you missed.",
-      noNewSats: "Done. No new sats this time (skipped questions).",
+        "Practice complete. On this account the mentorship was already done — redoing is just to reinforce learning.",
+      noNewSats: "Done. Mentorship wrapped up for now.",
       continuePromptM1:
         "When you’re ready, we can continue to wallet and Lightning — or go to the financial dashboard. The conversation stays visible if you need to reread.",
       optionalTopicsPrompt:
@@ -1780,7 +1782,7 @@ const dictionaries: Record<Locale, Dict> = {
       knowledgeTest: "Knowledge Test",
       backToChat: "Back to NagAI chat",
       dashboard: "Dashboard",
-      practiceMode: "Practice mode · no new sats",
+      practiceMode: "Practice mode",
       simTag: "Simulated terminal · fictional balance · no real funds",
       simTitle: "Simulator · Practical Test",
       askPlaceholder: "Type your Bitcoin question here...",
@@ -1792,9 +1794,9 @@ const dictionaries: Record<Locale, Dict> = {
       accountBalance: "Account balance: ⚡ {sats}",
       pickTestTitle: "How do you want to test your knowledge?",
       pickTestDesc:
-        "Theoretical: one strategic question. Practical opens the Bitcoin trade simulation terminal.",
+        "Theoretical: a few strategic questions. Practical opens the Bitcoin trade simulation terminal.",
       theoretical: "Theoretical",
-      theoreticalDesc: "answer one strategic question and earn sats when you get it right",
+      theoreticalDesc: "answer a few strategic questions about Bitcoin",
       practical: "Practical",
       practicalDesc: "use the Bitcoin trade simulator",
       cancel: "Cancel",
@@ -1804,36 +1806,36 @@ const dictionaries: Record<Locale, Dict> = {
         "That's fine. You can go back to the dashboard or continue in free chat.",
       wantTheoretical: "I want the theoretical test",
       quizIntroEarn:
-        "Alright — you answer one strategic question and earn sats for it: 5 if you get it right, 3 if you try and miss, and 0 if you skip",
+        "Alright — I'll ask you a few strategic questions. Take your time; we go one by one.",
       quizIntroPractice:
-        "Perfect! Let's review with a quick question — on this account it's practice only, no new sats.",
-      quizGateBodyBefore: "On this account, sats for this test",
-      quizGateBodyStrong: "were already credited",
-      quizGateBodyAfter:
-        ". You can redo it to practice, but you won't earn new sats.",
-      quizGateRetry: "Redo without new sats",
+        "Perfect! Let's review with a few quick questions — on this account it's practice only.",
+      quizGateBodyBefore: "On this account this mentorship",
+      quizGateBodyStrong: "was already completed",
+      quizGateBodyAfter: ". You can redo it to practice.",
+      quizGateRetry: "Redo for practice",
       quizGateBackChat: "Back to chat",
       quizEmpty: "There are no questions in this track yet. You can continue in free chat.",
       reformulate: "Can you rephrase? I only talk about Bitcoin and self-custody.",
       backToDashboard: "Back to Dashboard",
+      continueMentorship: "Continue mentorship",
       hitSats: "You got it — +{sats} sats!",
       trySats: "Participation recorded — +{sats} sats for trying.",
-      practiceNoSats: "Practice — no new sats on this account.",
+      practiceNoSats: "Practice — reinforcement with no new credit on this account.",
       skipThisQuestion: "Skip this question",
-      zeroSatsTest: "You earned 0 sats on this test.",
-      zeroSatsClosed: "Test closed. You earned 0 sats this time.",
-      zeroSatsQuestion: "No problem. You earned 0 sats on this question.",
+      zeroSatsTest: "Mentorship wrapped up for now.",
+      zeroSatsClosed: "Mentorship closed. Come back whenever you want to continue.",
+      zeroSatsQuestion: "No problem. Let's continue.",
       helpTitle: "How can I help you?",
       withNagai: "With NagAI",
-      satsAlready: "(already credited on this account)",
+      satsAlready: "(already completed on this account)",
       askNagai: "Ask NagAI",
-      earnSats: "Earn sats by answering",
+      earnSats: "Complete initial mentorship",
       testKnowledge: "Test your knowledge",
       tradeSim: "Trade Simulator",
       openFullscreen: "Open fullscreen",
-      earnTitle: "Resume the quiz and earn sats (5 correct · 3 for trying)",
+      earnTitle: "Start the initial mentorship with NagAI",
       practiceTitle:
-        "Review the knowledge test — practice with no new sats on this account",
+        "Review the knowledge test — practice on this account",
       titleM1Short: "First steps in Bitcoin",
       titleM2Short: "Wallet and Lightning",
       historyTitle: "NagAI history",
@@ -2032,11 +2034,11 @@ const dictionaries: Record<Locale, Dict> = {
         "Línea de tiempo (demo para pruebas): sin confirmar por 30 minutos → pedimos prueba de vida por correo. Sin respuesta por otros 20 minutos → enviamos al correo del heredero la información de cómo acceder a la herencia.",
       estateHowExtTip:
         "Consejo: usa nuestra extensión SatVantage como guía en el proceso — ayuda a explicar pasos y dudas mientras configuras el plan.",
-      satsAlreadyTitle: "Sats ya canjeados",
-      satsAlreadyBefore: "Los satoshis de esta etapa",
-      satsAlreadyStrong: "ya fueron acreditados",
+      satsAlreadyTitle: "Mentoría ya concluida",
+      satsAlreadyBefore: "Esta mentoría",
+      satsAlreadyStrong: "ya fue concluida",
       satsAlreadyAfter:
-        "en esta cuenta. Puedes revisar el test para practicar, pero no ganas sats de nuevo.",
+        "en esta cuenta. Puedes revisar el test para practicar.",
       satsAlreadyCancel: "Cancelar",
       satsAlreadyProceed: "Continuar para revisar",
     },
@@ -2106,7 +2108,7 @@ const dictionaries: Record<Locale, Dict> = {
       closeChat: "Cerrar chat",
       backToTopics: "Volver a los temas",
       backToDashboard: "Volver al dashboard",
-      practiceMode: "Modo práctica · sin nuevos sats",
+      practiceMode: "Modo práctica",
       redoWithoutSats: "Repetir sin nuevos sats",
       gateBody:
         "Ya recibiste los sats de esta mentoría en esta cuenta. Puedes repetir la conversación para practicar — sin crédito extra.",
@@ -2117,9 +2119,9 @@ const dictionaries: Record<Locale, Dict> = {
       helpPrompt: "¿En qué puedo ayudarte?",
       importantDoubts: "Dudas importantes",
       suggestions: "Sugerencias",
-      withSats: "Con NagAI · sats",
+      withSats: "Con NagAI",
       satsAlready: "(ya acreditados en esta cuenta)",
-      earnSats: "gana sats",
+      earnSats: "mentoría inicial",
       practice: "práctica",
       m1Title: "NagAI · Primeros pasos",
       m2Title: "NagAI · Corretoras y Lightning",
@@ -2148,24 +2150,24 @@ const dictionaries: Record<Locale, Dict> = {
       guideScript4:
         "Puedes crear la cuenta simplificada ahora, o abrir la extensión si ya tienes una. Cualquier duda, vuelve aquí.",
       freeTopicLead: "Buena pregunta. Te lo explico con calma.",
-      freeTopicTag: "Tema libre · sin sats de misión",
+      freeTopicTag: "Tema libre",
       freeTopicIntro:
-        "Este tema es solo aprendizaje — sin sats de misión. Vamos con calma.",
+        "Este tema es solo aprendizaje. Vamos con calma.",
       freeTopicNoSats:
-        "Buena pregunta. En este tema libre no acreditamos sats — anota la idea y, si quieres recompensa, usa el Test de Conocimiento en la mentoría principal.",
+        "Buena pregunta. En este tema libre solo conversamos — si quieres la mentoría inicial, usa el atajo en el menú de NagAI.",
       freeTopicDoneEmbedded:
         "Puedes cerrar el chat o abrir otro tema en el mentor — el dashboard sigue ahí. Si quieres, escribe otra duda abajo.",
       freeTopicDoneDash:
         "Puedes volver al dashboard cuando quieras — o escribe otra duda abajo.",
       askMore: "¿Quieres preguntar algo más sobre este tema?",
       practiceIntro:
-        "Vamos a practicar de nuevo. Recuerda: los sats de esta conversación ya fueron acreditados en tu cuenta — ahora es solo aprendizaje.",
+        "Vamos a practicar de nuevo. En esta cuenta la mentoría inicial ya está hecha — ahora es solo reforzar lo aprendido.",
       alreadySkipped:
         "Ya habías saltado esta conversación. Puedes releer lo de arriba o seguir adelante.",
       alreadyDone:
         "Ya habías terminado esta conversación. Queda aquí si quieres releer.",
       skipAllOk:
-        "Conversación saltada — sin problema. Mientras solo saltes, aún puedes volver después y ganar sats en la primera conclusión de verdad.",
+        "Conversación saltada — sin problema. Puedes volver después y concluir con calma.",
       satsWon:
         "Satoshis conquistados en esta conversación: ⚡ {n}. Quedan en el saldo SatVantage de tu cuenta (aún no en la cartera Lightning).",
       withdrawHint:
@@ -2173,8 +2175,8 @@ const dictionaries: Record<Locale, Dict> = {
       balanceLine: "Saldo en la cuenta: ⚡ {n} sats.",
       balanceGuaranteed: "Saldo garantizado: ⚡ {n} sats · retiro en Recibir",
       practiceDone:
-        "Práctica concluida. En esta cuenta los sats de esta conversación ya fueron acreditados — repetir no genera saldo nuevo ni la diferencia de lo que erraste.",
-      noNewSats: "Listo. Esta vez no entraron sats nuevos (preguntas saltadas).",
+        "Práctica concluida. En esta cuenta la mentoría ya fue hecha — repetir es solo para reforzar el aprendizaje.",
+      noNewSats: "Listo. Mentoría cerrada por aquí.",
       continuePromptM1:
         "Cuando quieras, seguimos con cartera y Lightning — o puedes ir al dashboard financiero. La conversación sigue visible si necesitas releer.",
       optionalTopicsPrompt:
@@ -2463,7 +2465,7 @@ const dictionaries: Record<Locale, Dict> = {
       knowledgeTest: "Test de Conocimiento",
       backToChat: "Volver al chat NagAI",
       dashboard: "Dashboard",
-      practiceMode: "Modo práctica · sin nuevos sats",
+      practiceMode: "Modo práctica",
       simTag: "Terminal simulado · patrimonio ficticio · sin saldo real",
       simTitle: "Simulador · Test Práctico",
       askPlaceholder: "Escribe tu duda sobre Bitcoin aquí...",
@@ -2475,9 +2477,9 @@ const dictionaries: Record<Locale, Dict> = {
       accountBalance: "Saldo en la cuenta: ⚡ {sats}",
       pickTestTitle: "¿Cómo quieres probar tus conocimientos?",
       pickTestDesc:
-        "Teórico: una pregunta estratégica. Práctico abre el terminal de simulación de trade de Bitcoin.",
+        "Teórico: algunas preguntas estratégicas. Práctico abre el terminal de simulación de trade de Bitcoin.",
       theoretical: "Teórica",
-      theoreticalDesc: "responder una pregunta estratégica ganando sats al acertar",
+      theoreticalDesc: "responder algunas preguntas estratégicas sobre Bitcoin",
       practical: "Práctica",
       practicalDesc: "usar el simulador de trade de Bitcoin",
       cancel: "Cancelar",
@@ -2487,36 +2489,36 @@ const dictionaries: Record<Locale, Dict> = {
         "Está bien. Puedes volver al dashboard o continuar en el chat libre.",
       wantTheoretical: "Quiero el test teórico",
       quizIntroEarn:
-        "Perfecto — respondes una pregunta estratégica y ganas sats al acertar: 5 si aciertas, 3 si intentas y fallas, y 0 si saltas",
+        "Perfecto — te haré algunas preguntas estratégicas. Responde con calma; avanzamos una a una.",
       quizIntroPractice:
-        "¡Perfecto! Vamos a repasar con una pregunta rápida — en esta cuenta es solo práctica, sin nuevos sats.",
-      quizGateBodyBefore: "En esta cuenta los sats de este test",
-      quizGateBodyStrong: "ya fueron acreditados",
-      quizGateBodyAfter:
-        ". Puedes repetir para practicar, pero no ganarás nuevos sats.",
-      quizGateRetry: "Repetir sin nuevos sats",
+        "¡Perfecto! Vamos a repasar con algunas preguntas rápidas — en esta cuenta es solo práctica.",
+      quizGateBodyBefore: "En esta cuenta esta mentoría",
+      quizGateBodyStrong: "ya fue concluida",
+      quizGateBodyAfter: ". Puedes repetir para practicar.",
+      quizGateRetry: "Repetir para practicar",
       quizGateBackChat: "Volver al chat",
       quizEmpty: "Aún no hay preguntas en esta ruta. Puedes continuar en el chat libre.",
       reformulate: "¿Puedes reformular? Solo hablo de Bitcoin y autocustodia.",
       backToDashboard: "Volver al Dashboard",
+      continueMentorship: "Continuar mentoría",
       hitSats: "¡Acertaste — +{sats} sats!",
       trySats: "Participación registrada — +{sats} sats por intentar.",
-      practiceNoSats: "Práctica — sin nuevos sats en esta cuenta.",
+      practiceNoSats: "Práctica — refuerzo sin crédito nuevo en esta cuenta.",
       skipThisQuestion: "Saltar esta pregunta",
-      zeroSatsTest: "Ganaste 0 sats en este test.",
-      zeroSatsClosed: "Test cerrado. Ganaste 0 sats esta vez.",
-      zeroSatsQuestion: "Sin problema. Ganaste 0 sats en esta pregunta.",
+      zeroSatsTest: "Mentoría cerrada por aquí.",
+      zeroSatsClosed: "Mentoría cerrada. Cuando quieras, vuelve y continúa.",
+      zeroSatsQuestion: "Sin problema. Seguimos.",
       helpTitle: "¿En qué puedo ayudarte?",
       withNagai: "Con NagAI",
-      satsAlready: "(ya acreditados en esta cuenta)",
+      satsAlready: "(ya concluida en esta cuenta)",
       askNagai: "Consultar con NagAI",
-      earnSats: "Ganar sats respondiendo",
+      earnSats: "Realizar mentoría inicial",
       testKnowledge: "Probar conocimientos",
       tradeSim: "Simulador de Trade",
       openFullscreen: "Abrir en pantalla completa",
-      earnTitle: "Retoma el quiz y conquista sats (5 al acertar · 3 al intentar)",
+      earnTitle: "Empieza la mentoría inicial con NagAI",
       practiceTitle:
-        "Repasa el test de conocimientos — práctica sin nuevos sats en esta cuenta",
+        "Repasa el test de conocimientos — práctica en esta cuenta",
       titleM1Short: "Primeros pasos en Bitcoin",
       titleM2Short: "Cartera y Lightning",
       historyTitle: "Historial NagAI",

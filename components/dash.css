@@ -749,6 +749,8 @@ html[data-theme="dark"] .sv-mentor-fab,
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  background: var(--surface);
+  opacity: 1;
 }
 
 .sv-mentor-sheet--chat .sv-mentor {
@@ -888,11 +890,29 @@ html[data-theme="dark"] .sv-mentor-fab,
   text-overflow: ellipsis;
 }
 
+.sv-mentor-sheet-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+.sv-mentor-sheet-head-actions .sv-mentor-menu {
+  margin-left: 0;
+}
+
+.sv-mentor-sheet-head-actions .sv-mentor-menu-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+}
+
 .sv-mentor-sheet-close {
   flex: 0 0 auto;
   width: 32px;
   height: 32px;
-  margin: -4px -4px -4px 0;
+  margin: 0;
   border: none;
   border-radius: 8px;
   background: transparent;

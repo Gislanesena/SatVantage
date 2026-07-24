@@ -1,7 +1,15 @@
 "use client";
 /**
- * VLibras (gov.br) — carregamento resiliente:
- * timeout + onError + try/catch; fallback visual no mobile se o CDN falhar.
+ * VLibras oficial (gov.br) — markup idêntico ao snippet público:
+ *
+ * <div vw class="enabled">
+ *   <div vw-access-button class="active"></div>
+ *   <div vw-plugin-wrapper>
+ *     <div class="vw-plugin-top-wrapper"></div>
+ *   </div>
+ * </div>
+ * <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+ * <script>new window.VLibras.Widget('https://vlibras.gov.br/app');</script>
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 import Script from "next/script";
@@ -12,122 +20,57 @@ import "./a11y.css";
 declare global {
   interface Window {
     VLibras?: { Widget: new (url: string) => unknown };
-    __svVLibrasReady?: boolean;
+    __svVLibrasWidget?: boolean;
   }
 }
 
-const ROOT_ID = "sv-vlibras-root";
 const SCRIPT_SRC = "https://vlibras.gov.br/app/vlibras-plugin.js";
-const LOAD_TIMEOUT_MS = 12_000;
+const WIDGET_URL = "https://vlibras.gov.br/app";
+const READY_TIMEOUT_MS = 16_000;
 
 type Status = "loading" | "ready" | "failed";
 
-function ensureRoot() {
-  try {
-    let root = document.getElementById(ROOT_ID) as HTMLDivElement | null;
-    if (!root) {
-      root = document.createElement("div");
-      root.id = ROOT_ID;
-      document.body.appendChild(root);
-    }
-    root.className = "enabled sv-vlibras";
-    root.setAttribute("vw", "");
-    if (
-      !root.querySelector(".access-button") &&
-      !root.querySelector("[vw-access-button]")
-    ) {
-      root.innerHTML =
-        '<div vw-access-button class="active"></div>' +
-        '<div vw-plugin-wrapper><div class="vw-plugin-top-wrapper"></div></div>';
-    }
-    return root;
-  } catch (err) {
-    console.warn("[SatVantage] VLibras ensureRoot falhou", err);
-    return null;
-  }
+function findAccessButton(): HTMLElement | null {
+  return (
+    (document.querySelector(".access-button") as HTMLElement | null) ||
+    (document.querySelector("[vw-access-button]") as HTMLElement | null)
+  );
 }
 
 function pinAccessButton() {
-  try {
-    const btn = document.querySelector(".access-button") as HTMLElement | null;
-    if (!btn) return false;
-    const mobile =
-      typeof window !== "undefined" &&
-      window.matchMedia("(max-width: 640px)").matches;
-    btn.classList.add("active");
-    btn.style.setProperty("position", "fixed", "important");
-    btn.style.setProperty("right", mobile ? "12px" : "18px", "important");
-    btn.style.setProperty("bottom", mobile ? "128px" : "140px", "important");
-    btn.style.setProperty("left", "auto", "important");
-    btn.style.setProperty("top", "auto", "important");
-    btn.style.setProperty("z-index", "2147483000", "important");
-    btn.style.setProperty("opacity", "1", "important");
-    btn.style.setProperty("visibility", "visible", "important");
-    btn.style.setProperty("pointer-events", "auto", "important");
-    btn.style.setProperty("display", "flex", "important");
-    const size = mobile ? "56px" : "64px";
-    btn.style.setProperty("width", size, "important");
-    btn.style.setProperty("height", size, "important");
-    btn.style.setProperty("max-width", "none", "important");
-    btn.style.setProperty("max-height", "none", "important");
-    btn.style.setProperty("transform", "none", "important");
-    btn.style.setProperty("clip", "auto", "important");
-    btn.style.setProperty("clip-path", "none", "important");
-    return true;
-  } catch (err) {
-    console.warn("[SatVantage] VLibras pin falhou", err);
-    return false;
-  }
+  const btn = findAccessButton();
+  if (!btn) return false;
+  const mobile = window.matchMedia("(max-width: 640px)").matches;
+  btn.classList.add("active");
+  btn.style.setProperty("position", "fixed", "important");
+  btn.style.setProperty("right", mobile ? "12px" : "18px", "important");
+  btn.style.setProperty("bottom", mobile ? "128px" : "140px", "important");
+  btn.style.setProperty("left", "auto", "important");
+  btn.style.setProperty("top", "auto", "important");
+  btn.style.setProperty("z-index", "2147483000", "important");
+  btn.style.setProperty("opacity", "1", "important");
+  btn.style.setProperty("visibility", "visible", "important");
+  btn.style.setProperty("pointer-events", "auto", "important");
+  btn.style.setProperty("display", "flex", "important");
+  const size = mobile ? "56px" : "64px";
+  btn.style.setProperty("width", size, "important");
+  btn.style.setProperty("height", size, "important");
+  return true;
 }
 
-function watchAndPin(onPinned?: () => void) {
-  if (pinAccessButton()) {
-    onPinned?.();
-    return () => {};
-  }
-  const obs = new MutationObserver(() => {
-    if (pinAccessButton()) {
-      obs.disconnect();
-      onPinned?.();
-    }
-  });
+/** Equivalente a: new window.VLibras.Widget('https://vlibras.gov.br/app') */
+function startWidget(): boolean {
+  if (typeof window === "undefined" || !window.VLibras?.Widget) return false;
   try {
-    obs.observe(document.body, { childList: true, subtree: true });
-  } catch {
-    /* ignore */
-  }
-  const stopAt = window.setTimeout(() => obs.disconnect(), 15_000);
-  let n = 0;
-  const tick = window.setInterval(() => {
-    n += 1;
-    if (pinAccessButton()) {
-      window.clearInterval(tick);
-      onPinned?.();
-    }
-    if (n > 30) window.clearInterval(tick);
-  }, 500);
-  return () => {
-    obs.disconnect();
-    window.clearTimeout(stopAt);
-    window.clearInterval(tick);
-  };
-}
-
-function initVLibras(onReady?: () => void): boolean {
-  if (typeof window === "undefined") return false;
-  if (!window.VLibras?.Widget) return false;
-  try {
-    ensureRoot();
-    if (!window.__svVLibrasReady) {
+    if (!window.__svVLibrasWidget) {
       // eslint-disable-next-line no-new
-      new window.VLibras.Widget("https://vlibras.gov.br/app");
-      window.__svVLibrasReady = true;
+      new window.VLibras.Widget(WIDGET_URL);
+      window.__svVLibrasWidget = true;
     }
-    watchAndPin(onReady);
     return true;
   } catch (err) {
-    console.warn("[SatVantage] VLibras init falhou", err);
-    window.__svVLibrasReady = false;
+    console.warn("[SatVantage] VLibras.Widget falhou", err);
+    window.__svVLibrasWidget = false;
     return false;
   }
 }
@@ -135,81 +78,98 @@ function initVLibras(onReady?: () => void): boolean {
 export default function VLibrasWidget() {
   const { t } = useI18n();
   const [status, setStatus] = useState<Status>("loading");
-  const timedOut = useRef(false);
-  const cleanupPin = useRef<(() => void) | null>(null);
+  const failedRef = useRef(false);
 
   const markReady = useCallback(() => {
-    if (timedOut.current) return;
+    if (failedRef.current) return;
+    pinAccessButton();
     setStatus("ready");
   }, []);
 
   const markFailed = useCallback((reason: string) => {
-    timedOut.current = true;
+    if (findAccessButton()) {
+      failedRef.current = false;
+      pinAccessButton();
+      setStatus("ready");
+      return;
+    }
+    failedRef.current = true;
     console.warn("[SatVantage] VLibras indisponível:", reason);
     setStatus((prev) => (prev === "ready" ? prev : "failed"));
   }, []);
 
   useEffect(() => {
-    ensureRoot();
-    const timer = window.setTimeout(() => {
-      if (!document.querySelector(".access-button") && !window.VLibras) {
-        markFailed("timeout sem plugin");
-      } else if (document.querySelector(".access-button")) {
+    failedRef.current = false;
+
+    const obs = new MutationObserver(() => {
+      if (pinAccessButton()) markReady();
+    });
+    obs.observe(document.body, { childList: true, subtree: true });
+
+    const tick = window.setInterval(() => {
+      if (pinAccessButton()) {
         markReady();
-      } else if (window.VLibras) {
-        // Script ok, botão ainda montando — dá mais uma chance curta
-        window.setTimeout(() => {
-          if (document.querySelector(".access-button")) markReady();
-          else markFailed("plugin sem botão após timeout");
-        }, 4000);
+        window.clearInterval(tick);
       }
-    }, LOAD_TIMEOUT_MS);
+    }, 500);
+
+    const timeout = window.setTimeout(() => {
+      window.clearInterval(tick);
+      obs.disconnect();
+      if (findAccessButton()) markReady();
+      else if (!window.VLibras) markFailed("timeout sem plugin");
+      else markFailed("plugin sem botão após timeout");
+    }, READY_TIMEOUT_MS);
 
     function onRepin() {
-      try {
-        if (window.__svVLibrasReady && !document.querySelector(".access-button")) {
-          window.__svVLibrasReady = false;
-          ensureRoot();
-        }
-        if (window.VLibras) {
-          if (initVLibras(markReady)) markReady();
-        } else {
-          cleanupPin.current?.();
-          cleanupPin.current = watchAndPin(markReady);
-        }
-      } catch (err) {
-        markFailed(String(err));
+      failedRef.current = false;
+      if (!document.querySelector(".access-button")) {
+        window.__svVLibrasWidget = false;
       }
+      if (window.VLibras) startWidget();
+      pinAccessButton();
+      if (findAccessButton()) markReady();
     }
 
     window.addEventListener("sv-vlibras-repin", onRepin);
+
     if (window.VLibras) {
-      if (initVLibras(markReady)) {
-        /* pending pin */
-      }
+      startWidget();
+      if (pinAccessButton()) markReady();
     }
 
     return () => {
-      window.clearTimeout(timer);
+      obs.disconnect();
+      window.clearInterval(tick);
+      window.clearTimeout(timeout);
       window.removeEventListener("sv-vlibras-repin", onRepin);
-      cleanupPin.current?.();
     };
   }, [markFailed, markReady]);
 
   return (
     <>
+      {/* Markup oficial VLibras */}
+      <div vw="" className="enabled">
+        <div vw-access-button="" className="active" />
+        <div vw-plugin-wrapper="">
+          <div className="vw-plugin-top-wrapper" />
+        </div>
+      </div>
+
       <Script
-        id="sv-vlibras-script"
+        id="vlibras-plugin"
         src={SCRIPT_SRC}
         strategy="afterInteractive"
         onLoad={() => {
-          try {
-            if (!initVLibras(markReady)) {
-              markFailed("Widget indisponível após load");
-            }
-          } catch (err) {
-            markFailed(String(err));
+          failedRef.current = false;
+          if (!startWidget()) {
+            markFailed("Widget indisponível após load");
+            return;
           }
+          // Plugin monta .access-button de forma assíncrona
+          window.setTimeout(() => {
+            if (pinAccessButton()) markReady();
+          }, 300);
         }}
         onError={() => markFailed("falha ao baixar CDN vlibras.gov.br")}
       />

@@ -13,6 +13,7 @@ import {
 import { useI18n } from "@/lib/i18n";
 import A11yDialog from "@/components/A11yDialog";
 import AccessibilityIcon from "@/components/AccessibilityIcon";
+import SpeakIcon from "@/components/SpeakIcon";
 import "./a11y.css";
 
 const OPEN_EVENT = "sv-a11y-open";
@@ -98,7 +99,7 @@ export default function AccessibilityDock() {
           aria-label={t.a11y.optionsLabel}
           title={t.a11y.optionsLabel}
         >
-          <AccessibilityIcon size={26} />
+          <AccessibilityIcon className="sv-a11y-menu-ico" />
         </button>
 
         <div className="sv-a11y-fab-stack" role="group" aria-label={t.a11y.readPage}>
@@ -110,7 +111,7 @@ export default function AccessibilityDock() {
               aria-label={t.a11y.readPage}
               title={t.a11y.readPage}
             >
-              <span aria-hidden>🔊</span>
+              <SpeakIcon className="sv-a11y-tts-ico" size={26} />
             </button>
           ) : (
             <div className="sv-a11y-fab-row">

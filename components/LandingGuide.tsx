@@ -155,12 +155,7 @@ export default function LandingGuide({ onCreateAccount, onExtension }: Props) {
   }
 
   function handleTipAnimationEnd(e: React.AnimationEvent<HTMLSpanElement>) {
-    if (
-      e.animationName !== "sv-guide-tip-out" &&
-      e.animationName !== "sv-guide-tip-out-mobile"
-    ) {
-      return;
-    }
+    if (e.animationName !== "sv-guide-tip-out") return;
     finishTipExit();
   }
 

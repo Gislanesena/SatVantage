@@ -873,3 +873,19 @@
     text-align: left;
   }
 }
+
+/* Títulos azuis da homepage — tom mais escuro só no modo claro */
+html:not([data-theme="dark"]) .sv-landing .sv-hero h1 em,
+html:not([data-theme="dark"]) .sv-landing .sv-lede em {
+  color: #1e40af;
+}
+
+html:not([data-theme="dark"]) .sv-landing .sv-platform-title em,
+html:not([data-theme="dark"]) .sv-landing .sv-platform-eyebrow {
+  color: #1e40af;
+}
+
+html:not([data-theme="dark"]) .sv-landing .sv-eyebrow {
+  color: #1e40af;
+  border-color: color-mix(in srgb, #1e40af 45%, transparent);
+}
