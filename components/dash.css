@@ -12,8 +12,8 @@
 }
 
 .sv-bank-top .sv-nav {
-  /* nav ocupa a barra; tema + avatar ficam por cima à direita */
-  padding-right: 128px;
+  /* nav ocupa a barra; tema + idioma + engrenagem ficam à direita */
+  padding-right: 200px;
 }
 
 .sv-bank-settings {
@@ -1136,7 +1136,7 @@ html[data-theme="dark"] .sv-mentor-fab,
   }
 
   .sv-bank-top .sv-nav {
-    padding-right: 112px;
+    padding-right: 176px;
   }
 
   .sv-bank-theme,

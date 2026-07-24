@@ -1,10 +1,12 @@
 ﻿"use client";
-// Chat educativo de t├│pico livre ÔÇö SEM sats de miss├úo.
-import { useCallback, useEffect, useRef, useState } from "react";
+// Chat educativo de tópico livre — SEM sats de missão.
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import SiteNav from "@/components/SiteNav";
 import type { OptionalTopic } from "@/lib/optional-topics";
 import ChatComposer from "@/components/ChatComposer";
 import { useChatAutoScroll } from "@/lib/use-chat-auto-scroll";
+import { useI18n, type Locale } from "@/lib/i18n";
+import { localizeTopic } from "@/lib/topics-i18n";
 import "./mentor.css";
 
 type ChatLine = { kind: "agent" | "user"; text: string };
@@ -28,6 +30,11 @@ export default function FreeTopicChat({
   embedded = false,
   sheetHosted = false,
 }: Props) {
+  const { t, locale } = useI18n();
+  const localized = useMemo(
+    () => localizeTopic(topic, locale as Locale),
+    [topic, locale],
+  );
   const [lines, setLines] = useState<ChatLine[]>([]);
   const [busy, setBusy] = useState(true);
   const [typing, setTyping] = useState(false);
@@ -68,18 +75,15 @@ export default function FreeTopicChat({
     setDraft("");
 
     (async () => {
-      await typeAgent(
-        "Esse assunto ├® s├│ aprendizado ÔÇö sem sats de miss├úo. Vamos com calma.",
-        runId,
-      );
+      await typeAgent(t.mentor.freeTopicIntro, runId);
       if (runIdRef.current !== runId) return;
-      for (const msg of topic.teach) {
+      for (const msg of localized.teach) {
         await sleep(220);
         await typeAgent(msg, runId);
         if (runIdRef.current !== runId) return;
       }
       await sleep(260);
-      await typeAgent(topic.question ?? "", runId);
+      await typeAgent(localized.question ?? "", runId);
       if (runIdRef.current !== runId) return;
       setShowQ(true);
       setBusy(false);
@@ -88,28 +92,26 @@ export default function FreeTopicChat({
     return () => {
       runIdRef.current++;
     };
-  }, [topic, typeAgent]);
+  }, [localized, typeAgent, t.mentor.freeTopicIntro]);
 
   async function answer(i: number) {
     if (busy || !showQ) return;
     const runId = runIdRef.current;
-    const options = topic.options ?? [];
+    const options = localized.options ?? [];
     setBusy(true);
     setShowQ(false);
     stickToBottom();
     setLines((p) => [...p, { kind: "user", text: options[i] ?? "" }]);
-    const ok = i === topic.correct;
+    const ok = i === localized.correct;
     await sleep(180);
     await typeAgent(
-      (ok ? topic.feedbackCorrect : topic.feedbackWrong) ?? "",
+      (ok ? localized.feedbackCorrect : localized.feedbackWrong) ?? "",
       runId,
     );
     if (runIdRef.current !== runId) return;
     await sleep(200);
     await typeAgent(
-      embedded
-        ? "Pode fechar o chat ou abrir outro assunto no mentor ÔÇö o dashboard continua a├¡. Se quiser, digite outra d├║vida abaixo."
-        : "Pode voltar ao dashboard quando quiser ÔÇö ou digite outra d├║vida abaixo.",
+      embedded ? t.mentor.freeTopicDoneEmbedded : t.mentor.freeTopicDoneDash,
       runId,
     );
     if (runIdRef.current !== runId) return;
@@ -125,10 +127,7 @@ export default function FreeTopicChat({
     setBusy(true);
     stickToBottom();
     setLines((p) => [...p, { kind: "user", text }]);
-    await typeAgent(
-      "Boa pergunta. Neste assunto livre n├úo creditamos sats ÔÇö anote a ideia e, se quiser recompensa, use o Teste de Conhecimento na mentoria principal.",
-      runId,
-    );
+    await typeAgent(t.mentor.freeTopicNoSats, runId);
     if (runIdRef.current === runId) setBusy(false);
   }
 
@@ -139,9 +138,9 @@ export default function FreeTopicChat({
     <div className={shellClass}>
       {embedded && !sheetHosted ? (
         <div className="sv-mentor-embed-bar">
-          <span>{topic.label}</span>
+          <span>{localized.label}</span>
           <button type="button" className="linkish" onClick={onBack}>
-            Fechar
+            {t.mentor.close}
           </button>
         </div>
       ) : !embedded ? (
@@ -158,19 +157,28 @@ export default function FreeTopicChat({
                 width={40}
                 height={40}
               />
-              <h1>{topic.label}</h1>
+              <h1>{localized.label}</h1>
             </div>
-            <p className="sv-mentor-practice-tag">Assunto livre ┬À sem sats de miss├úo</p>
+            <p className="sv-mentor-practice-tag">{t.mentor.freeTopicTag}</p>
           </header>
         )}
         {embedded && (
-          <p className="sv-mentor-practice-tag">Assunto livre ┬À sem sats de miss├úo</p>
+          <p className="sv-mentor-practice-tag">{t.mentor.freeTopicTag}</p>
         )}
 
         <div className="sv-chat-panel">
-          <div className="sv-chat-scroll" ref={scrollRef} onScroll={onScroll}>
+          <div
+            className="sv-chat-scroll"
+            ref={scrollRef}
+            onScroll={onScroll}
+            role="log"
+            aria-live="polite"
+            aria-relevant="additions"
+            aria-label={t.mentor.name}
+          >
             {lines.map((line, idx) =>
               line.kind === "agent" ? (
+                line.text ? (
                 <div key={idx} className="sv-bubble-row">
                   <img
                     src="/satvantage-mentor.png"
@@ -181,7 +189,7 @@ export default function FreeTopicChat({
                   />
                   <div className="sv-bubble sv-bubble--agent">
                     <div className="sv-bubble-head">
-                      <span className="sv-bubble-label">NagAI</span>
+                      <span className="sv-bubble-label">{t.mentor.name}</span>
                     </div>
                     <span className="sv-bubble-text">
                       {line.text}
@@ -193,6 +201,7 @@ export default function FreeTopicChat({
                     </span>
                   </div>
                 </div>
+                ) : null
               ) : (
                 <div key={idx} className="sv-bubble sv-bubble--user">
                   {line.text}
@@ -202,10 +211,12 @@ export default function FreeTopicChat({
             <div ref={bottomRef} />
           </div>
 
-          <div className="sv-chat-footer">
+          <div
+            className={`sv-chat-footer${embedded ? " sv-chat-footer--sheet" : ""}`}
+          >
             {showQ && (
               <div className="sv-chat-options">
-                {(topic.options ?? []).map((opt, oi) => (
+                {(localized.options ?? []).map((opt, oi) => (
                   <button
                     key={oi}
                     type="button"
@@ -230,8 +241,12 @@ export default function FreeTopicChat({
             )}
 
             {done && (
-              <button type="button" className="sv-chat-cta" onClick={onBack}>
-                {embedded ? "Voltar aos assuntos" : "Voltar ao dashboard"}
+              <button
+                type="button"
+                className="sv-chat-cta sv-chat-cta--sheet-back"
+                onClick={onBack}
+              >
+                {embedded ? t.mentor.backToTopics : t.mentor.backToDashboard}
               </button>
             )}
           </div>

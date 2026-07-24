@@ -4,8 +4,6 @@ import { useEffect, useState } from "react";
 import LanguageSelect from "@/components/LanguageSelect";
 import { useI18n } from "@/lib/i18n";
 import { useFocusTrap } from "@/lib/use-focus-trap";
-import { openAccessibilityPanel } from "@/components/AccessibilityDock";
-import AccessibilityIcon from "@/components/AccessibilityIcon";
 
 type Theme = "dark" | "light";
 
@@ -99,17 +97,7 @@ export default function SiteNav({
         )}
 
         <div className="sv-nav-actions">
-          <LanguageSelect />
-
-          <button
-            type="button"
-            className="sv-theme-toggle sv-a11y-nav-btn"
-            onClick={() => openAccessibilityPanel()}
-            aria-label={t.a11y.optionsLabel}
-            title={t.a11y.optionsLabel}
-          >
-            <AccessibilityIcon size={20} />
-          </button>
+          {!isDash && <LanguageSelect />}
 
           {!isDash && (
             <button

@@ -11,6 +11,7 @@ type Props = {
 /**
  * Seletor global PT/EN/ES — lê/escreve o mesmo I18nProvider + localStorage.
  * Qualquer instância (header ou chat) atualiza todas as outras.
+ * Permanece interativo durante o chat (mesmo após mensagens / busy).
  */
 export default function LanguageSelect({ variant = "nav" }: Props) {
   const { locale, setLocale, t } = useI18n();
@@ -28,10 +29,11 @@ export default function LanguageSelect({ variant = "nav" }: Props) {
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") setOpen(false);
     }
-    document.addEventListener("mousedown", onDoc);
+    // capture: fecha o menu sem perder o clique para outros handlers do documento
+    document.addEventListener("mousedown", onDoc, true);
     document.addEventListener("keydown", onKey);
     return () => {
-      document.removeEventListener("mousedown", onDoc);
+      document.removeEventListener("mousedown", onDoc, true);
       document.removeEventListener("keydown", onKey);
     };
   }, [open]);
@@ -46,8 +48,18 @@ export default function LanguageSelect({ variant = "nav" }: Props) {
         ? "sv-lang sv-lang--chat"
         : "sv-lang";
 
+  function pickLocale(next: Locale) {
+    setLocale(next);
+    setOpen(false);
+  }
+
   return (
-    <div ref={rootRef} className={rootClass}>
+    <div
+      ref={rootRef}
+      className={rootClass}
+      onMouseDown={(e) => e.stopPropagation()}
+      onClick={(e) => e.stopPropagation()}
+    >
       <button
         type="button"
         className="sv-lang-btn"
@@ -72,9 +84,11 @@ export default function LanguageSelect({ variant = "nav" }: Props) {
                 role="option"
                 aria-selected={opt.value === locale}
                 className={`sv-lang-option${opt.value === locale ? " is-on" : ""}`}
-                onClick={() => {
-                  setLocale(opt.value as Locale);
-                  setOpen(false);
+                onMouseDown={(e) => {
+                  // Evita que mousedown externo feche o menu antes do click
+                  e.preventDefault();
+                  e.stopPropagation();
+                  pickLocale(opt.value as Locale);
                 }}
               >
                 {opt.label}

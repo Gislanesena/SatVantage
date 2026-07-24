@@ -109,6 +109,12 @@
   outline: none;
 }
 
+.sv-tsim-stat:focus-visible {
+  outline: 2px solid var(--focus-ring, #f8c838);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
 .sv-tsim-stat-label {
   color: var(--tsim-muted);
   font-size: 0.7rem;
@@ -161,9 +167,29 @@
 }
 
 .sv-tsim-stat:hover .sv-tsim-stat-tip,
-.sv-tsim-stat:focus-visible .sv-tsim-stat-tip {
+.sv-tsim-stat:focus-visible .sv-tsim-stat-tip,
+.sv-tsim-field-tip:hover .sv-tsim-stat-tip,
+.sv-tsim-field-tip:focus-visible .sv-tsim-stat-tip {
   opacity: 1;
   visibility: visible;
+}
+
+.sv-tsim-field-tip {
+  position: relative;
+  display: inline-flex;
+  width: fit-content;
+  outline: none;
+}
+
+.sv-tsim-field-tip:focus-visible {
+  outline: 2px solid var(--focus-ring, #f8c838);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.sv-tsim-search {
+  display: grid;
+  gap: 4px;
 }
 
 .sv-tsim-top-actions {

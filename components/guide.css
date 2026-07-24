@@ -74,70 +74,127 @@ html[data-theme="dark"] .sv-guide-fab,
   }
 }
 
-/* Notificação: sai do ícone da esquerda → direita, uma linha só */
-.sv-guide-nudge {
-  min-width: 0;
-  max-width: min(420px, calc(100vw - 100px));
+/* Uma única tip: intro ao carregar → some → só hover depois */
+.sv-guide-fab-tip-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.sv-guide-tip {
+  position: absolute;
+  left: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%);
+  white-space: nowrap;
   margin: 0;
   padding: 12px 16px;
   border-radius: 14px;
   border: 1px solid var(--line);
   background: var(--surface);
   box-shadow: 0 10px 28px rgba(15, 23, 42, 0.18);
-  cursor: pointer;
-  font-family: inherit;
   font-size: 0.92rem;
   font-weight: 600;
   color: var(--ink);
-  text-align: left;
-  overflow: hidden;
+  cursor: pointer;
+  z-index: 5;
   transform-origin: left center;
-  animation: sv-guide-nudge-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-.sv-guide-nudge.is-exiting {
-  animation: sv-guide-nudge-out 0.55s cubic-bezier(0.55, 0, 1, 0.45) forwards;
+.sv-guide-tip.is-intro {
+  animation: sv-guide-tip-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.sv-guide-tip.is-exiting {
+  animation: sv-guide-tip-out 0.55s cubic-bezier(0.55, 0, 1, 0.45) forwards;
   pointer-events: none;
 }
 
-.sv-guide-nudge:hover {
-  border-color: color-mix(in srgb, var(--accent) 55%, var(--line));
+.sv-guide-tip.is-hover-only {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-50%) translateX(4px);
+  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
 }
 
-.sv-guide-nudge-text {
-  display: block;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.sv-guide-fab-tip-wrap.is-hoverable:hover .sv-guide-tip.is-hover-only,
+.sv-guide-fab-tip-wrap.is-hoverable:focus-within .sv-guide-tip.is-hover-only {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(-50%) translateX(0);
 }
 
-@keyframes sv-guide-nudge-in {
+@keyframes sv-guide-tip-in {
   from {
     opacity: 0;
-    transform: translateX(-12px) scaleX(0.72);
+    transform: translateY(-50%) translateX(-12px) scaleX(0.72);
   }
   to {
     opacity: 1;
-    transform: translateX(0) scaleX(1);
+    transform: translateY(-50%) translateX(0) scaleX(1);
   }
 }
 
-@keyframes sv-guide-nudge-out {
+@keyframes sv-guide-tip-out {
   from {
     opacity: 1;
-    transform: translateX(0) scaleX(1);
-    max-width: min(420px, calc(100vw - 100px));
-    padding-left: 16px;
-    padding-right: 16px;
+    transform: translateY(-50%) translateX(0) scaleX(1);
   }
   to {
     opacity: 0;
-    transform: translateX(-14px) scaleX(0.12);
-    max-width: 0;
-    padding-left: 0;
-    padding-right: 0;
-    border-color: transparent;
-    box-shadow: none;
+    transform: translateY(-50%) translateX(-14px) scaleX(0.12);
+  }
+}
+
+@media (max-width: 480px) {
+  .sv-guide-tip {
+    left: 50%;
+    top: auto;
+    bottom: calc(100% + 10px);
+    transform: translateX(-50%);
+    transform-origin: bottom center;
+  }
+
+  .sv-guide-tip.is-intro {
+    animation-name: sv-guide-tip-in-mobile;
+  }
+
+  .sv-guide-tip.is-exiting {
+    animation-name: sv-guide-tip-out-mobile;
+  }
+
+  .sv-guide-tip.is-hover-only {
+    transform: translateX(-50%) translateY(4px);
+  }
+
+  .sv-guide-fab-tip-wrap.is-hoverable:hover .sv-guide-tip.is-hover-only,
+  .sv-guide-fab-tip-wrap.is-hoverable:focus-within .sv-guide-tip.is-hover-only {
+    transform: translateX(-50%) translateY(0);
+  }
+
+  @keyframes sv-guide-tip-in-mobile {
+    from {
+      opacity: 0;
+      transform: translateX(-50%) translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  }
+
+  @keyframes sv-guide-tip-out-mobile {
+    from {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateX(-50%) translateY(8px);
+    }
   }
 }
 
@@ -222,11 +279,42 @@ html[data-theme="dark"] .sv-guide-fab,
 }
 
 .sv-guide-chat {
-  flex: 1 1 auto;
-  min-height: 0;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  height: auto !important;
   border: none;
   border-radius: 0;
   box-shadow: none;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Única barra de rolagem: mensagens + opções no mesmo container */
+.sv-guide-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  overscroll-behavior: contain;
+  scroll-behavior: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+.sv-guide-actions-inline {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  flex-shrink: 0;
+}
+
+.sv-guide-options {
+  display: grid !important;
+  gap: 8px;
+  max-height: none !important;
+  overflow: visible !important;
+  padding-bottom: 8px;
 }
 
 .sv-guide-avatar {
@@ -255,10 +343,5 @@ html[data-theme="dark"] .sv-guide-fab,
   .sv-guide-fab-wrap {
     left: 12px;
     bottom: 12px;
-  }
-
-  .sv-guide-nudge {
-    padding: 10px 12px;
-    font-size: 0.85rem;
   }
 }

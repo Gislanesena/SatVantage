@@ -1,14 +1,14 @@
-﻿"use client";
-// components/LoginNostr.tsx ÔÇö formul├írios de acesso (criar / entrar / recuperar).
+"use client";
+// components/LoginNostr.tsx — formulários de acesso (criar / entrar / recuperar).
 // A landing com os dois caminhos vive em Landing.tsx.
 //
 // Caminho senha: identidade Nostr real (NIP-06 / BIP-39), chave cifrada no
 //   navegador ("guardamos o cofre, nunca a chave").
-// Caminho extens├úo: ver loginWithExtension ÔÇö a chave nunca sai da extens├úo.
+// Caminho extensão: ver loginWithExtension — a chave nunca sai da extensão.
 //
-// Recupera├º├úo: 12 palavras BIP-39 (prova por assinatura) + pergunta de
-// seguran├ºa. As duas juntas. Zero e-mail. Contas antigas (s├│ nsec) ainda
-// aceitam nsec1ÔÇª no mesmo campo, s├│ para n├úo travar recupera├º├úo legada.
+// Recuperação: 12 palavras BIP-39 (prova por assinatura) + pergunta de
+// segurança. As duas juntas. Zero e-mail. Contas antigas (só nsec) ainda
+// aceitam nsec1… no mesmo campo, só para não travar recuperação legada.
 import { useEffect, useState } from "react";
 import {
   getPublicKey,
@@ -43,7 +43,7 @@ function shuffleInPlace<T>(arr: T[]): T[] {
   return arr;
 }
 
-/** Sorteia 3 posi├º├Áes distintas entre as 12 palavras (├¡ndices 0ÔÇô11). */
+/** Sorteia 3 posições distintas entre as 12 palavras (índices 0–11). */
 function pickWordGaps(words: string[]): KeyGap[] {
   const indices = new Set<number>();
   while (indices.size < 3) {
@@ -64,7 +64,7 @@ function normalizeMnemonic(input: string): string {
   return input.trim().toLowerCase().replace(/\s+/g, " ");
 }
 
-/** Deriva a sk das 12 palavras (NIP-06). Aceita nsec1ÔÇª s├│ para contas legadas. */
+/** Deriva a sk das 12 palavras (NIP-06). Aceita nsec1… só para contas legadas. */
 function secretFromRecoveryInput(input: string): Uint8Array {
   const trimmed = input.trim();
   if (trimmed.toLowerCase().startsWith("nsec1")) {
@@ -73,17 +73,17 @@ function secretFromRecoveryInput(input: string): Uint8Array {
       if (decoded.type !== "nsec") throw new Error();
       return decoded.data as Uint8Array;
     } catch {
-      throw new Error("chave de recupera├º├úo inv├ílida");
+      throw new Error("chave de recuperação inválida");
     }
   }
 
   const mnemonic = normalizeMnemonic(trimmed);
   const parts = mnemonic.split(" ").filter(Boolean);
   if (parts.length !== 12) {
-    throw new Error("informe exatamente as 12 palavras de recupera├º├úo");
+    throw new Error("informe exatamente as 12 palavras de recuperação");
   }
   if (!validateWords(mnemonic)) {
-    throw new Error("frase de recupera├º├úo inv├ílida ÔÇö confira as 12 palavras");
+    throw new Error("frase de recuperação inválida — confira as 12 palavras");
   }
   return privateKeyFromSeedWords(mnemonic);
 }
@@ -152,7 +152,7 @@ async function postJson(url: string, payload: unknown) {
 export async function loginWithExtension() {
   if (!window.nostr) {
     throw new Error(
-      "Nenhuma extens├úo Nostr encontrada. Instale a Alby ou nos2x ÔÇö ou crie uma conta com usu├írio e senha."
+      "Nenhuma extensão Nostr encontrada. Instale a Alby ou nos2x — ou crie uma conta com usuário e senha."
     );
   }
   const challenge = await fetchChallenge();
@@ -181,7 +181,7 @@ export default function LoginNostr({
   onBack?: () => void;
 }) {
   const [mode, setMode] = useState<AuthMode>(initialMode);
-  // Em "criar conta" come├ºa vazio ÔÇö n├úo reaproveita o ├║ltimo usu├írio do login
+  // Em "criar conta" começa vazio — não reaproveita o último usuário do login
   const [username, setUsername] = useState(() =>
     initialMode === "login" && typeof window !== "undefined"
       ? localStorage.getItem("sv_username") ?? ""
@@ -193,7 +193,7 @@ export default function LoginNostr({
   const [mnemonicInput, setMnemonicInput] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  /** null = ainda n├úo checou / inv├ílido curto; true/false = resultado do servidor */
+  /** null = ainda não checou / inválido curto; true/false = resultado do servidor */
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
   const [usernameCheckMsg, setUsernameCheckMsg] = useState<string | null>(null);
   const [checkingUsername, setCheckingUsername] = useState(false);
@@ -211,17 +211,17 @@ export default function LoginNostr({
   const [keyBackupStep, setKeyBackupStep] = useState<"show" | "confirm">("show");
   /** 3 lacunas sorteadas uma vez; persistem se a pessoa voltar para ver as palavras. */
   const [keyGaps, setKeyGaps] = useState<KeyGap[]>([]);
-  /** As 3 palavras que faltam, embaralhadas (ids est├íveis). */
+  /** As 3 palavras que faltam, embaralhadas (ids estáveis). */
   const [keyPool, setKeyPool] = useState<KeyPoolItem[]>([]);
-  /** Preenchimento das lacunas, na ordem esquerda ÔåÆ direita (posi├º├Áes sorteadas). */
+  /** Preenchimento das lacunas, na ordem esquerda → direita (posições sorteadas). */
   const [keyFilled, setKeyFilled] = useState<(string | null)[]>([null, null, null]);
-  /** Ids dos bot├Áes j├í usados (removidos/desabilitados). */
+  /** Ids dos botões já usados (removidos/desabilitados). */
   const [keyUsedIds, setKeyUsedIds] = useState<string[]>([]);
   const [keyConfirmError, setKeyConfirmError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
-  // Prote├º├úo contra criar conta nova por engano j├í estando logado:
-  // se existir sess├úo v├ílida, avisa antes de gerar chaves novas.
+  // Proteção contra criar conta nova por engano já estando logado:
+  // se existir sessão válida, avisa antes de gerar chaves novas.
   const [existingSession, setExistingSession] = useState<any>(null);
   const [forceCreate, setForceCreate] = useState(false);
 
@@ -270,7 +270,7 @@ export default function LoginNostr({
     };
   }, [mode]);
 
-  // Verifica disponibilidade do usu├írio ao digitar (criar conta).
+  // Verifica disponibilidade do usuário ao digitar (criar conta).
   useEffect(() => {
     if (mode !== "create") return;
 
@@ -286,7 +286,7 @@ export default function LoginNostr({
       setCheckingUsername(false);
       setUsernameAvailable(false);
       setUsernameCheckMsg(
-        "Usu├írio inv├ílido (3-20 caracteres: letras min├║sculas, n├║meros, _).",
+        "Usuário inválido (3-20 caracteres: letras minúsculas, números, _).",
       );
       return;
     }
@@ -305,23 +305,23 @@ export default function LoginNostr({
           if (cancelled) return;
           if (!res.ok) {
             setUsernameAvailable(null);
-            setUsernameCheckMsg("N├úo foi poss├¡vel verificar o usu├írio agora.");
+            setUsernameCheckMsg("Não foi possível verificar o usuário agora.");
             return;
           }
           if (data.available) {
             setUsernameAvailable(true);
-            setUsernameCheckMsg("Usu├írio dispon├¡vel.");
+            setUsernameCheckMsg("Usuário disponível.");
           } else {
             setUsernameAvailable(false);
             setUsernameCheckMsg(
               data.reason ||
-                "Esse usu├írio j├í est├í em uso. Escolha outro nome.",
+                "Esse usuário já está em uso. Escolha outro nome.",
             );
           }
         } catch {
           if (cancelled) return;
           setUsernameAvailable(null);
-          setUsernameCheckMsg("N├úo foi poss├¡vel verificar o usu├írio agora.");
+          setUsernameCheckMsg("Não foi possível verificar o usuário agora.");
         } finally {
           if (!cancelled) setCheckingUsername(false);
         }
@@ -335,7 +335,7 @@ export default function LoginNostr({
   }, [username, mode]);
 
   function npubShort(npub: string) {
-    return npub.length > 16 ? `${npub.slice(0, 10)}ÔÇª${npub.slice(-6)}` : npub;
+    return npub.length > 16 ? `${npub.slice(0, 10)}…${npub.slice(-6)}` : npub;
   }
 
   function remember(u: string) {
@@ -349,7 +349,7 @@ export default function LoginNostr({
     setKeyUsedIds([]);
   }
 
-  /** Entra na confirma├º├úo; sorteia as 3 posi├º├Áes s├│ na primeira vez. */
+  /** Entra na confirmação; sorteia as 3 posições só na primeira vez. */
   function goToKeyConfirm() {
     if (!pendingKey) return;
     if (keyGaps.length === 0) {
@@ -373,7 +373,7 @@ export default function LoginNostr({
     if (nextSlot < 0) return;
     const expected = keyGaps[nextSlot]!.expected;
     if (item.word !== expected) {
-      setKeyConfirmError("Ordem errada ÔÇö confira as palavras e tente de novo");
+      setKeyConfirmError("Ordem errada — confira as palavras e tente de novo");
       resetKeyFill();
       return;
     }
@@ -390,7 +390,7 @@ export default function LoginNostr({
     if (!pendingKey || keyGaps.length < 3) return;
     const ok = keyGaps.every((g, i) => keyFilled[i] === g.expected);
     if (!ok) {
-      setKeyConfirmError("Ordem errada ÔÇö confira as palavras e tente de novo");
+      setKeyConfirmError("Ordem errada — confira as palavras e tente de novo");
       resetKeyFill();
       return;
     }
@@ -441,11 +441,11 @@ export default function LoginNostr({
     setError(null);
     const userNorm = username.trim().toLowerCase();
     if (!/^[a-z0-9_]{3,20}$/.test(userNorm)) {
-      return setError("Usu├írio inv├ílido (3-20 caracteres: letras min├║sculas, n├║meros, _).");
+      return setError("Usuário inválido (3-20 caracteres: letras minúsculas, números, _).");
     }
     if (password.length < 8) return setError("A senha precisa de pelo menos 8 caracteres.");
     if (question.trim().length < 8)
-      return setError("Escreva uma pergunta de seguran├ºa (m├¡nimo 8 caracteres).");
+      return setError("Escreva uma pergunta de segurança (mínimo 8 caracteres).");
     if (answer.trim().length < 2) return setError("Escreva a resposta da sua pergunta.");
 
     setBusy("create");
@@ -457,13 +457,13 @@ export default function LoginNostr({
         body: JSON.stringify({ username: userNorm }),
       });
       const checkData = await check.json().catch(() => ({}));
-      if (!check.ok) throw new Error(checkData.error ?? "erro ao verificar usu├írio");
+      if (!check.ok) throw new Error(checkData.error ?? "erro ao verificar usuário");
       if (!checkData.available) {
         setUsernameAvailable(false);
-        setUsernameCheckMsg(checkData.reason || "Esse usu├írio j├í est├í em uso.");
+        setUsernameCheckMsg(checkData.reason || "Esse usuário já está em uso.");
         throw new Error(
           checkData.reason ||
-            "Esse usu├írio j├í est├í em uso. Escolha outro nome.",
+            "Esse usuário já está em uso. Escolha outro nome.",
         );
       }
 
@@ -522,7 +522,7 @@ export default function LoginNostr({
       setRecoverInfo(info);
       setRecoverStep(2);
     } catch (e: any) {
-      setError(e.message ?? "N├úo foi poss├¡vel iniciar a recupera├º├úo");
+      setError(e.message ?? "Não foi possível iniciar a recuperação");
     } finally {
       setBusy(null);
     }
@@ -553,7 +553,7 @@ export default function LoginNostr({
       setAnswer("");
       onLogin?.(user);
     } catch (e: any) {
-      setError(e.message ?? "Falha na recupera├º├úo");
+      setError(e.message ?? "Falha na recuperação");
     } finally {
       setBusy(null);
     }
@@ -569,8 +569,8 @@ export default function LoginNostr({
           </button>
           <h2>Confirme que anotou</h2>
           <p>
-            Complete as lacunas na ordem (1 ÔåÆ 2 ÔåÆ 3), clicando nas palavras abaixo.
-            As lacunas n├úo mudam se voc├¬ voltar para conferir a frase.
+            Complete as lacunas na ordem (1 → 2 → 3), clicando nas palavras abaixo.
+            As lacunas não mudam se você voltar para conferir a frase.
           </p>
           <ol className="sv-mnemonic sv-mnemonic--gaps" aria-label="Frase com lacunas">
             {pendingKey.words.map((word, i) => {
@@ -640,11 +640,11 @@ export default function LoginNostr({
       <div className="sv-auth">
         <h2>Guarde suas 12 palavras</h2>
         <p>
-          Esta frase ├® o documento de posse da sua conta. Voc├¬ n├úo vai us├í-la no
-          dia a dia ÔÇö s├│ se esquecer a senha (junto com a pergunta de seguran├ºa).
-          Anote fora do computador. Ela n├úo ser├í mostrada de novo.
+          Esta frase é o documento de posse da sua conta. Você não vai usá-la no
+          dia a dia — só se esquecer a senha (junto com a pergunta de segurança).
+          Anote fora do computador. Ela não será mostrada de novo.
         </p>
-        <ol className="sv-mnemonic" aria-label="Frase de recupera├º├úo">
+        <ol className="sv-mnemonic" aria-label="Frase de recuperação">
           {pendingKey.words.map((word, i) => (
             <li key={i} className="sv-mnemonic-item">
               <span className="sv-mnemonic-num">{i + 1}</span>
@@ -666,7 +666,7 @@ export default function LoginNostr({
           {copied ? "Copiada" : "Copiar palavras"}
         </button>
         <button type="button" onClick={goToKeyConfirm}>
-          J├í anotei, continuar
+          Já anotei, continuar
         </button>
       </div>
     );
@@ -687,15 +687,15 @@ export default function LoginNostr({
       <h2>{titles[mode]}</h2>
       <p className="sv-auth-lede">
         {mode === "create"
-          ? "Usu├írio e senha. Por baixo, uma identidade Nostr real ÔÇö a chave fica cifrada com a sua senha."
+          ? "Usuário e senha. Por baixo, uma identidade Nostr real — a chave fica cifrada com a sua senha."
           : mode === "login"
             ? "Abra o cofre da sua conta SatVantage."
-            : "Duas provas: pergunta de seguran├ºa e as 12 palavras de recupera├º├úo."}
+            : "Duas provas: pergunta de segurança e as 12 palavras de recuperação."}
       </p>
 
       <input
-        placeholder="usu├írio"
-        aria-label="Nome de usu├írio"
+        placeholder="usuário"
+        aria-label="Nome de usuário"
         value={username}
         onChange={(e) => {
           setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""));
@@ -719,16 +719,16 @@ export default function LoginNostr({
             marginTop: -4,
           }}
         >
-          {checkingUsername ? "Verificando usu├írioÔÇª" : usernameCheckMsg}
+          {checkingUsername ? "Verificando usuário…" : usernameCheckMsg}
         </p>
       )}
 
       {mode === "create" && existingSession && !forceCreate ? (
         <div className="sv-error-box" role="alert">
           <p className="sv-error" style={{ color: "var(--ink)" }}>
-            Voc├¬ j├í est├í conectado como {npubShort(existingSession.npub)}. Criar uma conta
-            nova gera uma identidade Nostr diferente ÔÇö o saldo e o progresso da conta atual
-            ficam nela, n├úo passam para a nova.
+            Você já está conectado como {npubShort(existingSession.npub)}. Criar uma conta
+            nova gera uma identidade Nostr diferente — o saldo e o progresso da conta atual
+            ficam nela, não passam para a nova.
           </p>
           <button
             type="button"
@@ -745,8 +745,8 @@ export default function LoginNostr({
         mode === "create" && (
           <>
             <input
-              placeholder="senha (m├¡nimo 8 caracteres)"
-              aria-label="Senha (m├¡nimo 8 caracteres)"
+              placeholder="senha (mínimo 8 caracteres)"
+              aria-label="Senha (mínimo 8 caracteres)"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -754,15 +754,15 @@ export default function LoginNostr({
               style={inputStyle}
             />
             <input
-              placeholder="pergunta de seguran├ºa (s├│ voc├¬ sabe a resposta)"
-              aria-label="Pergunta de seguran├ºa"
+              placeholder="pergunta de segurança (só você sabe a resposta)"
+              aria-label="Pergunta de segurança"
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               style={inputStyle}
             />
             <input
               placeholder="resposta"
-              aria-label="Resposta da pergunta de seguran├ºa"
+              aria-label="Resposta da pergunta de segurança"
               value={answer}
               onChange={(e) => setAnswer(e.target.value)}
               style={inputStyle}
@@ -779,7 +779,7 @@ export default function LoginNostr({
                 usernameAvailable === false
               }
             >
-              {busy === "create" ? "Criando cofreÔÇª" : "Criar conta"}
+              {busy === "create" ? "Criando cofre…" : "Criar conta"}
             </button>
           </>
         )
@@ -801,7 +801,7 @@ export default function LoginNostr({
             onClick={entrar}
             disabled={busy !== null || !username || !password}
           >
-            {busy === "login" ? "Abrindo cofreÔÇª" : "Entrar"}
+            {busy === "login" ? "Abrindo cofre…" : "Entrar"}
           </button>
           <button type="button" className="linkish" onClick={() => go("recover")}>
             Esqueci minha senha
@@ -812,15 +812,15 @@ export default function LoginNostr({
       {mode === "recover" && recoverStep === 1 && (
         <>
           <p className="sv-hint">
-            Vamos verificar a posse da conta: pergunta de seguran├ºa e as 12
-            palavras de recupera├º├úo.
+            Vamos verificar a posse da conta: pergunta de segurança e as 12
+            palavras de recuperação.
           </p>
           <button
             type="button"
             onClick={iniciarRecuperacao}
             disabled={busy !== null || !username}
           >
-            {busy === "rinfo" ? "BuscandoÔÇª" : "Continuar"}
+            {busy === "rinfo" ? "Buscando…" : "Continuar"}
           </button>
         </>
       )}
@@ -832,15 +832,15 @@ export default function LoginNostr({
           </p>
           <input
             placeholder="sua resposta"
-            aria-label="Resposta da pergunta de seguran├ºa"
+            aria-label="Resposta da pergunta de segurança"
             value={answer}
             onChange={(e) => setAnswer(e.target.value)}
             style={inputStyle}
           />
           <textarea
             className="sv-mnemonic-input"
-            placeholder="12 palavras de recupera├º├úo (separadas por espa├ºo)"
-            aria-label="12 palavras de recupera├º├úo"
+            placeholder="12 palavras de recuperação (separadas por espaço)"
+            aria-label="12 palavras de recuperação"
             value={mnemonicInput}
             onChange={(e) => setMnemonicInput(e.target.value)}
             rows={3}
@@ -849,8 +849,8 @@ export default function LoginNostr({
             style={inputStyle}
           />
           <input
-            placeholder="senha nova (m├¡nimo 8 caracteres)"
-            aria-label="Nova senha (m├¡nimo 8 caracteres)"
+            placeholder="senha nova (mínimo 8 caracteres)"
+            aria-label="Nova senha (mínimo 8 caracteres)"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -862,13 +862,13 @@ export default function LoginNostr({
             onClick={concluirRecuperacao}
             disabled={busy !== null || !answer || !mnemonicInput.trim() || !password}
           >
-            {busy === "recover" ? "Verificando posseÔÇª" : "Redefinir senha"}
+            {busy === "recover" ? "Verificando posse…" : "Redefinir senha"}
           </button>
         </>
       )}
 
       <p className="sv-foot">
-        Sua conta ├® uma identidade Nostr. Guardamos o cofre, nunca a chave.
+        Sua conta é uma identidade Nostr. Guardamos o cofre, nunca a chave.
       </p>
 
       {error && (

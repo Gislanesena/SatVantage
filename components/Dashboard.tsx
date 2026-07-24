@@ -14,16 +14,17 @@ import HerancaPanel from "@/components/HerancaPanel";
 import QrScanButton from "@/components/QrScanButton";
 import SkipToContent from "@/components/SkipToContent";
 import A11yDialog from "@/components/A11yDialog";
+import LanguageSelect from "@/components/LanguageSelect";
 import { useFocusTrap } from "@/lib/use-focus-trap";
 import { fmtBtc, fmtMoney, satsToFiat, useI18n } from "@/lib/i18n";
 import { isMutinyNetBolt11, MUTINYNET_ONLY_MSG, normalizeBolt11 } from "@/lib/mutinynet";
 import { MISSION_1_SLUG, MISSION_2_SLUG } from "@/lib/missions";
 import {
-  KNOW_QUESTIONS,
   MENTOR_SUGGESTIONS,
   topicById,
   type OptionalTopic,
 } from "@/lib/optional-topics";
+import { localizeTopic } from "@/lib/topics-i18n";
 import "./dash.css";
 import "./wallet.css";
 
@@ -487,6 +488,8 @@ export default function Dashboard({ user, onExitToHome, onOpenMentorFull }: Dash
             )}
           </button>
 
+          <LanguageSelect variant="bank" />
+
           <button
             type="button"
             className="sv-bank-avatar-btn"
@@ -602,9 +605,10 @@ export default function Dashboard({ user, onExitToHome, onOpenMentorFull }: Dash
                   {soonMsg && <p className="sv-bank-menu-note">{soonMsg}</p>}
                 </>
               ) : (
-                <div className="sv-bank-profile">
+                <div className="sv-bank-profile" role="group" aria-label={t.dash.profile}>
                   <button
                     type="button"
+                    role="menuitem"
                     className="sv-bank-profile-preview"
                     onClick={() => fileRef.current?.click()}
                     aria-label={t.dash.pickPhotoAria}
@@ -627,6 +631,7 @@ export default function Dashboard({ user, onExitToHome, onOpenMentorFull }: Dash
                   />
                   <button
                     type="button"
+                    role="menuitem"
                     className="sv-bank-profile-btn"
                     onClick={() => fileRef.current?.click()}
                   >
@@ -635,6 +640,7 @@ export default function Dashboard({ user, onExitToHome, onOpenMentorFull }: Dash
                   {user.npub && (
                     <button
                       type="button"
+                      role="menuitem"
                       className="sv-bank-profile-btn sv-bank-profile-btn--ghost"
                       onClick={() => {
                         setNostrKeyOpen(true);
@@ -647,6 +653,7 @@ export default function Dashboard({ user, onExitToHome, onOpenMentorFull }: Dash
                   {avatarUrl && (
                     <button
                       type="button"
+                      role="menuitem"
                       className="sv-bank-menu-item sv-bank-menu-item--muted"
                       onClick={removePhoto}
                     >
@@ -655,6 +662,7 @@ export default function Dashboard({ user, onExitToHome, onOpenMentorFull }: Dash
                   )}
                   <button
                     type="button"
+                    role="menuitem"
                     className="sv-bank-menu-item sv-bank-menu-item--muted"
                     onClick={() => setProfileOpen(false)}
                   >
@@ -1003,7 +1011,7 @@ export default function Dashboard({ user, onExitToHome, onOpenMentorFull }: Dash
             className={`sv-mentor-sheet${chatActive ? " sv-mentor-sheet--chat" : ""}`}
             role="dialog"
             aria-modal="true"
-            aria-label="NagAI SatVantage"
+            aria-label={`${t.mentor.name} SatVantage`}
             tabIndex={-1}
           >
             <div className="sv-mentor-sheet-head">
@@ -1013,7 +1021,7 @@ export default function Dashboard({ user, onExitToHome, onOpenMentorFull }: Dash
                 <strong>NagAI</strong>
                 <p>
                   {freeTopic
-                    ? freeTopic.label
+                    ? localizeTopic(freeTopic, locale).label
                     : mentorStep === "m1"
                       ? t.nagai.titleM1Short
                       : mentorStep === "m2"
@@ -1056,30 +1064,6 @@ export default function Dashboard({ user, onExitToHome, onOpenMentorFull }: Dash
               ) : null
             ) : (
               <>
-                <p className="sv-mentor-sheet-label">{t.know.title}</p>
-                <div className="sv-mentor-chips">
-                  {KNOW_QUESTIONS.map((s) => {
-                    const label =
-                      s.id === "imposto-quando"
-                        ? t.know.qImpostoQuando
-                        : s.id === "ir-2027"
-                          ? t.know.qIr2027
-                          : s.id === "patrimonio-crypto"
-                            ? t.know.qPatrimonio
-                            : t.know.qInforme;
-                    return (
-                      <button
-                        key={s.id}
-                        type="button"
-                        className="sv-mentor-chip"
-                        onClick={() => openGuideTopic(s.id)}
-                      >
-                        {label}
-                      </button>
-                    );
-                  })}
-                </div>
-
                 <p className="sv-mentor-sheet-label">{t.know.suggestions}</p>
                 <div className="sv-mentor-chips">
                   {MENTOR_SUGGESTIONS.map((s) => {
@@ -1136,36 +1120,16 @@ export default function Dashboard({ user, onExitToHome, onOpenMentorFull }: Dash
                     {t.nagai.tradeSim}
                   </button>
                 </div>
-
-                <div className="sv-mentor-chips">
-                  <button
-                    type="button"
-                    className="sv-mentor-chip sv-mentor-chip--fullscreen"
-                    onClick={() => openMentorFullScreen("chat")}
-                  >
-                    <span className="sv-mentor-chip-ico" aria-hidden>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                        <path
-                          d="M9 3H3v6M15 3h6v6M9 21H3v-6M21 15v6h-6"
-                          stroke="currentColor"
-                          strokeWidth="1.8"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    </span>
-                    {t.nagai.openFullscreen}
-                  </button>
-                </div>
               </>
             )}
 
-            {chatActive ? (
+            {chatActive && !freeTopic ? (
               <div className="sv-mentor-sheet-foot">
                 <button
                   type="button"
                   className="sv-mentor-chip sv-mentor-chip--fullscreen"
                   onClick={() => openMentorFullScreen("chat")}
+                  aria-label={t.nagai.openFullscreen}
                 >
                   <span className="sv-mentor-chip-ico" aria-hidden>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -1188,7 +1152,7 @@ export default function Dashboard({ user, onExitToHome, onOpenMentorFull }: Dash
         <button
           type="button"
           className="sv-mentor-fab"
-          aria-label={mentorOpen ? t.a11y.closeDialog : "NagAI"}
+          aria-label={mentorOpen ? t.a11y.closeDialog : t.nagai.withNagai}
           aria-expanded={mentorOpen}
           onClick={() => {
             if (mentorOpen) endMentorChat();

@@ -454,7 +454,11 @@ export default function TradeSimulator({ onExit }: TradeSimulatorProps) {
 
         <div className="sv-tsim-stats-wrap">
           <div className="sv-tsim-stats" data-tour-target="stats">
-            <div className="sv-tsim-stat" tabIndex={0} title={ts.equityTip}>
+            <div
+              className="sv-tsim-stat"
+              tabIndex={0}
+              aria-label={`${ts.equity}: ${ts.equityTip}`}
+            >
               <span className="sv-tsim-stat-label">
                 {ts.equity}
                 <span className="sv-tsim-tip-mark" aria-hidden>
@@ -466,7 +470,11 @@ export default function TradeSimulator({ onExit }: TradeSimulatorProps) {
                 {ts.equityTip}
               </span>
             </div>
-            <div className="sv-tsim-stat" tabIndex={0} title={ts.grossResultTip}>
+            <div
+              className="sv-tsim-stat"
+              tabIndex={0}
+              aria-label={`${ts.grossResult}: ${ts.grossResultTip}`}
+            >
               <span className="sv-tsim-stat-label">
                 {ts.grossResult}
                 <span className="sv-tsim-tip-mark" aria-hidden>
@@ -481,7 +489,11 @@ export default function TradeSimulator({ onExit }: TradeSimulatorProps) {
                 {ts.grossResultTip}
               </span>
             </div>
-            <div className="sv-tsim-stat" tabIndex={0} title={ts.cashTip}>
+            <div
+              className="sv-tsim-stat"
+              tabIndex={0}
+              aria-label={`${ts.cash}: ${ts.cashTip}`}
+            >
               <span className="sv-tsim-stat-label">
                 {ts.cash}
                 <span className="sv-tsim-tip-mark" aria-hidden>
@@ -493,7 +505,11 @@ export default function TradeSimulator({ onExit }: TradeSimulatorProps) {
                 {ts.cashTip}
               </span>
             </div>
-            <div className="sv-tsim-stat" tabIndex={0} title={ts.btcTip}>
+            <div
+              className="sv-tsim-stat"
+              tabIndex={0}
+              aria-label={`${ts.btcLabel}: ${ts.btcTip}`}
+            >
               <span className="sv-tsim-stat-label">
                 {ts.btcLabel}
                 <span className="sv-tsim-tip-mark" aria-hidden>
@@ -649,10 +665,22 @@ export default function TradeSimulator({ onExit }: TradeSimulatorProps) {
           <p className="sv-tsim-req-legend">{ts.requiredLegend}</p>
 
           <label className="sv-tsim-field">
-            <span>
-              {ts.asset}
-              <span className="sv-tsim-req" aria-hidden>
-                {ts.requiredMark}
+            <span
+              className="sv-tsim-field-tip"
+              tabIndex={0}
+              aria-label={`${ts.asset}: ${ts.assetTip}`}
+            >
+              <span className="sv-tsim-stat-label">
+                {ts.asset}
+                <span className="sv-tsim-tip-mark" aria-hidden>
+                  ?
+                </span>
+                <span className="sv-tsim-req" aria-hidden>
+                  {ts.requiredMark}
+                </span>
+              </span>
+              <span className="sv-tsim-stat-tip" role="tooltip">
+                {ts.assetTip}
               </span>
             </span>
             <select value={activeAsset} onChange={(e) => setActiveAsset(e.target.value)}>
@@ -671,10 +699,11 @@ export default function TradeSimulator({ onExit }: TradeSimulatorProps) {
                 {ts.requiredMark}
               </span>
             </span>
-            <div className="sv-tsim-side-tabs">
+            <div className="sv-tsim-side-tabs" role="group" aria-label={`${ts.buy} / ${ts.sell}`}>
               <button
                 type="button"
                 className={side === "compra" ? "is-active is-buy" : undefined}
+                aria-pressed={side === "compra"}
                 onClick={() => setSide("compra")}
               >
                 {ts.buy}
@@ -682,6 +711,7 @@ export default function TradeSimulator({ onExit }: TradeSimulatorProps) {
               <button
                 type="button"
                 className={side === "venda" ? "is-active is-sell" : undefined}
+                aria-pressed={side === "venda"}
                 onClick={() => setSide("venda")}
               >
                 {ts.sell}
@@ -752,9 +782,21 @@ export default function TradeSimulator({ onExit }: TradeSimulatorProps) {
 
           <div className="sv-tsim-row2" data-tour-target="risk">
             <label className="sv-tsim-field">
-              <span>
-                {ts.takeProfit}{" "}
-                <em className="sv-tsim-optional">({ts.optionalNote})</em>
+              <span
+                className="sv-tsim-field-tip"
+                tabIndex={0}
+                aria-label={`${ts.takeProfit}: ${ts.takeProfitTip}`}
+              >
+                <span className="sv-tsim-stat-label">
+                  {ts.takeProfit}{" "}
+                  <em className="sv-tsim-optional">({ts.optionalNote})</em>
+                  <span className="sv-tsim-tip-mark" aria-hidden>
+                    ?
+                  </span>
+                </span>
+                <span className="sv-tsim-stat-tip" role="tooltip">
+                  {ts.takeProfitTip}
+                </span>
               </span>
               <input
                 inputMode="decimal"
@@ -764,9 +806,21 @@ export default function TradeSimulator({ onExit }: TradeSimulatorProps) {
               />
             </label>
             <label className="sv-tsim-field">
-              <span>
-                {ts.stopLoss}{" "}
-                <em className="sv-tsim-optional">({ts.optionalNote})</em>
+              <span
+                className="sv-tsim-field-tip"
+                tabIndex={0}
+                aria-label={`${ts.stopLoss}: ${ts.stopLossTip}`}
+              >
+                <span className="sv-tsim-stat-label">
+                  {ts.stopLoss}{" "}
+                  <em className="sv-tsim-optional">({ts.optionalNote})</em>
+                  <span className="sv-tsim-tip-mark" aria-hidden>
+                    ?
+                  </span>
+                </span>
+                <span className="sv-tsim-stat-tip" role="tooltip">
+                  {ts.stopLossTip}
+                </span>
               </span>
               <input
                 inputMode="decimal"
@@ -793,11 +847,26 @@ export default function TradeSimulator({ onExit }: TradeSimulatorProps) {
 
         <aside className="sv-tsim-ativos" aria-label={ts.assetsAria} data-tour-target="ativos">
           <label className="sv-tsim-search">
-            <span className="sv-sr-only">{ts.assetCodePh}</span>
+            <span
+              className="sv-tsim-field-tip"
+              tabIndex={0}
+              aria-label={`${ts.assetCodePh}: ${ts.assetCodeTip}`}
+            >
+              <span className="sv-tsim-stat-label">
+                {ts.assetCodePh}
+                <span className="sv-tsim-tip-mark" aria-hidden>
+                  ?
+                </span>
+              </span>
+              <span className="sv-tsim-stat-tip" role="tooltip">
+                {ts.assetCodeTip}
+              </span>
+            </span>
             <input
               placeholder={ts.assetCodePh}
               value={assetQuery}
               onChange={(e) => setAssetQuery(e.target.value)}
+              aria-label={ts.assetCodePh}
             />
           </label>
           <h3>{ts.featuredAssets}</h3>

@@ -126,7 +126,7 @@ export default function ChatComposer({
           aria-label={t.a11y.sendMessage}
         >
           {sendLabel === "text" ? (
-            "Enviar"
+            t.mentor.send
           ) : (
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
               <path

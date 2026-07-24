@@ -10,6 +10,7 @@ import {
 import { OPTIONAL_TOPICS, type OptionalTopic } from "@/lib/optional-topics";
 import { postAgent } from "@/lib/agents-client";
 import ChatComposer from "@/components/ChatComposer";
+import SpeakButton from "@/components/SpeakButton";
 import TradeSimulator from "@/components/TradeSimulator";
 import SkipToContent from "@/components/SkipToContent";
 import { useSpeechToText } from "@/lib/use-speech-to-text";
@@ -17,8 +18,10 @@ import { matchSpokenOption } from "@/lib/match-spoken-option";
 import { useFocusTrap } from "@/lib/use-focus-trap";
 import { dictFor, useI18n, type Locale } from "@/lib/i18n";
 import { localizeLessonClient } from "@/lib/quiz-i18n";
+import { localizeTopic } from "@/lib/topics-i18n";
 import { useChatAutoScroll } from "@/lib/use-chat-auto-scroll";
 import NagaiHistoryDrawer from "@/components/NagaiHistoryDrawer";
+import A11yDialog from "@/components/A11yDialog";
 import {
   newConversationId,
   resolveHistoryScope,
@@ -39,8 +42,8 @@ type Lesson = {
 };
 
 type ChatLine =
-  | { kind: "agent"; text: string; satsNote?: string; sats?: number }
-  | { kind: "user"; text: string };
+  | { kind: "agent"; text: string; satsNote?: string; sats?: number; lang?: Locale }
+  | { kind: "user"; text: string; lang?: Locale };
 
 type ResponseSlot = { answer: number | null; skipped: boolean };
 
@@ -87,6 +90,125 @@ const COPY_KEYS = {
 function sleep(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
 }
+
+const NAGAI_TEMPLATE_KEYS = [
+  "hitSats",
+  "trySats",
+  "thisTest",
+  "accountBalance",
+  "historyMessages",
+] as const;
+
+type NagaiStringKey = Exclude<
+  keyof ReturnType<typeof dictFor>["nagai"],
+  never
+>;
+
+/** Mapa texto(qualquer idioma) → variantes pt/en/es para chaves string do nagai. */
+function buildNagaiTextTriples(): Map<string, Record<Locale, string>> {
+  const map = new Map<string, Record<Locale, string>>();
+  const pt = dictFor("pt").nagai;
+  const en = dictFor("en").nagai;
+  const es = dictFor("es").nagai;
+  for (const key of Object.keys(pt) as NagaiStringKey[]) {
+    const pv = pt[key];
+    const ev = en[key];
+    const sv = es[key];
+    if (typeof pv !== "string" || typeof ev !== "string" || typeof sv !== "string") {
+      continue;
+    }
+    const triple = { pt: pv, en: ev, es: sv };
+    map.set(pv, triple);
+    map.set(ev, triple);
+    map.set(sv, triple);
+  }
+  return map;
+}
+
+function escapeRegExp(s: string) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/** Remapeia texto conhecido (i18n) para o locale alvo; null se for mensagem livre. */
+function remapKnownChatText(text: string, target: Locale): string | null {
+  if (!text.trim()) return text;
+  const triples = buildNagaiTextTriples();
+  const hit = triples.get(text);
+  if (hit) return hit[target];
+
+  for (const key of NAGAI_TEMPLATE_KEYS) {
+    for (const src of ["pt", "en", "es"] as Locale[]) {
+      const template = dictFor(src).nagai[key];
+      if (typeof template !== "string" || !template.includes("{")) continue;
+      const pattern = `^${escapeRegExp(template)
+        .replace("\\{sats\\}", "(.+)")
+        .replace("\\{n\\}", "(.+)")}$`;
+      const m = text.match(new RegExp(pattern));
+      if (!m) continue;
+      let out = dictFor(target).nagai[key] as string;
+      if (template.includes("{sats}") && m[1] != null) {
+        out = out.replace("{sats}", m[1]);
+      } else if (template.includes("{n}") && m[1] != null) {
+        out = out.replace("{n}", m[1]);
+      }
+      return out;
+    }
+  }
+  return null;
+}
+
+/** Tradução livre PT/EN/ES (MyMemory) — não depende do mentor Bitcoin. */
+async function translateFreeText(
+  text: string,
+  from: Locale,
+  to: Locale,
+): Promise<string> {
+  const trimmed = text.trim();
+  if (!trimmed || from === to) return text;
+  try {
+    const chunks: string[] = [];
+    let rest = trimmed;
+    while (rest.length > 0) {
+      chunks.push(rest.slice(0, 450));
+      rest = rest.slice(450);
+    }
+    const parts: string[] = [];
+    for (const chunk of chunks) {
+      const url =
+        `https://api.mymemory.translated.net/get?q=${encodeURIComponent(chunk)}` +
+        `&langpair=${from}|${to}`;
+      const res = await fetch(url);
+      if (!res.ok) return text;
+      const data = (await res.json()) as {
+        responseData?: { translatedText?: string };
+      };
+      const out = data.responseData?.translatedText?.trim();
+      if (!out || /MYMEMORY WARNING/i.test(out)) return text;
+      parts.push(out);
+    }
+    return parts.join("");
+  } catch {
+    return text;
+  }
+}
+
+function guessLineLang(text: string, fallback: Locale): Locale {
+  const known = remapKnownChatText(text, "pt");
+  if (known != null) {
+    // texto já é de algum dicionário — descobrir origem
+    for (const loc of ["pt", "en", "es"] as Locale[]) {
+      if (buildNagaiTextTriples().get(text)?.[loc] === text) return loc;
+    }
+  }
+  // Heurística leve
+  if (/[áàâãéêíóôõúç]/i.test(text) && !/[ñ¿¡]/i.test(text)) return "pt";
+  if (/[ñ¿¡]/i.test(text)) return "es";
+  if (/\b(the|and|you|what|how|bitcoin)\b/i.test(text) && !/[áàâãéêíóôõúçñ]/i.test(text)) {
+    return "en";
+  }
+  return fallback;
+}
+
 
 export default function MentorChat({
   slug,
@@ -138,6 +260,12 @@ export default function MentorChat({
   const lessonsRef = useRef<Lesson[]>([]);
   const stepRef = useRef(0);
   const doneTopicsRef = useRef<string[]>([]);
+  const busyRef = useRef(false);
+  const typingRef = useRef(false);
+  const linesRef = useRef<ChatLine[]>([]);
+  const localeChatReadyRef = useRef(false);
+  const localeChatAppliedRef = useRef<Locale | null>(null);
+  const relocalizeIdRef = useRef(0);
   const knowledgeTrapRef = useFocusTrap(showKnowledgePicker, () =>
     setShowKnowledgePicker(false),
   );
@@ -193,6 +321,15 @@ export default function MentorChat({
   useEffect(() => {
     doneTopicsRef.current = doneTopics;
   }, [doneTopics]);
+  useEffect(() => {
+    busyRef.current = busy;
+  }, [busy]);
+  useEffect(() => {
+    typingRef.current = typing;
+  }, [typing]);
+  useEffect(() => {
+    linesRef.current = lines;
+  }, [lines]);
 
   useEffect(() => {
     void resolveHistoryScope().then((s) => {
@@ -231,12 +368,21 @@ export default function MentorChat({
       setTyping(true);
       setLines((prev) => [
         ...prev,
-        { kind: "agent", text: "", satsNote: meta?.satsNote, sats: meta?.sats },
+        {
+          kind: "agent",
+          text: "",
+          satsNote: meta?.satsNote,
+          sats: meta?.sats,
+          lang: locale as Locale,
+        },
       ]);
       const chunk = text.length > 160 ? 3 : text.length > 80 ? 2 : 1;
       let i = 0;
       while (i < text.length) {
-        if (!alive(runId)) return;
+        if (!alive(runId)) {
+          setTyping(false);
+          return;
+        }
         i = Math.min(i + chunk, text.length);
         const slice = text.slice(0, i);
         setLines((prev) => {
@@ -251,12 +397,15 @@ export default function MentorChat({
       }
       if (alive(runId)) setTyping(false);
     },
-    [alive],
+    [alive, locale],
   );
 
   function pushUser(text: string) {
     stickToBottom();
-    setLines((prev) => [...prev, { kind: "user", text }]);
+    setLines((prev) => [
+      ...prev,
+      { kind: "user", text, lang: locale as Locale },
+    ]);
   }
 
   function flushHistorySave(nextLines = lines) {
@@ -384,6 +533,111 @@ export default function MentorChat({
     rewardEligibleRef.current = rewardEligible;
   }, [rewardEligible]);
 
+  /** Idioma muda no chat: traduz TODO o histórico (user + agente) para o idioma ativo. */
+  useEffect(() => {
+    if (mode !== "chat") return;
+    const target = locale as Locale;
+    if (!localeChatReadyRef.current) {
+      localeChatReadyRef.current = true;
+      localeChatAppliedRef.current = target;
+      return;
+    }
+    // Mesmo idioma já aplicado com sucesso → não re-traduz (ex.: voltar do simulador)
+    if (localeChatAppliedRef.current === target) return;
+
+    let cancelled = false;
+    const myId = ++relocalizeIdRef.current;
+    const stillMine = () => !cancelled && relocalizeIdRef.current === myId;
+
+    (async () => {
+      while (!cancelled && (busyRef.current || typingRef.current)) {
+        await sleep(80);
+      }
+      if (!stillMine()) return;
+
+      const snapshot = linesRef.current;
+      if (!snapshot.length) {
+        // Sem linhas: marca o idioma atual (intro virá depois)
+        if (stillMine()) localeChatAppliedRef.current = target;
+        return;
+      }
+
+      const introTarget = copy.intro;
+      const intros = new Set([
+        dictFor("pt").nagai.introM1,
+        dictFor("en").nagai.introM1,
+        dictFor("es").nagai.introM1,
+        dictFor("pt").nagai.introM2,
+        dictFor("en").nagai.introM2,
+        dictFor("es").nagai.introM2,
+      ]);
+
+      setBusy(true);
+      try {
+        const next: ChatLine[] = [];
+        for (let i = 0; i < snapshot.length; i++) {
+          if (!stillMine()) return;
+          const line = snapshot[i]!;
+
+          if (line.kind === "agent") {
+            // Intro / boas-vindas → chave i18n do idioma ativo
+            if (i === 0 || intros.has(line.text)) {
+              next.push({
+                kind: "agent",
+                text: introTarget,
+                lang: target,
+                sats: line.sats,
+                satsNote: line.satsNote
+                  ? (remapKnownChatText(line.satsNote, target) ?? line.satsNote)
+                  : line.satsNote,
+              });
+              setLines([...next, ...snapshot.slice(i + 1)]);
+              continue;
+            }
+
+            const known = remapKnownChatText(line.text, target);
+            const from = line.lang ?? guessLineLang(line.text, "pt");
+            const text =
+              known ?? (await translateFreeText(line.text, from, target));
+            let satsNote = line.satsNote;
+            if (satsNote) {
+              satsNote =
+                remapKnownChatText(satsNote, target) ??
+                (await translateFreeText(satsNote, from, target));
+            }
+            next.push({
+              kind: "agent",
+              text,
+              satsNote,
+              sats: line.sats,
+              lang: target,
+            });
+          } else {
+            const known = remapKnownChatText(line.text, target);
+            const from = line.lang ?? guessLineLang(line.text, "pt");
+            const text =
+              known ?? (await translateFreeText(line.text, from, target));
+            next.push({ kind: "user", text, lang: target });
+          }
+          setLines([...next, ...snapshot.slice(i + 1)]);
+        }
+        if (stillMine()) {
+          setLines(next);
+          // Só marca idioma aplicado após conclusão — evita histórico misto
+          // se o efeito for cancelado ao ir para quiz/simulador.
+          localeChatAppliedRef.current = target;
+        }
+      } finally {
+        if (stillMine()) setBusy(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      relocalizeIdRef.current += 1;
+    };
+  }, [locale, copy.intro, mode]);
+
   /** Se o idioma muda com o quiz aberto, reescreve intro + teach + pergunta + opções. */
   useEffect(() => {
     if (mode !== "quiz" || composer.type !== "mission") return;
@@ -438,15 +692,20 @@ export default function MentorChat({
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [locale]);
+  }, [locale, mode, composer.type, slug]);
 
-  async function startTheoreticalQuiz() {
+  async function startTheoreticalQuiz(opts?: { practiceConfirmed?: boolean }) {
     const runId = ++runIdRef.current;
     // Fonte da verdade: idioma do Header (contexto React)
     const activeLocale = locale as Locale;
     const nagai = dictFor(activeLocale).nagai;
     flushHistorySave();
+
+    const asPractice =
+      !!opts?.practiceConfirmed || forcePractice || startAsPractice;
+    if (opts?.practiceConfirmed) {
+      setForcePractice(true);
+    }
 
     setShowKnowledgePicker(false);
     setMode("quiz");
@@ -478,13 +737,13 @@ export default function MentorChat({
       setRewardEligible(!!data.rewardEligible);
       rewardEligibleRef.current = !!data.rewardEligible;
 
-      if (!data.rewardEligible && !forcePractice && !startAsPractice) {
+      if (!data.rewardEligible && !asPractice) {
         setShowGate(true);
         setBusy(false);
         return;
       }
 
-      if (startAsPractice) {
+      if (asPractice) {
         setForcePractice(true);
       }
 
@@ -520,15 +779,30 @@ export default function MentorChat({
   }
 
   function exitPracticalSim() {
+    const runId = ++runIdRef.current;
     setMode("chat");
     setComposer({ type: "hidden" });
+    setShowKnowledgePicker(false);
+    setError(null);
+    setTyping(false);
+    stickToBottom();
+
+    // Sem mensagens (ex.: entrou direto no simulador) → restaura a intro da NagAI
+    if (linesRef.current.length === 0) {
+      setBusy(true);
+      void (async () => {
+        await typeAgent(copy.intro, runId);
+        if (alive(runId)) setBusy(false);
+      })();
+      return;
+    }
     setBusy(false);
   }
 
   async function sendFreeChat() {
     const text = draft.trim();
     if (!text || busy || mode === "quiz") return;
-    const runId = runIdRef.current;
+    const runId = ++runIdRef.current;
     setDraft("");
     setBusy(true);
     setError(null);
@@ -586,31 +860,29 @@ export default function MentorChat({
 
     if (opts.alreadyDone) {
       await typeAgent(
-        opts.skipAll
-          ? "Você já tinha pulado este teste. Pode voltar ao dashboard quando quiser."
-          : "Você já tinha concluído este teste. O resultado fica registrado na sua conta.",
+        opts.skipAll ? t.mentor.alreadySkipped : t.mentor.alreadyDone,
         runId,
       );
       if (typeof opts.satsBalance === "number") {
-        satsLine = `Saldo na conta: ⚡ ${opts.satsBalance} sats.`;
+        satsLine = t.mentor.balanceLine.replace("{n}", String(opts.satsBalance));
       }
     } else if (opts.skipAll) {
-      await typeAgent("Teste pulado — você ganhou 0 sats desta vez.", runId);
+      await typeAgent(t.nagai.zeroSatsClosed, runId);
       satsHighlight = t.nagai.zeroSatsTest;
     } else if (opts.practiceOnly) {
-      await typeAgent(
-        "Prática concluída. Nesta conta os sats deste teste já foram creditados antes — refazer não gera saldo novo.",
-        runId,
-      );
-      satsHighlight = "Prática · sem novos sats nesta conta.";
+      await typeAgent(t.mentor.practiceDone, runId);
+      satsHighlight = t.nagai.practiceNoSats;
     } else if (earned > 0) {
       await typeAgent(
-        `Pronto! Resultado do teste: +${earned} satoshi${earned === 1 ? "" : "s"} na sua conta SatVantage.`,
+        t.mentor.satsWon.replace("{n}", String(earned)),
         runId,
       );
-      satsHighlight = `Você ganhou ${earned} satoshi${earned === 1 ? "" : "s"}!`;
+      satsHighlight = t.nagai.hitSats.replace("{sats}", String(earned));
       if (typeof opts.satsBalance === "number") {
-        satsLine = `Saldo atual: ⚡ ${opts.satsBalance} sats`;
+        satsLine = t.nagai.accountBalance.replace(
+          "{sats}",
+          String(opts.satsBalance),
+        );
       }
     } else {
       await typeAgent(t.nagai.zeroSatsClosed, runId);
@@ -732,9 +1004,9 @@ export default function MentorChat({
 
       let finalHighlight = highlight;
       if (json.practiceOnly || json.alreadyRewarded) {
-        finalHighlight = "Prática · sem novos sats nesta conta.";
+        finalHighlight = t.nagai.practiceNoSats;
       } else if (earned > 0) {
-        finalHighlight = `Você ganhou ${earned} satoshi${earned === 1 ? "" : "s"}!`;
+        finalHighlight = t.nagai.hitSats.replace("{sats}", String(earned));
       } else if (nextResponses[0]?.skipped) {
         finalHighlight = t.nagai.zeroSatsTest;
       }
@@ -745,7 +1017,9 @@ export default function MentorChat({
         showContinue: false,
         topics: [],
         satsLine:
-          typeof satsBalance === "number" ? `Saldo atual: ⚡ ${satsBalance} sats` : null,
+          typeof satsBalance === "number"
+            ? t.nagai.accountBalance.replace("{sats}", String(satsBalance))
+            : null,
         satsHighlight: finalHighlight,
         dashboardOnly: true,
       });
@@ -854,7 +1128,7 @@ export default function MentorChat({
     if (busy) return;
     setBusy(true);
     setComposer({ type: "hidden" });
-    pushUser("Quero pular o teste");
+    pushUser(t.nagai.skipTest);
     await typeAgent(t.nagai.skipAllAgent, runId);
     if (!alive(runId)) return;
     await finish({ skipAll: true });
@@ -863,22 +1137,23 @@ export default function MentorChat({
   async function startOptionalTopic(topic: OptionalTopic) {
     const runId = runIdRef.current;
     if (busy) return;
+    const localized = localizeTopic(topic, locale as Locale);
     setBusy(true);
     setComposer({ type: "hidden" });
-    pushUser(topic.label);
-    for (const msg of topic.teach) {
+    pushUser(localized.label);
+    for (const msg of localized.teach) {
       if (!alive(runId)) return;
       await sleep(220);
       await typeAgent(msg, runId);
     }
     if (!alive(runId)) return;
     await sleep(260);
-    await typeAgent(topic.question ?? "", runId);
+    await typeAgent(localized.question ?? "", runId);
     if (!alive(runId)) return;
     setComposer({
       type: "topic-q",
-      topicId: topic.id,
-      options: topic.options ?? [],
+      topicId: localized.id,
+      options: localized.options ?? [],
     });
     setBusy(false);
   }
@@ -886,8 +1161,9 @@ export default function MentorChat({
   async function answerTopic(optionIndex: number) {
     const runId = runIdRef.current;
     if (composer.type !== "topic-q" || busy) return;
-    const topic = OPTIONAL_TOPICS.find((t) => t.id === composer.topicId);
-    if (!topic) return;
+    const raw = OPTIONAL_TOPICS.find((t) => t.id === composer.topicId);
+    if (!raw) return;
+    const topic = localizeTopic(raw, locale as Locale);
     setBusy(true);
     setComposer({ type: "hidden" });
     pushUser((topic.options ?? [])[optionIndex] ?? "");
@@ -904,9 +1180,7 @@ export default function MentorChat({
     const left = remainingTopics(nextDone);
     await sleep(280);
     await typeAgent(
-      left.length
-        ? "Quer ver outro assunto, ou prefere o chat livre / dashboard?"
-        : "Esses eram os extras. Pode voltar ao chat livre ou ao dashboard.",
+      left.length ? t.mentor.anotherTopicOrDash : t.mentor.extrasDone,
       runId,
     );
     if (!alive(runId)) return;
@@ -917,12 +1191,13 @@ export default function MentorChat({
   async function skipTopicQuestion() {
     const runId = runIdRef.current;
     if (composer.type !== "topic-q" || busy) return;
-    const topic = OPTIONAL_TOPICS.find((t) => t.id === composer.topicId);
-    if (!topic) return;
+    const raw = OPTIONAL_TOPICS.find((t) => t.id === composer.topicId);
+    if (!raw) return;
+    const topic = localizeTopic(raw, locale as Locale);
     setBusy(true);
     setComposer({ type: "hidden" });
     pushUser(t.nagai.skipThisQuestion);
-    await typeAgent("Beleza. O importante era a explicação.", runId);
+    await typeAgent(t.mentor.topicSkipOk, runId);
     if (!alive(runId)) return;
     const nextDone = [...doneTopicsRef.current, topic.id];
     setDoneTopics(nextDone);
@@ -930,7 +1205,7 @@ export default function MentorChat({
     const left = remainingTopics(nextDone);
     await sleep(200);
     await typeAgent(
-      left.length ? "Quer outro assunto opcional?" : "Pode voltar ao chat livre.",
+      left.length ? t.mentor.anotherOptionalOrDash : t.mentor.rereadOrDash,
       runId,
     );
     if (!alive(runId)) return;
@@ -966,61 +1241,65 @@ export default function MentorChat({
     );
   }
 
-  if (showGate) {
-    return (
-      <div className={shellClass}>
-        {shellNav()}
-        <div className="sv-mentor-body">
-          <div className="sv-mentor-gate">
-            <img
-              src="/satvantage-mentor.png"
-              alt=""
-              className="sv-mentor-gate-face"
-              width={88}
-              height={88}
-            />
-            <h1>{copy.title}</h1>
-            <p>
-              {t.nagai.quizGateBodyBefore}{" "}
-              <strong>{t.nagai.quizGateBodyStrong}</strong>
-              {t.nagai.quizGateBodyAfter}
-            </p>
-            <div className="sv-mentor-gate-actions">
-              <button
-                type="button"
-                className="sv-chat-cta"
-                onClick={() => {
-                  setForcePractice(true);
-                  setShowGate(false);
-                  void startTheoreticalQuiz();
-                }}
-              >
-                {t.nagai.quizGateRetry}
-              </button>
-              <button
-                type="button"
-                className="sv-chat-cta sv-chat-cta--ghost"
-                onClick={() => {
-                  setShowGate(false);
-                  setMode("chat");
-                }}
-              >
-                {t.nagai.quizGateBackChat}
-              </button>
-              <button type="button" className="sv-chat-cta sv-chat-cta--ghost" onClick={onGoDashboard}>
-                {t.nagai.dashboard}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className={shellClass}>
       {!embedded && <SkipToContent href="#conteudo" />}
       {shellNav()}
+      {showGate && (
+        <A11yDialog
+          open={showGate}
+          onClose={() => {
+            setShowGate(false);
+            setMode("chat");
+          }}
+          labelledBy="sv-mentor-gate-title"
+          className="sv-mentor-gate sv-mentor-gate--modal"
+          backdropClassName="sv-mentor-gate-backdrop"
+        >
+          <img
+            src="/satvantage-mentor.png"
+            alt=""
+            className="sv-mentor-gate-face"
+            width={88}
+            height={88}
+          />
+          <h1 id="sv-mentor-gate-title">{copy.title}</h1>
+          <p>
+            {t.nagai.quizGateBodyBefore}{" "}
+            <strong>{t.nagai.quizGateBodyStrong}</strong>
+            {t.nagai.quizGateBodyAfter}
+          </p>
+          <div className="sv-mentor-gate-actions">
+            <button
+              type="button"
+              className="sv-chat-cta"
+              onClick={() => {
+                setShowGate(false);
+                void startTheoreticalQuiz({ practiceConfirmed: true });
+              }}
+            >
+              {t.nagai.quizGateRetry}
+            </button>
+            <button
+              type="button"
+              className="sv-chat-cta sv-chat-cta--ghost"
+              onClick={() => {
+                setShowGate(false);
+                setMode("chat");
+              }}
+            >
+              {t.nagai.quizGateBackChat}
+            </button>
+            <button
+              type="button"
+              className="sv-chat-cta sv-chat-cta--ghost"
+              onClick={onGoDashboard}
+            >
+              {t.nagai.dashboard}
+            </button>
+          </div>
+        </A11yDialog>
+      )}
 
       <div
         className={`sv-mentor-body${mode === "pratico" ? " sv-mentor-body--sim" : ""}`}
@@ -1048,14 +1327,11 @@ export default function MentorChat({
                 <>
                   <button
                     type="button"
-                    className="sv-toolbar-btn"
-                    disabled={busy}
-                    onClick={() => {
-                      setShowKnowledgePicker(true);
-                      setComposer({ type: "hidden" });
-                    }}
+                    className="sv-toolbar-btn sv-toolbar-btn--ghost"
+                    disabled={busy || mode === "quiz"}
+                    onClick={startNewConversation}
                   >
-                    {t.nagai.knowledgeTest}
+                    {t.nagai.historyNew}
                   </button>
                   <button
                     type="button"
@@ -1067,11 +1343,14 @@ export default function MentorChat({
                   </button>
                   <button
                     type="button"
-                    className="sv-toolbar-btn sv-toolbar-btn--ghost"
-                    disabled={busy || mode === "quiz"}
-                    onClick={startNewConversation}
+                    className="sv-toolbar-btn"
+                    disabled={busy}
+                    onClick={() => {
+                      setShowKnowledgePicker(true);
+                      setComposer({ type: "hidden" });
+                    }}
                   >
-                    {t.nagai.historyNew}
+                    {t.nagai.knowledgeTest}
                   </button>
                 </>
               )}
@@ -1113,11 +1392,11 @@ export default function MentorChat({
               <>
                 <button
                   type="button"
-                  className="sv-toolbar-btn"
-                  disabled={busy}
-                  onClick={() => setShowKnowledgePicker(true)}
+                  className="sv-toolbar-btn sv-toolbar-btn--ghost"
+                  disabled={busy || mode === "quiz"}
+                  onClick={startNewConversation}
                 >
-                  {t.nagai.knowledgeTest}
+                  {t.nagai.historyNew}
                 </button>
                 <button
                   type="button"
@@ -1129,11 +1408,11 @@ export default function MentorChat({
                 </button>
                 <button
                   type="button"
-                  className="sv-toolbar-btn sv-toolbar-btn--ghost"
-                  disabled={busy || mode === "quiz"}
-                  onClick={startNewConversation}
+                  className="sv-toolbar-btn"
+                  disabled={busy}
+                  onClick={() => setShowKnowledgePicker(true)}
                 >
-                  {t.nagai.historyNew}
+                  {t.nagai.knowledgeTest}
                 </button>
               </>
             )}
@@ -1160,7 +1439,15 @@ export default function MentorChat({
           <TradeSimulator onExit={exitPracticalSim} />
         ) : (
         <div className="sv-chat-panel">
-          <div className="sv-chat-scroll" ref={scrollRef} onScroll={onChatScroll}>
+          <div
+            className="sv-chat-scroll"
+            ref={scrollRef}
+            onScroll={onChatScroll}
+            role="log"
+            aria-live="polite"
+            aria-relevant="additions"
+            aria-label="NagAI"
+          >
             {lines.map((line, i) =>
               line.kind === "agent" ? (
                 <div key={i} className="sv-bubble-row">
@@ -1174,6 +1461,10 @@ export default function MentorChat({
                   <div className="sv-bubble sv-bubble--agent">
                     <div className="sv-bubble-head">
                       <span className="sv-bubble-label">NagAI</span>
+                      <SpeakButton
+                        text={[line.text, line.satsNote].filter(Boolean).join(" ")}
+                        disabled={typing && i === lines.length - 1}
+                      />
                     </div>
                     <span className="sv-bubble-text">
                       {line.text}
@@ -1196,6 +1487,9 @@ export default function MentorChat({
                 </div>
               ) : (
                 <div key={i} className="sv-bubble sv-bubble--user">
+                  <div className="sv-bubble-head">
+                    <SpeakButton text={line.text} />
+                  </div>
                   <span className="sv-bubble-text">{line.text}</span>
                 </div>
               ),
@@ -1252,15 +1546,17 @@ export default function MentorChat({
               >
                 <div className="sv-chat-options">
                   {composer.options.map((opt, oi) => (
-                    <button
-                      key={oi}
-                      type="button"
-                      className="sv-chat-option"
-                      disabled={busy}
-                      onClick={() => void answerMission(oi)}
-                    >
-                      {opt}
-                    </button>
+                    <div key={oi} className="sv-chat-option-row">
+                      <button
+                        type="button"
+                        className="sv-chat-option"
+                        disabled={busy}
+                        onClick={() => void answerMission(oi)}
+                      >
+                        {opt}
+                      </button>
+                      <SpeakButton text={opt} disabled={busy} />
+                    </div>
                   ))}
                 </div>
 
@@ -1375,7 +1671,7 @@ export default function MentorChat({
                   disabled={busy}
                   onClick={() => void skipTopicQuestion()}
                 >
-                  Pular pergunta
+                  {t.nagai.skipQuestion}
                 </button>
               </div>
             )}

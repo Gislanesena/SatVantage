@@ -1,66 +1,39 @@
-# SatVantage Copiloto — extensão Chrome (Side Panel)
+# SatVantage Copiloto — extensão oficial (única)
 
-Extensão **independente** do app. Chama os endpoints Next.js em produção (ou localhost quando a aba ativa é o site oficial em dev):
+**Pasta canônica:** `front/extension/`  
+Não use mais `satmentor/extension/` (removida / apenas redirecionamento).
 
-**https://sat-vantage-gislanesena.vercel.app**
+Side Panel MV3 independente do app. Backend = **Next.js** (produção Vercel ou `localhost:3000` na aba oficial):
 
 - `POST /api/extension/analisar`
 - `POST /api/extension/analisar-imagem`
-- `GET /api/market/btc` — cotação Bitcoin (CoinGecko, sem chave)
+- `GET /api/market/btc`
 
-Não há chave de IA na extensão. Não usa FastAPI/`agents-api` direto.
+Não embute chave de IA. Não depende do `agents-api`.
 
-**Site oficial:** quando a aba é esse domínio (ou `localhost` em dev), o Copiloto usa o **mapa do site** e resumo local (saldo, extrato, carteira, herança).
+## Instalar
 
-## Instalar (carregar sem compactação)
+1. Chrome → `chrome://extensions` → Modo do desenvolvedor  
+2. **Carregar sem compactação** → esta pasta: `front/extension/`  
+3. (Opcional) `npm run build` dentro desta pasta gera `dist/` para carregar a cópia estática
 
-### Opção A — pasta `extension/` (mais rápida)
+## Ferramentas
 
-1. Abra o Chrome → `chrome://extensions`
-2. Ative **Modo do desenvolvedor** (canto superior direito)
-3. Clique em **Carregar sem compactação**
-4. Selecione a pasta: `web/extension/`
-5. Clique no ícone SatVantage → abre o **Side Panel**
-
-### Opção B — pasta de build `dist/`
-
-No terminal:
-
-```bash
-cd web/extension
-npm run build
-```
-
-Isso gera `web/extension/dist/`. Em `chrome://extensions` → **Carregar sem compactação** → escolha `dist/`.
-
-Após mudanças no código: em `chrome://extensions` clique em **Atualizar** na extensão.
-
-## Backend / CORS (importante para o demo)
-
-A extensão chama a **URL de produção** por padrão. Em aba oficial (`localhost` ou Vercel), usa a mesma origem — útil para testar código local.
-
-CORS nas rotas `web/app/api/extension/*` e `web/app/api/market/btc` já está com `Access-Control-Allow-Origin: *` (hackathon).  
-**Para valer em produção:** commit + push + novo deploy na Vercel.
-
-## Ferramentas do painel
-
-| Ação | Destino |
+| Ação | Função |
 | --- | --- |
 | É o site oficial? | Heurística local (`domain-check.js`) |
-| Analisar página | `/api/extension/analisar` (ou resumo local no site oficial) |
+| Analisar página | Texto + `/api/extension/analisar` |
 | Selecionar área | Captura + `/api/extension/analisar-imagem` |
-| Preço do Bitcoin | `/api/market/btc` (botão ou chip) |
-
-Preferências (`tema`, `último modo`) e histórico das últimas 10 análises ficam em `chrome.storage.local`.
+| Preço do Bitcoin | `/api/market/btc` |
 
 ## Arquivos
 
 | Arquivo | Função |
 | --- | --- |
-| `manifest.json` | MV3, Side Panel, `storage` |
-| `background.js` | Abre o painel no clique |
+| `manifest.json` | MV3 · Side Panel · v1.0.0 |
+| `background.js` | Abre o painel |
 | `popup.*` | UI do Side Panel |
-| `domain-check.js` | Domínio oficial (local) |
-| `storage.js` | Preferências + histórico |
-| `content.js` | Texto visível da aba |
-| `build.js` / `package.json` | Cópia estática → `dist/` |
+| `domain-check.js` | Domínios oficiais + phishing |
+| `content.js` | Texto da página + security |
+| `storage.js` | Preferências / histórico |
+| `build.js` | Cópia → `dist/` |
