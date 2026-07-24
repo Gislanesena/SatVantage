@@ -26,28 +26,35 @@ declare global {
 
 const SCRIPT_SRC = "https://vlibras.gov.br/app/vlibras-plugin.js";
 const WIDGET_URL = "https://vlibras.gov.br/app";
-const READY_TIMEOUT_MS = 16_000;
+const READY_TIMEOUT_MS = 12_000;
 
 type Status = "loading" | "ready" | "failed";
 
 function findAccessButton(): HTMLElement | null {
-  return (
-    (document.querySelector(".access-button") as HTMLElement | null) ||
-    (document.querySelector("[vw-access-button]") as HTMLElement | null)
-  );
+  const real = document.querySelector(".access-button") as HTMLElement | null;
+  if (real) return real;
+  return document.querySelector("[vw-access-button]") as HTMLElement | null;
+}
+
+function hideDuplicateMarkers(keep: HTMLElement) {
+  document.querySelectorAll("[vw-access-button]").forEach((el) => {
+    if (el === keep || el.contains(keep) || keep.contains(el)) return;
+    // Só esconde marcadores vazios / sem o botão real
+    if (el.querySelector(".access-button")) return;
+    if ((el as HTMLElement).childElementCount > 0 && el !== keep) {
+      const hasImg = !!el.querySelector("img, svg, canvas");
+      if (hasImg) return;
+    }
+    const node = el as HTMLElement;
+    node.style.setProperty("display", "none", "important");
+  });
 }
 
 function pinAccessButton() {
   const btn = findAccessButton();
   if (!btn) return false;
 
-  // Esconde o marcador vazio [vw-access-button] se o plugin criou .access-button separado
-  document.querySelectorAll("[vw-access-button]").forEach((el) => {
-    if (el === btn || el.contains(btn)) return;
-    const node = el as HTMLElement;
-    node.style.setProperty("display", "none", "important");
-    node.style.setProperty("pointer-events", "none", "important");
-  });
+  hideDuplicateMarkers(btn);
 
   const mobile = window.matchMedia("(max-width: 640px)").matches;
   btn.classList.add("active");
@@ -62,9 +69,11 @@ function pinAccessButton() {
   btn.style.setProperty("visibility", "visible", "important");
   btn.style.setProperty("pointer-events", "auto", "important");
   btn.style.setProperty("display", "flex", "important");
-  const size = mobile ? "56px" : "64px";
-  btn.style.setProperty("width", size, "important");
-  btn.style.setProperty("height", size, "important");
+  btn.style.setProperty("width", mobile ? "56px" : "64px", "important");
+  btn.style.setProperty("height", mobile ? "56px" : "64px", "important");
+  btn.style.setProperty("margin", "0", "important");
+  btn.style.setProperty("clip", "auto", "important");
+  btn.style.setProperty("overflow", "visible", "important");
   return true;
 }
 
@@ -92,14 +101,13 @@ export default function VLibrasWidget() {
 
   const markReady = useCallback(() => {
     if (failedRef.current) return;
-    pinAccessButton();
+    if (!pinAccessButton()) return;
     setStatus("ready");
   }, []);
 
   const markFailed = useCallback((reason: string) => {
-    if (findAccessButton()) {
+    if (findAccessButton() && pinAccessButton()) {
       failedRef.current = false;
-      pinAccessButton();
       setStatus("ready");
       return;
     }
@@ -121,12 +129,12 @@ export default function VLibrasWidget() {
         markReady();
         window.clearInterval(tick);
       }
-    }, 500);
+    }, 400);
 
     const timeout = window.setTimeout(() => {
       window.clearInterval(tick);
       obs.disconnect();
-      if (findAccessButton()) markReady();
+      if (findAccessButton() && pinAccessButton()) markReady();
       else if (!window.VLibras) markFailed("timeout sem plugin");
       else markFailed("plugin sem botão após timeout");
     }, READY_TIMEOUT_MS);
@@ -137,11 +145,13 @@ export default function VLibrasWidget() {
         window.__svVLibrasWidget = false;
       }
       if (window.VLibras) startWidget();
-      pinAccessButton();
-      if (findAccessButton()) markReady();
+      if (pinAccessButton()) markReady();
     }
 
     window.addEventListener("sv-vlibras-repin", onRepin);
+
+    // Enquanto o CDN não monta o ícone, o marcador oficial já fica no lugar
+    pinAccessButton();
 
     if (window.VLibras) {
       startWidget();
@@ -158,7 +168,7 @@ export default function VLibrasWidget() {
 
   return (
     <>
-      {/* Markup oficial VLibras */}
+      {/* Markup oficial VLibras — um único ponto de entrada */}
       <div vw="" className="enabled">
         <div vw-access-button="" className="active" />
         <div vw-plugin-wrapper="">
@@ -176,7 +186,6 @@ export default function VLibrasWidget() {
             markFailed("Widget indisponível após load");
             return;
           }
-          // Plugin monta .access-button de forma assíncrona
           window.setTimeout(() => {
             if (pinAccessButton()) markReady();
           }, 300);
