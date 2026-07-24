@@ -2,8 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { replyNagaiLocal } from "@/lib/nagai-local";
 
 const AGENTS_BASE = (process.env.AGENTS_API_URL ?? "").replace(/\/$/, "");
-/** Upstream fora do ar não pode travar o chat por 60s. */
+/** Rotas leves (health etc.) — falha rápido. */
 const UPSTREAM_TIMEOUT_MS = 8_000;
+/**
+ * Chat LLM (interact/mentor) no Render: cold start + geração costumam
+ * passar de 8s. Com 8s o proxy devolvia fallback local genérico.
+ * Orçamento total (1ª + retry) precisa caber em maxDuration.
+ */
+const CHAT_FIRST_TRY_MS = 15_000;
+const CHAT_UPSTREAM_TIMEOUT_MS = 40_000;
+/** Precisa caber o timeout de chat + retry de cold start. */
+export const maxDuration = 60;
 const IS_PROD =
   process.env.NODE_ENV === "production" || process.env.VERCEL === "1";
 
@@ -241,14 +250,32 @@ async function proxy(req: NextRequest, ctx: Ctx) {
   }
 
   const target = `${AGENTS_BASE}${path}${req.nextUrl.search}`;
+  const isChat = chatRoute(parts) && req.method === "POST";
+  const timeoutMs = isChat ? CHAT_UPSTREAM_TIMEOUT_MS : UPSTREAM_TIMEOUT_MS;
 
-  try {
-    const upstream = await fetch(target, {
+  async function fetchUpstream(ms: number) {
+    return fetch(target, {
       method: req.method,
       headers: { "Content-Type": "application/json", Accept: "application/json" },
       body,
-      signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
+      signal: AbortSignal.timeout(ms),
     });
+  }
+
+  try {
+    let upstream: Response;
+    try {
+      upstream = await fetchUpstream(isChat ? CHAT_FIRST_TRY_MS : timeoutMs);
+    } catch (firstErr: unknown) {
+      // Cold start no Render: 1ª tentativa pode estourar; uma nova chance
+      // depois que o serviço acordou costuma resolver.
+      const first = classifyFetchError(firstErr);
+      if (!isChat || first.kind !== "timeout") throw firstErr;
+      console.warn(
+        `[agents-proxy] timeout na 1ª tentativa — retry único path=${path}`,
+      );
+      upstream = await fetchUpstream(timeoutMs);
+    }
     const text = await upstream.text();
 
     if (!upstream.ok) {
@@ -259,7 +286,7 @@ async function proxy(req: NextRequest, ctx: Ctx) {
         status: upstream.status,
         detail: text.slice(0, 200) || upstream.statusText,
       });
-      if (chatRoute(parts) && req.method === "POST") {
+      if (isChat) {
         return localChatReply(body, {
           kind: "http_error",
           detail: `HTTP ${upstream.status}`,
@@ -274,11 +301,7 @@ async function proxy(req: NextRequest, ctx: Ctx) {
       });
     }
 
-    if (
-      chatRoute(parts) &&
-      req.method === "POST" &&
-      (!text || !text.trim() || text.trim() === "{}")
-    ) {
+    if (isChat && (!text || !text.trim() || text.trim() === "{}")) {
       logAgentsFail("empty_response", {
         method: req.method,
         path,
@@ -301,18 +324,23 @@ async function proxy(req: NextRequest, ctx: Ctx) {
     });
   } catch (e: unknown) {
     const { kind, detail } = classifyFetchError(e);
+    // classifyFetchError ainda cita UPSTREAM_TIMEOUT_MS no texto — ajusta para chat
+    const detailOut =
+      kind === "timeout"
+        ? `timeout após ${timeoutMs}ms — ${(e as Error)?.message || String(e)}`
+        : detail;
     logAgentsFail(kind, {
       method: req.method,
       path,
       target,
-      detail,
+      detail: detailOut,
     });
-    if (chatRoute(parts) && req.method === "POST") {
-      return localChatReply(body, { kind, detail });
+    if (isChat) {
+      return localChatReply(body, { kind, detail: detailOut });
     }
     return NextResponse.json(
       {
-        error: detail,
+        error: detailOut,
         upstream_fail: kind,
         agents_host: safeHost(AGENTS_BASE),
       },
