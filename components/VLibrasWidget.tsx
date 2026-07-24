@@ -38,7 +38,7 @@ function pinAccessButton() {
   btn.classList.add("active");
   btn.style.setProperty("position", "fixed", "important");
   btn.style.setProperty("right", "18px", "important");
-  btn.style.setProperty("bottom", "18px", "important");
+  btn.style.setProperty("bottom", "88px", "important");
   btn.style.setProperty("left", "auto", "important");
   btn.style.setProperty("top", "auto", "important");
   btn.style.setProperty("z-index", "2147483000", "important");

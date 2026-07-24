@@ -6,6 +6,8 @@ import { analisarImagem } from "@/lib/extension-analisar";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
+// HACKATHON: CORS amplo (*) para a extensão (origem chrome-extension://…).
+// Depois do hackathon: restringir a chrome-extension://[ids] + domínio oficial.
 const corsHeaders: Record<string, string> = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",

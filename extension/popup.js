@@ -1,6 +1,7 @@
-// popup.js — UI do Copiloto. Texto da página + pergunta, ou captura visual.
-// Usa a origem da aba oficial (localhost ou Vercel) como API — assim o código local vale.
-const API_FALLBACK = "https://sat-vantage-gislanesena.vercel.app";
+// popup.js — Side Panel do Copiloto. Texto da página + pergunta, ou captura visual.
+// Backend de produção por padrão (sem chave de IA na extensão).
+// Em aba oficial (localhost ou Vercel) usa a mesma origem — código local vale em dev.
+const API_BASE = "https://sat-vantage-gislanesena.vercel.app";
 
 const OFFICIAL_HOSTS = [
   "sat-vantage-gislanesena.vercel.app",
@@ -26,26 +27,41 @@ const CHIPS_OFICIAL = [
 /** @type {string} */
 let currentPageUrl = "";
 
-function isOfficialHost(url) {
+function isOfficialSatVantage(url) {
+  if (globalThis.SVDomainCheck?.isOfficialSatVantageUrl) {
+    return globalThis.SVDomainCheck.isOfficialSatVantageUrl(url);
+  }
   try {
     const host = new URL(url).hostname.toLowerCase();
-    if (OFFICIAL_HOSTS.some((h) => host === h || host.endsWith(`.${h}`))) return true;
-    if (host.endsWith(".vercel.app") && /sat[-]?vantage/i.test(host)) return true;
-    return false;
+    return (
+      host === "localhost" ||
+      host === "127.0.0.1" ||
+      host === "sat-vantage-gislanesena.vercel.app" ||
+      host === "sat-vantage-iau60jdhv-gislanesena.vercel.app" ||
+      (host.endsWith(".vercel.app") && /sat[-]?vantage/i.test(host))
+    );
   } catch {
     return false;
   }
 }
 
+/** Produção por padrão; em aba oficial usa a mesma origem (localhost/Vercel). */
 function resolveApiBase(pageUrl) {
-  if (isOfficialHost(pageUrl)) {
-    try {
-      return new URL(pageUrl).origin;
-    } catch {
-      /* fallthrough */
+  const url = pageUrl || currentPageUrl || "";
+  if (!url) return API_BASE;
+  try {
+    const u = new URL(url);
+    const host = u.hostname.toLowerCase();
+    if (
+      OFFICIAL_HOSTS.includes(host) ||
+      (host.endsWith(".vercel.app") && /sat[-]?vantage/i.test(host))
+    ) {
+      return `${u.protocol}//${u.host}`;
     }
+  } catch {
+    /* ignore */
   }
-  return API_FALLBACK;
+  return API_BASE;
 }
 
 function renderChips(official) {
@@ -83,16 +99,22 @@ function showPageUrl(url) {
     return;
   }
 
-  const official = isOfficialHost(url);
+  const official = isOfficialSatVantage(url);
   wrap.hidden = false;
   wrap.classList.toggle("is-official", official);
   urlEl.textContent = url;
   urlEl.title = url;
-  if (badge) badge.hidden = !official;
+  if (badge) {
+    badge.hidden = !official;
+    if (official) {
+      badge.dataset.seal = "ok";
+      badge.textContent = "Site oficial SatVantage";
+    }
+  }
   if (headSub) {
     headSub.textContent = official
       ? "Site oficial reconhecido — resumo e guia com o mapa SatVantage."
-      : "Ajuda rápida sobre Bitcoin e segurança nesta página.";
+      : "Ferramentas rápidas de segurança e Bitcoin nesta aba.";
   }
   renderChips(official);
 }
@@ -110,6 +132,7 @@ async function refreshPageContext() {
 const perguntaEl = document.getElementById("pergunta");
 const enviarEl = document.getElementById("enviar");
 const capturarEl = document.getElementById("capturar");
+const btnOficialEl = document.getElementById("btn-oficial");
 const btnBtcEl = document.getElementById("btn-btc");
 const statusEl = document.getElementById("status");
 const resultadoEl = document.getElementById("resultado");
@@ -123,12 +146,19 @@ const btcCardEl = document.getElementById("btc-card");
 const btcPriceEl = document.getElementById("btc-price");
 const btcMetaEl = document.getElementById("btc-meta");
 
+const domainResultEl = document.getElementById("domain-result");
+const domainSealEl = document.getElementById("domain-seal");
+const domainDetailEl = document.getElementById("domain-detail");
+
 const cropEl = document.getElementById("crop");
 const cropStageEl = document.getElementById("crop-stage");
 const cropImgEl = document.getElementById("crop-img");
 const cropRectEl = document.getElementById("crop-rect");
 const cropOkEl = document.getElementById("crop-ok");
 const cropCancelEl = document.getElementById("crop-cancel");
+const historyListEl = document.getElementById("history-list");
+const historyClearEl = document.getElementById("history-clear");
+const historyWrapEl = document.getElementById("history-wrap");
 
 /** @type {{ x: number, y: number, w: number, h: number } | null} */
 let cropSel = null;
@@ -136,7 +166,86 @@ let cropDragging = false;
 let cropStart = null;
 let captureDataUrl = null;
 
-void refreshPageContext();
+function renderHistory(list) {
+  if (!historyListEl || !historyWrapEl) return;
+  historyListEl.innerHTML = "";
+  if (!list || list.length === 0) {
+    historyWrapEl.hidden = true;
+    return;
+  }
+  historyWrapEl.hidden = false;
+  for (const item of list) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "sv-history-item";
+    const when = item.at
+      ? new Date(item.at).toLocaleTimeString("pt-BR", {
+          hour: "2-digit",
+          minute: "2-digit",
+        })
+      : "";
+    const host = (() => {
+      try {
+        return new URL(item.paginaUrl).hostname;
+      } catch {
+        return item.paginaUrl || "análise";
+      }
+    })();
+    const risco = item.risco ? ` · ${item.risco}` : "";
+    btn.textContent = `${when} — ${host}${risco}`;
+    btn.title = item.explicacao || item.pergunta || host;
+    btn.addEventListener("click", () => {
+      showResult(
+        {
+          tipo: item.tipo,
+          risco: item.risco,
+          explicacao: item.explicacao,
+          proximosPassos: item.proximosPassos,
+          siteOficial: isOfficialSatVantage(item.paginaUrl),
+          paginaUrl: item.paginaUrl,
+        },
+        item.paginaUrl,
+        { skipSave: true },
+      );
+    });
+    historyListEl.appendChild(btn);
+  }
+}
+
+async function refreshHistoryUi() {
+  if (!globalThis.SVStorage) return;
+  const list = await globalThis.SVStorage.getHistory();
+  renderHistory(list);
+}
+
+async function rememberMode(mode) {
+  if (globalThis.SVStorage) {
+    await globalThis.SVStorage.setPrefs({ lastMode: mode });
+  }
+}
+
+async function saveAnalysis(data, pageUrl, mode, pergunta) {
+  if (!globalThis.SVStorage) return;
+  const list = await globalThis.SVStorage.pushHistory({
+    paginaUrl: pageUrl || data.paginaUrl || "",
+    pergunta: pergunta || "",
+    risco: data.risco || "",
+    explicacao: data.explicacao || "",
+    proximosPassos: data.proximosPassos || [],
+    tipo: data.tipo || "avaliacao",
+    mode: mode || "page",
+  });
+  renderHistory(list);
+}
+
+void (async () => {
+  await refreshPageContext();
+  if (globalThis.SVStorage) {
+    const prefs = await globalThis.SVStorage.getPrefs();
+    document.body.dataset.theme = prefs.theme || "dark";
+    await refreshHistoryUi();
+  }
+})();
 
 function setStatus(text, isError) {
   if (!text) {
@@ -153,6 +262,7 @@ function setStatus(text, isError) {
 function setBusy(busy) {
   enviarEl.disabled = busy;
   capturarEl.disabled = busy;
+  if (btnOficialEl) btnOficialEl.disabled = busy;
   if (btnBtcEl) btnBtcEl.disabled = busy;
   cropOkEl.disabled = busy || !cropSel || cropSel.w < 8 || cropSel.h < 8;
 }
@@ -186,6 +296,7 @@ function formatUsd(n) {
 
 async function mostrarPrecoBtc() {
   resultadoEl.hidden = true;
+  if (domainResultEl) domainResultEl.hidden = true;
   hideCrop();
   setBusy(true);
   setStatus("Buscando cotação do Bitcoin…");
@@ -206,6 +317,7 @@ async function mostrarPrecoBtc() {
         : "");
     btcCardEl.hidden = false;
     setStatus("");
+    await rememberMode("btc");
   } catch (e) {
     btcCardEl.hidden = true;
     setStatus(e?.message || "Não foi possível obter a cotação.", true);
@@ -224,11 +336,54 @@ function normalizeRisco(raw) {
   return "baixo";
 }
 
-function showResult(data, pageUrl) {
+/** Badge reutilizável: ok | unknown | suspicious | baixo | medio | alto */
+function applySeal(el, seal, text) {
+  if (!el) return;
+  el.hidden = false;
+  el.dataset.seal = seal;
+  el.classList.add("sv-seal");
+  el.textContent = text;
+}
+
+function showDomainResult(check) {
+  domainResultEl.hidden = false;
+  applySeal(domainSealEl, check.seal, check.title);
+  domainDetailEl.textContent = check.detail || "";
+}
+
+async function verificarDominioOficial() {
+  resultadoEl.hidden = true;
+  btcCardEl.hidden = true;
+  hideCrop();
+  setBusy(true);
+  setStatus("Verificando domínio (local)…");
+
+  try {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    const url = tab?.url || "";
+    showPageUrl(url);
+    if (!globalThis.SVDomainCheck?.checkDomain) {
+      throw new Error("Módulo de domínio não carregou.");
+    }
+    const check = globalThis.SVDomainCheck.checkDomain(url);
+    showDomainResult(check);
+    setStatus("");
+    await rememberMode("domain");
+  } catch (e) {
+    domainResultEl.hidden = true;
+    setStatus(e?.message || "Falha na checagem local.", true);
+  } finally {
+    setBusy(false);
+  }
+}
+
+function showResult(data, pageUrl, opts) {
   if (btcCardEl) btcCardEl.hidden = true;
+  if (domainResultEl) domainResultEl.hidden = true;
+
   const tipo = data.tipo === "guia" ? "guia" : "avaliacao";
   const url = pageUrl || data.paginaUrl || currentPageUrl || "";
-  const oficial = !!data.siteOficial || isOfficialHost(url);
+  const oficial = !!data.siteOficial || isOfficialSatVantage(url);
 
   if (resultUrlEl) {
     if (url) {
@@ -243,28 +398,24 @@ function showResult(data, pageUrl) {
     badgeEl.hidden = false;
     badgeEl.className = "sv-badge sv-badge--guia";
     badgeEl.textContent =
-      tipo === "avaliacao" ? "✅ Site oficial SatVantage" : "🧭 SatVantage · guia";
-    riscoEl.hidden = false;
+      tipo === "avaliacao" ? "Site oficial SatVantage" : "SatVantage · guia";
+    applySeal(riscoEl, "ok", "Risco baixo");
     riscoEl.dataset.nivel = "baixo";
-    riscoEl.textContent = "🛡 Risco baixo";
     passosTitleEl.textContent = "Próximos passos";
   } else if (tipo === "guia") {
     riscoEl.hidden = true;
     badgeEl.hidden = false;
     badgeEl.className = "sv-badge sv-badge--guia";
-    badgeEl.textContent = "🧭 Guia passo a passo";
+    badgeEl.textContent = "Guia passo a passo";
     passosTitleEl.textContent = "Passos";
   } else {
     badgeEl.hidden = true;
-    riscoEl.hidden = false;
     const nivel = normalizeRisco(data.risco);
+    const seal = nivel === "alto" ? "suspicious" : nivel === "medio" ? "unknown" : "ok";
+    const label =
+      nivel === "alto" ? "Risco alto" : nivel === "medio" ? "Risco médio" : "Risco baixo";
+    applySeal(riscoEl, seal, label);
     riscoEl.dataset.nivel = nivel;
-    riscoEl.textContent =
-      nivel === "alto"
-        ? "🛡 Risco alto"
-        : nivel === "medio"
-          ? "🛡 Risco médio"
-          : "🛡 Risco baixo";
     passosTitleEl.textContent = "Próximos passos";
   }
 
@@ -288,6 +439,10 @@ function showResult(data, pageUrl) {
   }
 
   resultadoEl.hidden = false;
+
+  if (!opts?.skipSave) {
+    void saveAnalysis(data, url, opts?.mode || "page", opts?.pergunta || "");
+  }
 }
 
 async function getPageTextFromTab() {
@@ -371,7 +526,7 @@ function detectarAreaLocal(url, texto) {
   };
 }
 
-/** Resumo local no site oficial — não depende do backend (funciona mesmo no Vercel antigo). */
+/** Resumo local no site oficial — não depende do backend. */
 function resumoOficialLocal(url, texto) {
   const { area, dica } = detectarAreaLocal(url, texto);
   const urlLabel = (url || "").split("?")[0] || url;
@@ -396,12 +551,14 @@ function resumoOficialLocal(url, texto) {
 async function analisar() {
   const pergunta = (perguntaEl.value || "").trim();
 
+  // Cotação: atalho local sem passar pela IA
   if (pergunta && isPriceQuestion(pergunta)) {
     await mostrarPrecoBtc();
     return;
   }
 
   resultadoEl.hidden = true;
+  if (domainResultEl) domainResultEl.hidden = true;
   if (btcCardEl) btcCardEl.hidden = true;
   hideCrop();
   setBusy(true);
@@ -411,17 +568,19 @@ async function analisar() {
     const page = await getPageTextFromTab();
     const url = page.url || currentPageUrl || "";
 
-    // Site oficial + sem pergunta → resumo local (não chama API que ainda exige pergunta).
-    if (!pergunta && isOfficialHost(url)) {
+    if (!pergunta && isOfficialSatVantage(url)) {
       setStatus("");
-      showResult(resumoOficialLocal(url, page.texto || ""), url);
+      showResult(resumoOficialLocal(url, page.texto || ""), url, {
+        mode: "page",
+        pergunta,
+      });
+      await rememberMode("page");
       return;
     }
 
     const base = resolveApiBase(url);
     setStatus("Consultando o Copiloto…");
 
-    // Se o backend antigo exigir pergunta, enviamos um pedido de resumo padrão.
     const perguntaEnvio =
       pergunta ||
       "Faça um breve resumo de onde estou nesta página (URL e o que aparece na tela).";
@@ -439,17 +598,21 @@ async function analisar() {
 
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
-      // Fallback: se ainda assim falhar no site oficial, resume localmente.
-      if (isOfficialHost(url)) {
+      if (isOfficialSatVantage(url)) {
         setStatus("");
-        showResult(resumoOficialLocal(url, page.texto || ""), url);
+        showResult(resumoOficialLocal(url, page.texto || ""), url, {
+          mode: "page",
+          pergunta,
+        });
+        await rememberMode("page");
         return;
       }
       throw new Error(data.error || `Falha no servidor (${res.status})`);
     }
 
     setStatus("");
-    showResult(data, url);
+    showResult(data, url, { mode: "page", pergunta });
+    await rememberMode("page");
   } catch (e) {
     setStatus(e?.message || "Falha ao analisar.", true);
   } finally {
@@ -531,6 +694,8 @@ cropStageEl.addEventListener("pointercancel", endCropDrag);
 
 async function startCapture() {
   resultadoEl.hidden = true;
+  if (domainResultEl) domainResultEl.hidden = true;
+  if (btcCardEl) btcCardEl.hidden = true;
   setBusy(true);
   setStatus("Capturando a aba…");
 
@@ -555,7 +720,7 @@ async function startCapture() {
     };
     cropImgEl.src = dataUrl;
     cropEl.hidden = false;
-    setStatus("Marque a área na captura (ou analise a aba inteira selecionando tudo).");
+    setStatus("Marque a área na captura e confirme.");
   } catch (e) {
     hideCrop();
     setStatus(e?.message || "Falha ao capturar a tela.", true);
@@ -634,7 +799,8 @@ async function analisarImagem() {
 
     hideCrop();
     setStatus("");
-    showResult(data, url);
+    showResult(data, url, { mode: "image", pergunta });
+    await rememberMode("image");
   } catch (e) {
     setStatus(e?.message || "Falha ao analisar a imagem.", true);
   } finally {
@@ -642,15 +808,21 @@ async function analisarImagem() {
   }
 }
 
-enviarEl.addEventListener("click", () => {
-  void analisar();
-});
+if (btnOficialEl) {
+  btnOficialEl.addEventListener("click", () => {
+    void verificarDominioOficial();
+  });
+}
 
 if (btnBtcEl) {
   btnBtcEl.addEventListener("click", () => {
     void mostrarPrecoBtc();
   });
 }
+
+enviarEl.addEventListener("click", () => {
+  void analisar();
+});
 
 capturarEl.addEventListener("click", () => {
   void startCapture();
@@ -664,6 +836,15 @@ cropCancelEl.addEventListener("click", () => {
   hideCrop();
   setStatus("");
 });
+
+if (historyClearEl) {
+  historyClearEl.addEventListener("click", async () => {
+    if (globalThis.SVStorage) {
+      await globalThis.SVStorage.clearHistory();
+      renderHistory([]);
+    }
+  });
+}
 
 perguntaEl.addEventListener("keydown", (e) => {
   if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {

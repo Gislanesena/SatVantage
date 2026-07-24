@@ -7,6 +7,8 @@ import { isSatVantageOfficialUrl } from "@/lib/extension-satvantage-site";
 
 export const dynamic = "force-dynamic";
 
+// HACKATHON: CORS amplo (*) para a extensão (origem chrome-extension://…).
+// Depois do hackathon: restringir a chrome-extension://[ids] + domínio oficial.
 const corsHeaders: Record<string, string> = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",

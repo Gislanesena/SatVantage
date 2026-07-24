@@ -128,11 +128,7 @@ export default function SiteNav({
             </button>
           )}
 
-          {isMentor ? (
-            <button type="button" className="sv-nav-exit" onClick={onExitMentor}>
-              {t.nav.exitMentor}
-            </button>
-          ) : isDash ? null : (
+          {isMentor ? null : isDash ? null : (
             <>
               <a href="#acesso" className="sv-nav-cta" onClick={goStart}>
                 {t.nav.start}
