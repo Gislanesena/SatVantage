@@ -37,82 +37,48 @@ type Theme = "dark" | "light";
 type CardView = "balance" | "statement";
 
 type LedgerKind = "in" | "out" | "transfer";
+type LedgerSource = "mission" | "voucher" | "wallet";
 
 type LedgerItem = {
   id: string;
   kind: LedgerKind;
   sats: number;
-  fromKey: "mission" | "voucher" | "wallet" | "binance" | "mb" | "external";
+  source: LedgerSource;
+  label: string;
   when: string;
 };
 
-/** Extrato ilustrativo para a demo (hackathon) — entradas/saídas/transferências. */
-const DEMO_LEDGER: LedgerItem[] = [
-  {
-    id: "1",
-    kind: "in",
-    sats: 100,
-    fromKey: "mission",
-    when: "2026-07-18",
-  },
-  {
-    id: "2",
-    kind: "transfer",
-    sats: 50,
-    fromKey: "binance",
-    when: "2026-07-19",
-  },
-  {
-    id: "3",
-    kind: "out",
-    sats: 25,
-    fromKey: "wallet",
-    when: "2026-07-20",
-  },
-  {
-    id: "4",
-    kind: "in",
-    sats: 40,
-    fromKey: "mb",
-    when: "2026-07-20",
-  },
-  {
-    id: "5",
-    kind: "out",
-    sats: 15,
-    fromKey: "external",
-    when: "2026-07-21",
-  },
-];
-
-function ledgerSourceLabel(key: LedgerItem["fromKey"], locale: "pt" | "en" | "es") {
+function ledgerSourceLabel(item: LedgerItem, locale: "pt" | "en" | "es") {
+  if (item.label?.trim()) return item.label.trim();
   const map = {
     pt: {
-      mission: "Mentoria SatVantage (recompensa)",
-      voucher: "Voucher SatVantage",
-      wallet: "Carteira Lightning",
-      binance: "Binance",
-      mb: "Mercado Bitcoin",
-      external: "Invoice externa",
+      mission: "Mentoria SatVantage",
+      voucher: "Saque para carteira",
+      wallet: "Envio Lightning",
     },
     en: {
-      mission: "SatVantage mentorship (reward)",
-      voucher: "SatVantage voucher",
-      wallet: "Lightning wallet",
-      binance: "Binance",
-      mb: "Mercado Bitcoin",
-      external: "External invoice",
+      mission: "SatVantage mentorship",
+      voucher: "Withdraw to wallet",
+      wallet: "Lightning send",
     },
     es: {
-      mission: "Mentoría SatVantage (recompensa)",
-      voucher: "Voucher SatVantage",
-      wallet: "Cartera Lightning",
-      binance: "Binance",
-      mb: "Mercado Bitcoin",
-      external: "Invoice externa",
+      mission: "Mentoría SatVantage",
+      voucher: "Retiro a billetera",
+      wallet: "Envío Lightning",
     },
   } as const;
-  return map[locale][key];
+  return map[locale][item.source] ?? item.source;
+}
+
+function formatLedgerWhen(iso: string, locale: "pt" | "en" | "es") {
+  try {
+    return new Date(iso).toLocaleString(
+      locale === "en" ? "en-US" : locale === "es" ? "es-ES" : "pt-BR",
+      { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" },
+    );
+  } catch {
+    return iso.slice(0, 16);
+  }
 }
 
 function avatarKey(npub?: string) {
@@ -170,6 +136,7 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
   const [claimBusy, setClaimBusy] = useState(false);
   const [claimNotice, setClaimNotice] = useState<string | null>(null);
   const [claimError, setClaimError] = useState<string | null>(null);
+  const [ledger, setLedger] = useState<LedgerItem[]>([]);
   const fileRef = useRef<HTMLInputElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const mentorFabRef = useRef<HTMLDivElement>(null);
@@ -215,6 +182,35 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
         setM2Eligible(!!j.mentoria2?.rewardEligible);
       })
       .catch(() => {});
+
+    fetch("/api/rewards/ledger")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => {
+        if (!j || !Array.isArray(j.items)) {
+          setLedger([]);
+          return;
+        }
+        setLedger(
+          j.items.map(
+            (row: {
+              id: string;
+              kind: LedgerKind;
+              sats: number;
+              source: LedgerSource;
+              label?: string;
+              when: string;
+            }) => ({
+              id: row.id,
+              kind: row.kind,
+              sats: row.sats,
+              source: row.source,
+              label: row.label || "",
+              when: row.when,
+            }),
+          ),
+        );
+      })
+      .catch(() => setLedger([]));
 
     fetch("/api/market/btc?range=24h")
       .then((r) => (r.ok ? r.json() : null))
@@ -779,11 +775,11 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
                 </>
               ) : (
                 <>
-                  {DEMO_LEDGER.length === 0 ? (
+                  {ledger.length === 0 ? (
                     <p className="sv-bank-ledger-empty">{t.dash.statementEmpty}</p>
                   ) : (
                     <ul className="sv-bank-ledger">
-                      {DEMO_LEDGER.map((item) => (
+                      {ledger.map((item) => (
                         <li key={item.id} className="sv-bank-ledger-row">
                           <p className="sv-bank-ledger-kind">{kindLabel(item.kind)}</p>
                           <p className={`sv-bank-ledger-amt is-${item.kind}`}>
@@ -791,7 +787,8 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
                             {hideBalance ? "••••" : fmtBtc(item.sats, locale)}
                           </p>
                           <p className="sv-bank-ledger-from">
-                            {ledgerSourceLabel(item.fromKey, locale)} · {item.when}
+                            {ledgerSourceLabel(item, locale)} ·{" "}
+                            {formatLedgerWhen(item.when, locale)}
                           </p>
                         </li>
                       ))}

@@ -21,6 +21,7 @@ import {
   SATS_TRIED,
   type MissionSlug,
 } from "@/lib/quiz";
+import { recordSatsMovement } from "@/lib/sats-ledger";
 
 function wasRewarded(marker: string | null | undefined): boolean {
   if (!marker) return false;
@@ -145,6 +146,19 @@ export async function POST(req: NextRequest) {
               lessonIndex: i,
               sats,
               sats_balance: newBalance,
+            });
+
+            await recordSatsMovement({
+              userId: session.userId,
+              kind: "in",
+              amountSats: sats,
+              source: "mission",
+              label:
+                slug === MISSION_1_SLUG
+                  ? `Mentoria 1 · pergunta ${i + 1}`
+                  : `Mentoria 2 · pergunta ${i + 1}`,
+              refKey: `mission:${slug}:${i}`,
+              meta: { slug, lessonIndex: i, correct, sats },
             });
 
             // Marca o índice como creditado (best-effort — o saldo já está gravado

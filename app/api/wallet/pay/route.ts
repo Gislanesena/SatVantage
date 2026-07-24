@@ -18,6 +18,7 @@ import {
   MUTINYNET_ONLY_MSG,
   normalizeBolt11,
 } from "@/lib/mutinynet";
+import { recordSatsMovement } from "@/lib/sats-ledger";
 
 export async function POST(req: NextRequest) {
   const session = await getSession();
@@ -88,6 +89,16 @@ export async function POST(req: NextRequest) {
   }
 
   await recordSend(session.userId, amountSats);
+
+  await recordSatsMovement({
+    userId: session.userId,
+    kind: "out",
+    amountSats: amountSats,
+    source: "wallet",
+    label: "Envio Lightning (carteira conectada)",
+    refKey: null,
+    meta: { amountSats },
+  });
 
   return NextResponse.json({ ok: true, amountSats });
 }
