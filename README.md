@@ -115,13 +115,13 @@ Cada peça abaixo tem "vizinhos" no mercado — nenhuma plataforma reúne todas,
 | **Copiloto de segurança via extensão** | — | Não encontramos nada parecido |
 | **O conjunto integrado** | — | Nenhuma plataforma reúne tudo isso |
 
-### Os três diferenciais que consideramos mais fortes
+### Os diferenciais que consideramos mais fortes
 
-**1. Fricção comportamental no caminho real do dinheiro.** Não é um alerta genérico sobre volatilidade — é matemática (média + desvio-padrão do próprio histórico do usuário) rodando no exato momento em que o dinheiro está prestes a sair, via Nostr Wallet Connect. A plataforma não custodia fundos, mas está presente na decisão.
+**1. Prova de vida com carinho, não vigilância.** A maioria dos mecanismos de "dead man's switch" pune quem simplesmente parou de usar o produto. O nosso manda lembretes escalonados por múltiplos canais antes de qualquer ativação — porque parar de abrir um app não significa ter morrido.
 
-**2. Prova de vida com carinho, não vigilância.** A maioria dos mecanismos de "dead man's switch" pune quem simplesmente parou de usar o produto. O nosso manda lembretes escalonados por múltiplos canais antes de qualquer ativação — porque parar de abrir um app não significa ter morrido.
+**2. Fricção comportamental no caminho real do dinheiro** *(roadmap — arquitetura pronta, validação completa em produção é o próximo passo)*. A base já existe: matemática (média + desvio-padrão do próprio histórico do usuário) desenhada para rodar no exato momento em que o dinheiro está prestes a sair, via Nostr Wallet Connect — apoio à decisão no instante certo, não um alerta genérico de volatilidade. Não tivemos tempo, dentro do prazo do hackathon, de validar esse fluxo de ponta a ponta em produção com uma carteira conectada automaticamente. Tratamos isso como prioridade imediata pós-hackathon, não como algo já entregue.
 
-**3. Um copiloto que sai da plataforma e vai aonde o perigo está.** Nossa extensão de navegador lê qualquer página que o usuário estiver vendo — uma exchange desconhecida, um site de "investimento" suspeito — e responde em linguagem simples se aquilo parece seguro, ou guia a pessoa passo a passo em processos legítimos (como criar uma carteira). A proteção não fica presa dentro do nosso site.
+**3. Um copiloto que sai da plataforma e vai aonde o perigo está.** Nossa extensão de navegador já lê o texto de qualquer página que o usuário estiver vendo e sinaliza risco com uma primeira camada de análise — a proteção não fica presa dentro do nosso site. *Uma camada de IA dedicada, capaz de interpretar o conteúdo da página com mais profundidade e guiar a pessoa passo a passo em processos como criar uma carteira, é o próximo passo — não tivemos tempo de implementar essa camada completa dentro do prazo do hackathon.*
 
 ---
 
@@ -205,7 +205,9 @@ O maior custo variável em escala é, com folga, o consumo da API de IA — e é
 
 ## 🗺️ Roadmap (além do hackathon)
 
-- Publicação da extensão SatVantage Copiloto na Chrome Web Store
+- **Validar o apoio à tomada de decisão de ponta a ponta em produção** — fricção comportamental automática com carteira conectada em tempo real (a arquitetura já existe; falta a validação completa fora do ambiente de testes)
+- **IA dedicada na extensão para análise mais profunda** — interpretação mais rica do conteúdo da página e guias passo a passo em processos como criar uma carteira (hoje a extensão já lê e sinaliza risco com uma primeira camada de análise; a camada avançada de IA é o próximo passo)
+- Publicação da extensão SatVantage Copiloto na Chrome Web Store (Botão de baixar extensão no site é estético)
 - Integração real com exchanges via API somente-leitura (CCXT)
 - Acompanhamento de carteiras em autocustódia via *watch-only* (xpub, sem qualquer permissão de movimentação)
 - Módulo tributário completo com geração de relatórios
