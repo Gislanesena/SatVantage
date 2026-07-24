@@ -1,6 +1,14 @@
-// popup.js — Side Panel do Copiloto.
-// Backend de produção (sem chave de IA na extensão):
+// popup.js — Side Panel do Copiloto. Texto da página + pergunta, ou captura visual.
+// Backend de produção por padrão (sem chave de IA na extensão).
+// Em aba oficial (localhost ou Vercel) usa a mesma origem — código local vale em dev.
 const API_BASE = "https://sat-vantage-gislanesena.vercel.app";
+
+const OFFICIAL_HOSTS = [
+  "sat-vantage-gislanesena.vercel.app",
+  "sat-vantage-iau60jdhv-gislanesena.vercel.app",
+  "localhost",
+  "127.0.0.1",
+];
 
 const CHIPS_DEFAULT = [
   { q: "Isso é golpe?", label: "Isso é golpe?" },
@@ -37,8 +45,22 @@ function isOfficialSatVantage(url) {
   }
 }
 
-/** Sempre produção — a extensão local não depende de localhost. */
-function resolveApiBase() {
+/** Produção por padrão; em aba oficial usa a mesma origem (localhost/Vercel). */
+function resolveApiBase(pageUrl) {
+  const url = pageUrl || currentPageUrl || "";
+  if (!url) return API_BASE;
+  try {
+    const u = new URL(url);
+    const host = u.hostname.toLowerCase();
+    if (
+      OFFICIAL_HOSTS.includes(host) ||
+      (host.endsWith(".vercel.app") && /sat[-]?vantage/i.test(host))
+    ) {
+      return `${u.protocol}//${u.host}`;
+    }
+  } catch {
+    /* ignore */
+  }
   return API_BASE;
 }
 
@@ -120,14 +142,13 @@ const explicacaoEl = document.getElementById("explicacao");
 const passosTitleEl = document.getElementById("passos-title");
 const passosEl = document.getElementById("passos");
 const resultUrlEl = document.getElementById("result-url");
+const btcCardEl = document.getElementById("btc-card");
+const btcPriceEl = document.getElementById("btc-price");
+const btcMetaEl = document.getElementById("btc-meta");
 
 const domainResultEl = document.getElementById("domain-result");
 const domainSealEl = document.getElementById("domain-seal");
 const domainDetailEl = document.getElementById("domain-detail");
-
-const btcCardEl = document.getElementById("btc-card");
-const btcPriceEl = document.getElementById("btc-price");
-const btcMetaEl = document.getElementById("btc-meta");
 
 const cropEl = document.getElementById("crop");
 const cropStageEl = document.getElementById("crop-stage");
@@ -241,34 +262,9 @@ function setStatus(text, isError) {
 function setBusy(busy) {
   enviarEl.disabled = busy;
   capturarEl.disabled = busy;
-  btnOficialEl.disabled = busy;
-  btnBtcEl.disabled = busy;
+  if (btnOficialEl) btnOficialEl.disabled = busy;
+  if (btnBtcEl) btnBtcEl.disabled = busy;
   cropOkEl.disabled = busy || !cropSel || cropSel.w < 8 || cropSel.h < 8;
-}
-
-function normalizeRisco(raw) {
-  const s = String(raw || "")
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
-  if (s.includes("alto")) return "alto";
-  if (s.includes("medio") || s.includes("médio")) return "medio";
-  return "baixo";
-}
-
-/** Badge reutilizável: ok | unknown | suspicious | baixo | medio | alto */
-function applySeal(el, seal, text) {
-  if (!el) return;
-  el.hidden = false;
-  el.dataset.seal = seal;
-  el.classList.add("sv-seal");
-  el.textContent = text;
-}
-
-function showDomainResult(check) {
-  domainResultEl.hidden = false;
-  applySeal(domainSealEl, check.seal, check.title);
-  domainDetailEl.textContent = check.detail || "";
 }
 
 function isPriceQuestion(text) {
@@ -300,13 +296,13 @@ function formatUsd(n) {
 
 async function mostrarPrecoBtc() {
   resultadoEl.hidden = true;
-  domainResultEl.hidden = true;
+  if (domainResultEl) domainResultEl.hidden = true;
   hideCrop();
   setBusy(true);
   setStatus("Buscando cotação do Bitcoin…");
 
   try {
-    const base = resolveApiBase();
+    const base = resolveApiBase(currentPageUrl);
     const res = await fetch(`${base}/api/market/btc?range=24h`);
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.error || `Falha na cotação (${res.status})`);
@@ -328,6 +324,31 @@ async function mostrarPrecoBtc() {
   } finally {
     setBusy(false);
   }
+}
+
+function normalizeRisco(raw) {
+  const s = String(raw || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+  if (s.includes("alto")) return "alto";
+  if (s.includes("medio") || s.includes("médio")) return "medio";
+  return "baixo";
+}
+
+/** Badge reutilizável: ok | unknown | suspicious | baixo | medio | alto */
+function applySeal(el, seal, text) {
+  if (!el) return;
+  el.hidden = false;
+  el.dataset.seal = seal;
+  el.classList.add("sv-seal");
+  el.textContent = text;
+}
+
+function showDomainResult(check) {
+  domainResultEl.hidden = false;
+  applySeal(domainSealEl, check.seal, check.title);
+  domainDetailEl.textContent = check.detail || "";
 }
 
 async function verificarDominioOficial() {
@@ -357,8 +378,8 @@ async function verificarDominioOficial() {
 }
 
 function showResult(data, pageUrl, opts) {
-  btcCardEl.hidden = true;
-  domainResultEl.hidden = true;
+  if (btcCardEl) btcCardEl.hidden = true;
+  if (domainResultEl) domainResultEl.hidden = true;
 
   const tipo = data.tipo === "guia" ? "guia" : "avaliacao";
   const url = pageUrl || data.paginaUrl || currentPageUrl || "";
@@ -537,8 +558,8 @@ async function analisar() {
   }
 
   resultadoEl.hidden = true;
-  domainResultEl.hidden = true;
-  btcCardEl.hidden = true;
+  if (domainResultEl) domainResultEl.hidden = true;
+  if (btcCardEl) btcCardEl.hidden = true;
   hideCrop();
   setBusy(true);
   setStatus(pergunta ? "Lendo a página…" : "Preparando resumo da página…");
@@ -557,7 +578,7 @@ async function analisar() {
       return;
     }
 
-    const base = resolveApiBase();
+    const base = resolveApiBase(url);
     setStatus("Consultando o Copiloto…");
 
     const perguntaEnvio =
@@ -673,8 +694,8 @@ cropStageEl.addEventListener("pointercancel", endCropDrag);
 
 async function startCapture() {
   resultadoEl.hidden = true;
-  domainResultEl.hidden = true;
-  btcCardEl.hidden = true;
+  if (domainResultEl) domainResultEl.hidden = true;
+  if (btcCardEl) btcCardEl.hidden = true;
   setBusy(true);
   setStatus("Capturando a aba…");
 
@@ -756,7 +777,7 @@ async function analisarImagem() {
     const cropped = await cropToPngDataUrl();
     const base64 = cropped.replace(/^data:image\/png;base64,/, "");
     const url = page.url || currentPageUrl || "";
-    const base = resolveApiBase();
+    const base = resolveApiBase(url);
 
     const res = await fetch(`${base}/api/extension/analisar-imagem`, {
       method: "POST",
@@ -787,13 +808,17 @@ async function analisarImagem() {
   }
 }
 
-btnOficialEl.addEventListener("click", () => {
-  void verificarDominioOficial();
-});
+if (btnOficialEl) {
+  btnOficialEl.addEventListener("click", () => {
+    void verificarDominioOficial();
+  });
+}
 
-btnBtcEl.addEventListener("click", () => {
-  void mostrarPrecoBtc();
-});
+if (btnBtcEl) {
+  btnBtcEl.addEventListener("click", () => {
+    void mostrarPrecoBtc();
+  });
+}
 
 enviarEl.addEventListener("click", () => {
   void analisar();

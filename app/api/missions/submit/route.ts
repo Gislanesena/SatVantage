@@ -19,6 +19,7 @@ import {
   type MentorResponse,
   type MissionSlug,
 } from "@/lib/quiz";
+import { recordSatsMovement } from "@/lib/sats-ledger";
 
 function wasRewarded(marker: string | null | undefined): boolean {
   if (!marker) return false;
@@ -172,6 +173,21 @@ export async function POST(req: NextRequest) {
       satsCredited = graded.satsEarned;
       satsBalance = satsBalance + satsCredited;
       userUpdate.sats_balance = satsBalance;
+
+      if (satsCredited > 0) {
+        await recordSatsMovement({
+          userId: session.userId,
+          kind: "in",
+          amountSats: satsCredited,
+          source: "mission",
+          label:
+            slug === MISSION_1_SLUG
+              ? "Mentoria 1 · crédito ao concluir"
+              : "Mentoria 2 · crédito ao concluir",
+          refKey: `mission:${slug}:submit-fallback`,
+          meta: { slug, fallback: true, sats: satsCredited },
+        });
+      }
     } else {
       // Caminho normal: sats já entraram em users.sats_balance a cada resposta.
       satsCredited = progressRow?.sats_credited ?? 0;

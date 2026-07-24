@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "SatVantage Copiloto",
   "version": "0.5.0",
-  "description": "Side Panel: domínio oficial, análise Bitcoin/segurança, captura e cotação BTC.",
+  "description": "Side Panel: domínio oficial, análise Bitcoin/segurança, captura, cotação BTC e mapa do site SatVantage.",
   "permissions": ["activeTab", "scripting", "sidePanel", "storage"],
   "host_permissions": [
     "https://sat-vantage-gislanesena.vercel.app/*",
