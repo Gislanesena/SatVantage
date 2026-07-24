@@ -1,9 +1,17 @@
 /** Chamadas ao agents-api via proxy Next (/api/agents/...). */
 
-export async function postAgent<T = any>(
+export type AgentPostResult<T = Record<string, unknown>> = {
+  ok: boolean;
+  status: number;
+  data: T;
+  degraded?: boolean;
+  upstreamFail?: string;
+};
+
+export async function postAgent<T extends Record<string, unknown> = Record<string, unknown>>(
   path: string,
   body: Record<string, unknown>,
-): Promise<{ ok: boolean; status: number; data: T }> {
+): Promise<AgentPostResult<T>> {
   const res = await fetch(`/api/agents/${path.replace(/^\//, "")}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -15,5 +23,22 @@ export async function postAgent<T = any>(
   } catch {
     /* ignore */
   }
-  return { ok: res.ok, status: res.status, data };
+
+  const degraded = Boolean(
+    (data as { degraded?: boolean }).degraded ||
+      (data as { fonte?: string }).fonte === "local",
+  );
+  const upstreamFail =
+    typeof (data as { upstream_fail?: string }).upstream_fail === "string"
+      ? (data as { upstream_fail: string }).upstream_fail
+      : undefined;
+
+  if (degraded || !res.ok) {
+    console.warn(
+      `[postAgent] path=${path} status=${res.status} degraded=${degraded}` +
+        (upstreamFail ? ` upstream_fail=${upstreamFail}` : ""),
+    );
+  }
+
+  return { ok: res.ok, status: res.status, data, degraded, upstreamFail };
 }
