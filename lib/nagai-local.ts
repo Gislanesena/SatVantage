@@ -1,11 +1,14 @@
 /**
  * Mentor local (fallback) quando AGENTS_API_URL está fora do ar.
  * Respostas educativas sobre Bitcoin / autocustódia — sem LLM externo.
+ * Variantes por mensagem evitam “loop” da mesma frase estática.
  */
 
 export type NagaiLocalInput = {
   mensagem: string;
   locale?: string;
+  /** Motivo do fallback (só para variar o tom / log interno). */
+  degradeKind?: string;
 };
 
 const SCOPE_RE =
@@ -53,14 +56,52 @@ async function fetchBtcPrices(): Promise<{ brl: number; usd: number } | null> {
   }
 }
 
-function offTopic(loc: "pt" | "en" | "es") {
+function hashStr(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (Math.imul(31, h) + s.charCodeAt(i)) | 0;
+  return Math.abs(h);
+}
+
+function snippetOf(msg: string, max = 72): string {
+  const s = msg.replace(/\s+/g, " ").trim();
+  if (s.length <= max) return s;
+  return `${s.slice(0, max - 1)}…`;
+}
+
+function pick<T>(items: T[], seed: number): T {
+  return items[seed % items.length]!;
+}
+
+function offTopic(msg: string, loc: "pt" | "en" | "es", seed: number) {
+  const snip = snippetOf(msg);
   if (loc === "en") {
-    return "I'm NagAI, focused only on Bitcoin, sats, Lightning, self-custody wallets, and related security. Ask me something in that scope — for example: what is a seed phrase, or how Lightning invoices work.";
+    return pick(
+      [
+        `About “${snip}”: I'm NagAI and I stay on Bitcoin, sats, Lightning, self-custody and security. Try asking what a seed phrase is, or how a Lightning invoice works.`,
+        `I can't cover “${snip}” outside Bitcoin/self-custody. Ask me about wallets, sats, Lightning, or scam red flags — happy to help there.`,
+        `That sounds outside my lane (“${snip}”). Narrow it to Bitcoin basics, keys/seed, Lightning payments, or custody — and I'll answer.`,
+      ],
+      seed,
+    );
   }
   if (loc === "es") {
-    return "Soy NagAI, enfocada solo en Bitcoin, sats, Lightning, carteras de autocustodia y seguridad relacionada. Pregúntame algo en ese ámbito — por ejemplo: qué es una seed phrase, o cómo funcionan las facturas Lightning.";
+    return pick(
+      [
+        `Sobre “${snip}”: soy NagAI y me centro en Bitcoin, sats, Lightning, autocustodia y seguridad. Prueba preguntar qué es una seed phrase o cómo funciona una factura Lightning.`,
+        `No cubro “${snip}” fuera de Bitcoin/autocustodia. Pregúntame por carteras, sats, Lightning o señales de estafa.`,
+        `Eso queda fuera de mi foco (“${snip}”). Acótalo a lo básico de Bitcoin, llaves/seed, pagos Lightning o custodia — y te respondo.`,
+      ],
+      seed,
+    );
   }
-  return "Sou a NagAI e falo só de Bitcoin, sats, Lightning, carteiras de autocustódia e segurança relacionada. Pergunte algo nesse escopo — por exemplo: o que é uma seed phrase, ou como funciona uma fatura Lightning.";
+  return pick(
+    [
+      `Sobre “${snip}”: sou a NagAI e falo de Bitcoin, sats, Lightning, autocustódia e segurança. Tente perguntar o que é uma seed phrase, ou como funciona uma fatura Lightning.`,
+      `Não cubro “${snip}” fora de Bitcoin/autocustódia. Pergunte sobre carteiras, sats, Lightning ou sinais de golpe — aí eu ajudo.`,
+      `Isso foge do meu foco (“${snip}”). Reformule para básico de Bitcoin, chaves/seed, pagamentos Lightning ou custódia que eu respondo.`,
+    ],
+    seed,
+  );
 }
 
 function matchFaq(msg: string, loc: "pt" | "en" | "es"): string | null {
@@ -134,31 +175,101 @@ function matchFaq(msg: string, loc: "pt" | "en" | "es"): string | null {
   return null;
 }
 
-function genericHelp(loc: "pt" | "en" | "es") {
+function degradeNote(loc: "pt" | "en" | "es", kind: string | undefined, seed: number): string {
+  // Só menciona degradação em falhas de infra (não em toda resposta).
+  const infra =
+    kind === "localhost_in_prod" ||
+    kind === "not_configured" ||
+    kind === "connection_refused" ||
+    kind === "timeout" ||
+    kind === "dns" ||
+    kind === "invalid_url";
+  if (!infra) return "";
   if (loc === "en") {
-    return "Good question. In short: keep keys offline when you can, verify addresses carefully, prefer self-custody for savings, and use Lightning for small everyday amounts. Ask me specifically about wallets, seed phrases, Lightning invoices, or Bitcoin basics.";
+    return pick(
+      [
+        "(Mentor AI is temporarily offline — short local tip.) ",
+        "(Backend agent unreachable — answering with a local guide.) ",
+        "(Degraded mode: local reply while the agent API is down.) ",
+      ],
+      seed,
+    );
   }
   if (loc === "es") {
-    return "Buena pregunta. En resumen: guarda las llaves offline cuando puedas, verifica bien las direcciones, prioriza autocustodia para ahorro y usa Lightning para montos pequeños del día a día. Pregúntame en concreto sobre carteras, seed phrases, facturas Lightning o lo básico de Bitcoin.";
+    return pick(
+      [
+        "(La IA del mentor está temporalmente fuera — tip local breve.) ",
+        "(Agente inaccesible — respondo con guía local.) ",
+        "(Modo degradado: respuesta local mientras falla la API.) ",
+      ],
+      seed,
+    );
   }
-  return "Boa pergunta. Em resumo: guarde chaves offline quando puder, confira bem endereços, prefira autocustódia para reserva e use Lightning para valores pequenos do dia a dia. Pergunte de forma específica sobre carteiras, seed phrase, faturas Lightning ou o básico do Bitcoin.";
+  return pick(
+    [
+      "(A IA do mentor está temporariamente fora — dica local breve.) ",
+      "(Agente inacessível — respondendo com guia local.) ",
+      "(Modo degradado: resposta local enquanto a API falha.) ",
+    ],
+    seed,
+  );
+}
+
+function genericHelp(msg: string, loc: "pt" | "en" | "es", seed: number) {
+  const snip = snippetOf(msg);
+  if (loc === "en") {
+    return pick(
+      [
+        `On “${snip}”: keep keys offline when you can, double-check addresses, prefer self-custody for savings, and Lightning for small everyday amounts. Want wallets, seed phrases, or invoices next?`,
+        `Regarding “${snip}” — practical rule: verify before you send, never share a seed, and separate long-term cold storage from day-to-day Lightning. Ask me one of those angles in more detail.`,
+        `Good angle (“${snip}”). Start small: learn recovery with a test wallet, then move savings to self-custody. Tell me if you care more about mobile wallets, hardware, or Lightning.`,
+        `For “${snip}”: Bitcoin security is mostly key hygiene + patience. I can walk through seed backup, invoice safety, or exchange vs self-custody — pick one.`,
+      ],
+      seed,
+    );
+  }
+  if (loc === "es") {
+    return pick(
+      [
+        `Sobre “${snip}”: guarda llaves offline cuando puedas, verifica direcciones, prioriza autocustodia para ahorro y Lightning para montos chicos. ¿Seguimos con carteras, seed o facturas?`,
+        `Respecto a “${snip}”: verifica antes de enviar, nunca compartas la seed y separa ahorro en frío de Lightning diario. Dime qué ángulo quieres profundizar.`,
+        `Buen enfoque (“${snip}”). Empieza poco: practica recuperar una cartera de prueba y luego mueve ahorro a autocustodia. ¿Móvil, hardware o Lightning?`,
+        `Para “${snip}”: la seguridad en Bitcoin es higiene de llaves + paciencia. Puedo detallar backup de seed, seguridad de facturas o exchange vs autocustodia.`,
+      ],
+      seed,
+    );
+  }
+  return pick(
+    [
+      `Sobre “${snip}”: guarde chaves offline quando puder, confira endereços, prefira autocustódia para reserva e Lightning para o dia a dia. Quer seguir por carteiras, seed ou faturas?`,
+      `Em relação a “${snip}”: verifique antes de enviar, nunca compartilhe a seed e separe reserva (fria) de Lightning do cotidiano. Diz qual ângulo quer aprofundar.`,
+      `Bom ponto (“${snip}”). Comece pequeno: pratique recuperar uma carteira de teste e depois mova reserva para autocustódia. Prefere mobile, hardware ou Lightning?`,
+      `Para “${snip}”: segurança em Bitcoin é higiene de chaves + paciência. Posso detalhar backup de seed, segurança de fatura ou exchange vs autocustódia — escolha um.`,
+    ],
+    seed,
+  );
 }
 
 /** Gera resposta local compatível com o proxy /api/agents (mentor + interact). */
 export async function replyNagaiLocal(
   input: NagaiLocalInput,
-): Promise<{ resposta_ia: string; fonte: "local" }> {
+): Promise<{ resposta_ia: string; fonte: "local"; degraded?: boolean }> {
   const loc = lang(input.locale);
   const msg = (input.mensagem || "").trim();
+  const seed = hashStr(`${msg}|${input.degradeKind || ""}`);
+  const note = degradeNote(loc, input.degradeKind, seed);
+
   if (!msg) {
     return {
       resposta_ia:
-        loc === "en"
+        note +
+        (loc === "en"
           ? "Send a Bitcoin question and I’ll help."
           : loc === "es"
             ? "Envía una pregunta sobre Bitcoin y te ayudo."
-            : "Manda uma dúvida sobre Bitcoin que eu te ajudo.",
+            : "Manda uma dúvida sobre Bitcoin que eu te ajudo."),
       fonte: "local",
+      degraded: Boolean(input.degradeKind),
     };
   }
 
@@ -167,7 +278,11 @@ export async function replyNagaiLocal(
   const inScope = SCOPE_RE.test(msg) || wantsPrice;
 
   if (!inScope) {
-    return { resposta_ia: offTopic(loc), fonte: "local" };
+    return {
+      resposta_ia: note + offTopic(msg, loc, seed),
+      fonte: "local",
+      degraded: Boolean(input.degradeKind),
+    };
   }
 
   if (wantsPrice) {
@@ -178,40 +293,61 @@ export async function replyNagaiLocal(
       const usd = fmtMoney(prices.usd, "USD", loc);
       if (loc === "en") {
         return {
-          resposta_ia: wantsYear
-            ? `Rough spot price now: about ${brl} (BRL) and ${usd} (USD), via CoinGecko. We are in ${year}. Prices move fast — treat this as a snapshot, not financial advice.`
-            : `Rough spot price now: about ${brl} (BRL) and ${usd} (USD), via CoinGecko. Prices move fast — treat this as a snapshot, not financial advice.`,
+          resposta_ia:
+            note +
+            (wantsYear
+              ? `Rough spot price now: about ${brl} (BRL) and ${usd} (USD), via CoinGecko. We are in ${year}. Prices move fast — treat this as a snapshot, not financial advice.`
+              : `Rough spot price now: about ${brl} (BRL) and ${usd} (USD), via CoinGecko. Prices move fast — treat this as a snapshot, not financial advice.`),
           fonte: "local",
+          degraded: Boolean(input.degradeKind),
         };
       }
       if (loc === "es") {
         return {
-          resposta_ia: wantsYear
-            ? `Cotización aproximada ahora: cerca de ${brl} (BRL) y ${usd} (USD), vía CoinGecko. Estamos en ${year}. El precio se mueve rápido — es una foto del momento, no consejo financiero.`
-            : `Cotización aproximada ahora: cerca de ${brl} (BRL) y ${usd} (USD), vía CoinGecko. El precio se mueve rápido — es una foto del momento, no consejo financiero.`,
+          resposta_ia:
+            note +
+            (wantsYear
+              ? `Cotización aproximada ahora: cerca de ${brl} (BRL) y ${usd} (USD), vía CoinGecko. Estamos en ${year}. El precio se mueve rápido — es una foto del momento, no consejo financiero.`
+              : `Cotización aproximada ahora: cerca de ${brl} (BRL) y ${usd} (USD), vía CoinGecko. El precio se mueve rápido — es una foto del momento, no consejo financiero.`),
           fonte: "local",
+          degraded: Boolean(input.degradeKind),
         };
       }
       return {
-        resposta_ia: wantsYear
-          ? `Cotação aproximada agora: cerca de ${brl} (BRL) e ${usd} (USD), via CoinGecko. Estamos em ${year}. O preço oscila rápido — isso é um retrato do momento, não conselho financeiro.`
-          : `Cotação aproximada agora: cerca de ${brl} (BRL) e ${usd} (USD), via CoinGecko. O preço oscila rápido — isso é um retrato do momento, não conselho financeiro.`,
+        resposta_ia:
+          note +
+          (wantsYear
+            ? `Cotação aproximada agora: cerca de ${brl} (BRL) e ${usd} (USD), via CoinGecko. Estamos em ${year}. O preço oscila rápido — isso é um retrato do momento, não conselho financeiro.`
+            : `Cotação aproximada agora: cerca de ${brl} (BRL) e ${usd} (USD), via CoinGecko. O preço oscila rápido — isso é um retrato do momento, não conselho financeiro.`),
         fonte: "local",
+        degraded: Boolean(input.degradeKind),
       };
     }
     return {
       resposta_ia:
-        loc === "en"
+        note +
+        (loc === "en"
           ? `I couldn't fetch the live quote right now. We are in ${new Date().getFullYear()}. Try again in a moment, or check the Bitcoin chart on the home page.`
           : loc === "es"
             ? `No pude obtener la cotización en vivo ahora. Estamos en ${new Date().getFullYear()}. Intenta de nuevo en un momento, o mira el gráfico de Bitcoin en la página inicial.`
-            : `Não consegui buscar a cotação ao vivo agora. Estamos em ${new Date().getFullYear()}. Tente de novo em instantes, ou veja o gráfico de Bitcoin na página inicial.`,
+            : `Não consegui buscar a cotação ao vivo agora. Estamos em ${new Date().getFullYear()}. Tente de novo em instantes, ou veja o gráfico de Bitcoin na página inicial.`),
       fonte: "local",
+      degraded: Boolean(input.degradeKind),
     };
   }
 
   const faq = matchFaq(msg, loc);
-  if (faq) return { resposta_ia: faq, fonte: "local" };
+  if (faq) {
+    return {
+      resposta_ia: note + faq,
+      fonte: "local",
+      degraded: Boolean(input.degradeKind),
+    };
+  }
 
-  return { resposta_ia: genericHelp(loc), fonte: "local" };
+  return {
+    resposta_ia: note + genericHelp(msg, loc, seed),
+    fonte: "local",
+    degraded: Boolean(input.degradeKind),
+  };
 }

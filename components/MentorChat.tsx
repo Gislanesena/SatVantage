@@ -873,21 +873,70 @@ export default function MentorChat({
     setError(null);
     pushUser(text);
     try {
-      const { ok, data } = await postAgent<{
+      // Histórico recente para a API (messages[]) — inclui a mensagem atual.
+      const prior = linesRef.current
+        .filter((l) => (l.text || "").trim().length > 0)
+        .map((l) => ({
+          role: l.kind === "user" ? "user" : "assistant",
+          content: l.text.trim(),
+        }));
+      const messages = [...prior, { role: "user", content: text }].slice(-16);
+
+      const { ok, data, degraded, upstreamFail } = await postAgent<{
         error?: string;
         resposta_ia?: string;
         feedback?: string;
         resposta?: string;
+        fonte?: string;
+        degraded?: boolean;
+        upstream_fail?: string;
       }>("interact", {
+        messages,
         mensagem_usuario: text,
         tema_atual: "Bitcoin",
         idioma: locale,
         locale,
       });
       if (!alive(runId)) return;
-      if (!ok) throw new Error(data.error ?? "falha na NagAI");
-      const reply =
-        data.resposta_ia || data.feedback || data.resposta || t.nagai.reformulate;
+      if (!ok && !data.resposta_ia && !data.resposta && !data.feedback) {
+        throw new Error(
+          data.error ??
+            (upstreamFail
+              ? `falha na NagAI (${upstreamFail})`
+              : "falha na NagAI"),
+        );
+      }
+
+      let reply =
+        (data.resposta_ia || data.feedback || data.resposta || "").trim();
+      if (!reply) {
+        throw new Error(data.error ?? "falha na NagAI");
+      }
+
+      // Se a API caiu no fallback e repetiu a mesma frase, muda o ângulo.
+      const lastAgent = [...linesRef.current]
+        .reverse()
+        .find((l) => l.kind === "agent");
+      const norm = (s: string) => s.replace(/\s+/g, " ").trim().toLowerCase();
+      if (lastAgent && norm(lastAgent.text) === norm(reply)) {
+        reply =
+          locale === "en"
+            ? `Still on your point about “${text.slice(0, 60)}”: try a more specific angle — seed backup, Lightning invoice safety, or wallet choice — and I’ll answer that next.`
+            : locale === "es"
+              ? `Siguiendo con “${text.slice(0, 60)}”: prueba un ángulo más concreto — backup de seed, seguridad de factura Lightning o elección de cartera — y respondo eso.`
+              : `Ainda no seu ponto sobre “${text.slice(0, 60)}”: tente um ângulo mais específico — backup de seed, segurança de fatura Lightning ou escolha de carteira — que eu respondo em seguida.`;
+      }
+
+      if (degraded || data.fonte === "local") {
+        setError(
+          locale === "en"
+            ? "NagAI is on local fallback (agent API unreachable). Replies still work, with limited depth."
+            : locale === "es"
+              ? "NagAI en fallback local (API del agente inaccesible). Las respuestas siguen, con menos profundidad."
+              : "NagAI em fallback local (API do agente inacessível). As respostas continuam, com menos profundidade.",
+        );
+      }
+
       await typeAgent(reply, runId);
     } catch (e: any) {
       if (!alive(runId)) return;
@@ -1087,7 +1136,11 @@ export default function MentorChat({
             ? SATS_CORRECT
             : SATS_TRIED;
 
-      // Credita em silêncio — não anuncia sats no meio da mentoria.
+      const satsNote = check.correct
+        ? t.nagai.hitSats.replace("{sats}", String(sats))
+        : t.nagai.trySats.replace("{sats}", String(sats));
+      const highlight = rewardEligible ? satsNote : t.nagai.practiceNoSats;
+
       if (rewardEligible) {
         setSessionSats((prev) => prev + sats);
       }
@@ -1104,7 +1157,10 @@ export default function MentorChat({
       onBalanceChanged?.();
 
       await sleep(180);
-      await typeAgent(feedbackText, runId);
+      await typeAgent(feedbackText, runId, {
+        satsNote: highlight,
+        sats: rewardEligible ? sats : 0,
+      });
       if (!alive(runId)) return;
       await advance(nextResponses, idx + 1);
     } catch (e: any) {
@@ -1127,7 +1183,16 @@ export default function MentorChat({
     setResponses(nextResponses);
     responsesRef.current = nextResponses;
     await sleep(140);
-    await typeAgent(t.nagai.zeroSatsQuestion, runId);
+    await typeAgent(t.nagai.zeroSatsQuestion, runId, {
+      satsNote: rewardEligible
+        ? locale === "en"
+          ? "+0 sats (skipped)"
+          : locale === "es"
+            ? "+0 sats (omitida)"
+            : "+0 sats (pulada)"
+        : t.nagai.practiceNoSats,
+      sats: 0,
+    });
     if (!alive(runId)) return;
     await advance(nextResponses, idx + 1);
   }

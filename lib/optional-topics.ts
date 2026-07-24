@@ -164,6 +164,202 @@ export const OPTIONAL_TOPICS: OptionalTopic[] = [
   }),
 
   converse({
+    id: "autocustodia",
+    label: "O que é autocustódia (self-custody)",
+    teach: [
+      "Autocustódia significa que VOCÊ controla as chaves do bitcoin — não a corretora, não o banco, não um 'amigo de confiança' na internet. A frase clássica: 'não são suas chaves, não são suas moedas'.",
+      "Na corretora (custódia de terceiros), é fácil comprar com PIX. O trade-off: se a plataforma travar, for hackeada ou falir, você depende dela para acessar os sats.",
+      "Na carteira própria, a soberania sobe — e a responsabilidade também: proteger a seed/chave, fazer backup offline e testar recuperação com valor pequeno.",
+      "Carteira quente (app/online) serve bem para o dia a dia e Lightning. Carteira fria (offline/hardware) costuma ser melhor para quantias maiores, com menos exposição à internet.",
+      "Autocustódia não é 'tudo ou nada' no primeiro dia. Muita gente começa na corretora, aprende, testa uma transferência pequena e só então move a reserva de longo prazo.",
+      "Orientação educativa: o SatVantage ensina o caminho; a decisão de quanto deixar onde continua sendo sua.",
+    ],
+    inviteDoubt:
+      "Quer perguntar sobre carteira própria, seed, quente vs fria, ou quando tirar da corretora? Manda com suas palavras.",
+    faq: [
+      {
+        keys: ["o que é", "autocustódia", "autocustodia", "self-custody", "self custody", "soberania"],
+        answer:
+          "Autocustódia é você guardar o bitcoin com as suas chaves, sem depender da corretora para autorizar um saque. Mais soberania, mais responsabilidade pelo backup da seed.",
+      },
+      {
+        keys: ["corretora", "exchange", "custódia", "terceiros", "deixar na"],
+        answer:
+          "Na corretora a custódia é dela: prático para comprar, mas o acesso depende da plataforma. Autocustódia move o ativo para uma carteira sob seu controle.",
+      },
+      {
+        keys: ["quente", "fria", "hot", "cold", "hardware", "offline", "online"],
+        answer:
+          "Quente ≈ ligada à internet (dia a dia). Fria ≈ offline na maior parte do tempo (guarda maior). Muita gente usa as duas: pouco no dia a dia, reserva na fria.",
+      },
+      {
+        keys: ["quando", "tirar", "sacar", "mover", "transferir", "começar"],
+        answer:
+          "Não precisa tirar tudo no primeiro dia. Aprenda, faça um teste pequeno, confira se chegou, e só então mova valores maiores. Educação antes de pressa.",
+      },
+      {
+        keys: ["risco", "perder", "hack", "seguro", "segurança"],
+        answer:
+          "Risco na corretora: plataforma. Risco na autocustódia: perder seed, phishing, malware no celular. Mitiga com backup offline, teste de recuperação e nunca compartilhar a seed.",
+      },
+      {
+        keys: ["lightning", "on-chain", "rede"],
+        answer:
+          "Autocustódia vale on-chain e também em carteiras Lightning (com outros trade-offs). Confira sempre a rede na hora de receber/enviar para não misturar invoice com endereço on-chain.",
+      },
+    ],
+  }),
+
+  quiz({
+    id: "autocustodia-quiz",
+    label: "Autocustódia: quem controla as chaves?",
+    teach: [
+      "Autocustódia = suas chaves, suas regras de acesso. Custódia de terceiros = a corretora (ou outro serviço) controla as chaves por você.",
+      "Não é moralismo: são modelos diferentes. O SatVantage ensina a migrar com calma quando você estiver pronto.",
+    ],
+    question: "O que define autocustódia de verdade?",
+    options: [
+      "Ter conta em várias corretoras ao mesmo tempo",
+      "Controlar você mesmo as chaves/seed da carteira",
+      "Deixar um influencer 'guardar' por você",
+      "Printar o saldo da corretora e guardar o print",
+    ],
+    correct: 1,
+    feedbackCorrect: "Isso — autocustódia = você com as chaves.",
+    feedbackWrong: "Sem as chaves sob seu controle, ainda é custódia de terceiro.",
+  }),
+
+  converse({
+    id: "chaves-privadas",
+    label: "Chaves privadas e seed phrase",
+    teach: [
+      "A chave privada (e a seed phrase de 12/24 palavras) é o 'segredo' que prova que o bitcoin é seu. Quem tem a seed controla os fundos — por isso nunca se compartilha.",
+      "A seed recupera a carteira se o celular quebrar ou o app for apagado. Sem seed (e sem outro backup válido), o acesso pode se perder para sempre.",
+      "Boas práticas: anotar offline (papel/metal), guardar em local seguro, nunca fotografar para a nuvem, nunca digitar em site que 'valida seed', nunca mandar para suporte.",
+      "Golpe clássico: falso suporte pedindo a seed para 'desbloquear conta' ou 'aumentar limite'. SatVantage e corretoras sérias não pedem seed.",
+      "Treine recuperação com carteira de teste e valor mínimo antes de confiar a reserva de longo prazo a um setup novo.",
+      "Frase útil: a seed é mais sensível que a senha do banco — senha se reseta; seed vazada esvazia a carteira.",
+    ],
+    inviteDoubt:
+      "Pode perguntar sobre backup, o que nunca fazer com a seed, ou como recuperar uma carteira.",
+    faq: [
+      {
+        keys: ["seed", "frase", "12 palavras", "24 palavras", "mnemonic", "semente"],
+        answer:
+          "A seed phrase (12 ou 24 palavras) recupera sua carteira. Guarde offline, fora da nuvem e de prints. Quem tem a seed tem o bitcoin.",
+      },
+      {
+        keys: ["chave privada", "private key", "chave", "npub", "nsec"],
+        answer:
+          "A chave privada autoriza gastos. A seed costuma derivar várias chaves. Nunca compartilhe chave privada/seed — nem com 'suporte', nem com 'IA', nem com parente por WhatsApp sem um plano sério de herança.",
+      },
+      {
+        keys: ["backup", "anotar", "papel", "metal", "nuvem", "foto", "google drive"],
+        answer:
+          "Backup bom: offline (papel ou placa de metal), em local seguro. Backup ruim: foto na galeria, print no Drive/iCloud, senha salva no navegador junto com a seed.",
+      },
+      {
+        keys: ["golpe", "suporte", "phishing", "desbloquear", "envie a seed"],
+        answer:
+          "Ninguém legítimo pede sua seed. Se pediram, é golpe. Feche a conversa, não clique em links e revise a carteira só pelos apps/sites oficiais que você instalou.",
+      },
+      {
+        keys: ["perdi", "perder", "celular", "apaguei", "recuperar", "restaurar"],
+        answer:
+          "Com a seed intacta, você reinstala a carteira e restaura. Sem seed e sem outro backup, em geral não há recuperação mágica. Por isso o teste de restauração com pouco valor importa.",
+      },
+      {
+        keys: ["compartilhar", "família", "esposa", "marido", "filho"],
+        answer:
+          "Compartilhar seed é compartilhar o controle total do dinheiro. Se for plano de família/herança, faça com método (e calma) — não por mensagem casual. O SatVantage trata herança como tema à parte.",
+      },
+    ],
+  }),
+
+  quiz({
+    id: "seed-quiz",
+    label: "Seed phrase: o que nunca fazer",
+    teach: [
+      "A seed é o mestre da carteira. Trate como segredo extremo — não como 'senha de app' comum.",
+    ],
+    question: "O que você NÃO deve fazer com a seed phrase?",
+    options: [
+      "Anotar em papel e guardar offline em local seguro",
+      "Testar a restauração com um valor pequeno",
+      "Enviar por WhatsApp/Telegram para um 'suporte' que pediu",
+      "Guardar longe de fotos na nuvem",
+    ],
+    correct: 2,
+    feedbackCorrect: "Isso — seed por mensagem/suporte = risco altíssimo.",
+    feedbackWrong: "Nunca envie a seed a ninguém, especialmente 'suporte'.",
+  }),
+
+  converse({
+    id: "heranca-bitcoin",
+    label: "Herança e bitcoin (plano de sucessão)",
+    teach: [
+      "Bitcoin sem plano de sucessão pode ficar inacessível para a família se algo acontecer com você — mesmo com muito amor e boa intenção.",
+      "Herança digital não é só 'deixar a senha num papel'. É combinar: (1) a família sabe que o ativo existe; (2) há instruções claras de acesso; (3) a seed não fica exposta a qualquer pessoa no dia a dia.",
+      "Equilíbrio delicado: se ninguém nunca pode achar a seed, o patrimônio pode morrer com você; se muita gente tem a seed agora, o risco de vazamento sobe.",
+      "Documentação ajuda: inventário simples do que existe (corretora + self-custody), onde buscar as instruções, e quem é de confiança. Evite mandar a seed completa por e-mail.",
+      "No SatVantage, herança e prova criptográfica entram como pilar de produto — para organizar o futuro com calma, não no susto.",
+      "Isso é educação e organização; regras de inventário/sucessão no Brasil têm lado jurídico. Para o formal, fale com profissional de confiança.",
+    ],
+    inviteDoubt:
+      "Quer falar sobre o que a família precisa saber, seed e herança, ou por onde começar um plano simples?",
+    faq: [
+      {
+        keys: ["herança", "herdeiro", "morrer", "falecer", "sucessão", "família"],
+        answer:
+          "Sem plano, a família pode não conseguir acessar o bitcoin. Com plano, alguém de confiança sabe que existe e como recuperar com segurança — sem espalhar a seed no WhatsApp.",
+      },
+      {
+        keys: ["seed", "chave", "como deixar", "acesso"],
+        answer:
+          "Não entregue a seed 'por via das dúvidas' a várias pessoas agora. Prefira instruções: onde está o backup, como restaurar, e quem pode abrir em que situação. Calma e método > improviso.",
+      },
+      {
+        keys: ["começar", "plano", "primeiro passo", "por onde"],
+        answer:
+          "Comece simples: liste onde está o bitcoin (corretoras e carteiras), garanta backup da seed offline, e escreva um bilhete de instruções para uma pessoa de confiança (sem colar a seed no bilhete digital).",
+      },
+      {
+        keys: ["advogado", "cartório", "inventário", "lei"],
+        answer:
+          "Sucessão formal envolve regras locais. Eu ajudo no lado prático/educativo (custódia, backup, clareza). Para inventário e documentos, procure profissional jurídico/contador.",
+      },
+      {
+        keys: ["opentimestamps", "prova", "satvantage", "documento"],
+        answer:
+          "O SatVantage trabalha a ideia de organizar herança com prova criptográfica pública (ex.: carimbo de tempo) de que um plano existia — sem custodiar sua seed. É organização + evidência, não mágica.",
+      },
+      {
+        keys: ["golpe", "herdeiro falso", "urgente"],
+        answer:
+          "Desconfie de urgência e de quem pede seed 'para liberar herança'. Herança séria não começa com você entregando a seed a um estranho.",
+      },
+    ],
+  }),
+
+  quiz({
+    id: "heranca-quiz",
+    label: "Herança: o erro mais comum",
+    teach: [
+      "O erro clássico é ter bitcoin bem guardado… e ninguém da família saber que existe ou como recuperar com segurança.",
+    ],
+    question: "Qual atitude melhora um plano de herança em bitcoin?",
+    options: [
+      "Não contar para ninguém e esperar que 'se virem'",
+      "Organizar instruções claras + backup seguro, sem espalhar a seed no dia a dia",
+      "Postar a seed em rede social 'para os herdeiros acharem'",
+      "Mandar a seed completa para cinco grupos de WhatsApp",
+    ],
+    correct: 1,
+    feedbackCorrect: "Isso — clareza e backup, sem exposição boba da seed.",
+    feedbackWrong: "Espalhar seed ou sumir sem instruções são os dois extremos ruins.",
+  }),
+
+  converse({
     id: "imposto-quando",
     label: "A partir de quando eu pago imposto sobre bitcoin?",
     teach: [

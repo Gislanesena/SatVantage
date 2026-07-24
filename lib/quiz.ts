@@ -98,9 +98,129 @@ export const MISSION_1_QUESTIONS: QuizQuestion[] = [
     feedbackCorrect: "Isso — existe marco fiscal; informe-se sem pânico.",
     feedbackWrong: "Não é 'nunca declara': há regras e isenções a conhecer.",
   },
+  {
+    id: "q5",
+    teach:
+      "A frase de recuperação (seed) costuma ter 12 ou 24 palavras. Quem tem a seed controla os fundos — mesmo sem o celular. Por isso ela fica offline, longe de foto, nuvem e 'suporte'.",
+    question: "O que acontece se outra pessoa tiver a sua seed phrase?",
+    options: [
+      "Nada: a seed só serve para lembrar o nome do app",
+      "Essa pessoa pode controlar os bitcoins da carteira",
+      "O banco bloqueia a conta automaticamente",
+      "Só dá para ver o saldo, nunca enviar",
+    ],
+    correct: 1,
+    feedbackCorrect: "Exato — seed = controle total dos fundos.",
+    feedbackWrong: "Quem tem a seed controla o bitcoin da carteira.",
+  },
+  {
+    id: "q6",
+    teach:
+      "Um satoshi (sat) é a menor unidade prática do Bitcoin: 1 BTC = 100.000.000 sats. No dia a dia e em Lightning, a gente fala em sats com frequência.",
+    question: "Quantos sats equivalem a 1 bitcoin?",
+    options: [
+      "1.000",
+      "100.000.000",
+      "21.000.000",
+      "1.000.000",
+    ],
+    correct: 1,
+    feedbackCorrect: "Isso — 100 milhões de sats = 1 BTC.",
+    feedbackWrong: "1 BTC = 100.000.000 sats.",
+  },
+  {
+    id: "q7",
+    teach:
+      "Antes de enviar um valor grande, o hábito seguro é testar com pouco: confira rede (on-chain vs Lightning), endereço/invoice e se o valor chegou. Erro de digitação pode ser irreversível.",
+    question: "Qual hábito reduz risco ao enviar bitcoin?",
+    options: [
+      "Enviar tudo de uma vez para 'não esquecer'",
+      "Mandar um valor pequeno de teste e conferir se chegou",
+      "Pedir a senha da carteira para um amigo confirmar",
+      "Usar qualquer QR sem ler o valor",
+    ],
+    correct: 1,
+    feedbackCorrect: "Perfeito — teste pequeno primeiro.",
+    feedbackWrong: "Sempre teste com pouco antes do valor grande.",
+  },
+  {
+    id: "q8",
+    teach:
+      "Phishing e falso suporte pedem seed, código 2FA ou 'atualização urgente' da carteira. O SatVantage e carteiras sérias nunca pedem sua seed. Pressão + urgência = pare.",
+    question: "Se um 'suporte' pedir sua seed por chat, o que fazer?",
+    options: [
+      "Enviar só as 3 primeiras palavras",
+      "Não enviar: é golpe — suporte legítimo não pede seed",
+      "Enviar se o perfil tiver muitos seguidores",
+      "Tirar foto da seed e mandar por e-mail criptografado",
+    ],
+    correct: 1,
+    feedbackCorrect: "Isso — ninguém de suporte precisa da sua seed.",
+    feedbackWrong: "Nunca compartilhe a seed. É golpe clássico.",
+  },
+  {
+    id: "q9",
+    teach:
+      "Mempool e taxa (fee): quando a rede está congestionada, transações on-chain podem demorar se a taxa for baixa. Esperar ou aumentar a taxa (quando possível) faz parte do jogo — paciência ajuda.",
+    question: "Por que uma transferência on-chain pode demorar?",
+    options: [
+      "Porque o Bitcoin 'fecha' à noite",
+      "Porque a rede pode estar congestionada e a taxa escolhida ser baixa",
+      "Porque sats não existem em dias úteis",
+      "Porque só mineradores brasileiros confirmam blocos",
+    ],
+    correct: 1,
+    feedbackCorrect: "Exato — congestão + fee influenciam o tempo.",
+    feedbackWrong: "Pense em mempool, taxa e confirmação na rede.",
+  },
+  {
+    id: "q10",
+    teach:
+      "Autocustódia significa que você controla as chaves. Isso traz soberania e também responsabilidade: backup da seed, dispositivo seguro e cuidado com golpes. Não é 'mais difícil' — é outro modelo mental.",
+    question: "O que é autocustódia?",
+    options: [
+      "Deixar o banco guardar seu bitcoin",
+      "Você controlar as chaves da sua carteira",
+      "Um tipo de imposto sobre cripto",
+      "Um app que investe automaticamente por você",
+    ],
+    correct: 1,
+    feedbackCorrect: "Isso — suas chaves, suas moedas.",
+    feedbackWrong: "Autocustódia = você no controle das chaves.",
+  },
+  {
+    id: "q11",
+    teach:
+      "Endereços Bitcoin e invoices Lightning são diferentes. Colar um no lugar do outro (ou na rede errada) pode fazer o valor não chegar. Conferir o formato e a rede antes de confirmar é básico de segurança.",
+    question: "Antes de pagar, o que conferir com mais cuidado?",
+    options: [
+      "Só a cor do QR code",
+      "Se o destino (endereço/invoice) e a rede estão corretos",
+      "Se o site tem anúncio de desconto",
+      "Se a Lua está em crescente",
+    ],
+    correct: 1,
+    feedbackCorrect: "Perfeito — destino e rede certos.",
+    feedbackWrong: "Confira endereço/invoice e a rede (on-chain vs Lightning).",
+  },
+  {
+    id: "q12",
+    teach:
+      "Volatilidade: o preço do Bitcoin sobe e desce. Educação e reserva de emergência em moeda local importam tanto quanto 'comprar na emoção'. Aprendizado primeiro reduz decisão impulsiva.",
+    question: "Qual postura combina melhor com aprendizado em Bitcoin?",
+    options: [
+      "Endividar-se para comprar o máximo hoje",
+      "Estudar, ir com calma e não arriscar o que não pode perder",
+      "Ignorar segurança porque 'sempre sobe'",
+      "Compartilhar a seed com a família no grupo do WhatsApp",
+    ],
+    correct: 1,
+    feedbackCorrect: "Isso — calma, estudo e risco consciente.",
+    feedbackWrong: "Priorize aprender e só arrisque o que pode perder.",
+  },
 ];
 
-/** Mentoria 2 — Corretoras e Lightning (4 etapas). */
+/** Mentoria 2 — Corretoras e Lightning (banco ampliado). */
 export const MISSION_2_QUESTIONS: QuizQuestion[] = [
   {
     id: "w1",

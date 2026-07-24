@@ -47,6 +47,19 @@
   box-shadow: 0 8px 28px rgba(15, 23, 42, 0.08);
 }
 
+/* Simulador no footer: sem overflow hidden o topo (modo/patrimônio) era cortado
+   e o spotlight/balão pareciam “clipados” mesmo com portal. */
+.sv-chat-panel.sv-chat-panel--sim,
+body.sv-pro-tour-on .sv-chat-panel {
+  overflow: visible;
+}
+
+/* Nav sticky cobria o alvo do tutorial (o buraco do portal caía em cima de “Sair da mentoria”). */
+body.sv-pro-tour-on .sv-nav {
+  position: relative;
+  z-index: 1;
+}
+
 html[data-theme="dark"] .sv-chat-panel {
   --chat-panel: #1e2a3d;
   box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
@@ -756,6 +769,55 @@ html[data-theme="dark"] .sv-bubble-sats--try {
   }
 }
 
+.sv-mentor-sats {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(247, 147, 26, 0.35);
+  background: rgba(247, 147, 26, 0.12);
+  color: #ffb84d;
+  font-size: 0.85rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.sv-mentor-quick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.sv-mentor-quick-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(148, 163, 184, 0.06);
+  color: var(--ink-muted);
+  font-weight: 600;
+  font-size: 0.84rem;
+  white-space: nowrap;
+  transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+
+.sv-mentor-quick-btn:hover:not(:disabled) {
+  color: var(--ink);
+  background: var(--orange-soft);
+  border-color: rgba(247, 147, 26, 0.35);
+}
+
+.sv-mentor-quick-btn.is-active {
+  color: #fff;
+  border-color: rgba(247, 147, 26, 0.55);
+  background: rgba(247, 147, 26, 0.18);
+}
+
 .sv-mentor-head-face {
   width: 40px;
   height: 40px;
@@ -1192,6 +1254,105 @@ html[data-theme="dark"] .sv-topic-btn {
   filter: brightness(1.05);
 }
 
+.sv-chat-mic {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  cursor: pointer;
+  padding: 0;
+}
+
+.sv-chat-mic-icon {
+  width: 22px !important;
+  height: 22px !important;
+  display: block;
+  flex-shrink: 0;
+  overflow: visible;
+}
+
+.sv-chat-mic:hover:not(:disabled) {
+  border-color: rgba(59, 130, 246, 0.7);
+  background: rgba(59, 130, 246, 0.15);
+}
+
+.sv-chat-mic:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.sv-chat-mic.is-listening {
+  border-color: rgba(59, 130, 246, 0.9);
+  background: rgba(59, 130, 246, 0.28);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+  animation: sv-mic-pulse 1.2s ease-in-out infinite;
+}
+
+.sv-chat-mic.is-listening .sv-chat-mic-icon rect,
+.sv-chat-mic.is-listening .sv-chat-mic-icon path {
+  stroke: #93c5fd;
+}
+
+.sv-bubble-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.sv-bubble-head .sv-bubble-label {
+  margin-bottom: 0;
+}
+
+.sv-chat-speak {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  cursor: pointer;
+  padding: 0;
+}
+
+.sv-chat-speak:hover {
+  border-color: rgba(59, 130, 246, 0.7);
+  background: rgba(59, 130, 246, 0.18);
+}
+
+.sv-chat-speak.is-speaking {
+  border-color: rgba(59, 130, 246, 0.9);
+  background: rgba(59, 130, 246, 0.3);
+}
+
+.sv-chat-speak-icon {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+@keyframes sv-mic-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.04);
+  }
+}
+
 .sv-error {
   margin: 0;
   color: #e85d5d;
@@ -1356,5 +1517,160 @@ html[data-theme="dark"] .sv-topic-btn {
 
   .sv-mentor--embedded .sv-chat-panel {
     min-height: 0;
+  }
+}
+
+/* --- Teórico / Prático --- */
+.sv-learn-pick,
+.sv-tutorial,
+.sv-sim {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding: 4px 2px 8px;
+}
+
+.sv-learn-pick-title,
+.sv-tutorial-title {
+  margin: 0;
+  color: #fff;
+  font-size: 1.05rem;
+  font-weight: 650;
+}
+
+.sv-learn-pick-sub,
+.sv-tutorial-body,
+.sv-sim-note,
+.sv-tutorial-tip,
+.sv-sim-msg {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.sv-learn-pick-actions,
+.sv-tutorial-actions,
+.sv-sim-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sv-learn-pick-back,
+.sv-tutorial-footer,
+.sv-sim-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.sv-tutorial-top,
+.sv-sim-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.sv-tutorial-kicker,
+.sv-sim-kicker,
+.sv-tutorial-progress {
+  margin: 0;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(147, 197, 253, 0.95);
+}
+
+.sv-tutorial-tip {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  background: rgba(59, 130, 246, 0.12);
+}
+
+.sv-tutorial-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.sv-tutorial-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.sv-tutorial-dot.is-on {
+  background: #3b82f6;
+}
+
+.sv-tutorial-dot.is-done {
+  background: rgba(59, 130, 246, 0.55);
+}
+
+.sv-sim-price,
+.sv-sim-balances {
+  display: grid;
+  gap: 8px;
+}
+
+.sv-sim-balances {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.sv-sim-price,
+.sv-sim-balances > div {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.sv-sim-price span,
+.sv-sim-balances span {
+  display: block;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.55);
+  margin-bottom: 4px;
+}
+
+.sv-sim-price strong,
+.sv-sim-balances strong {
+  color: #fff;
+  font-size: 0.95rem;
+}
+
+.sv-sim-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.85rem;
+}
+
+.sv-sim-field input {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  outline: none;
+}
+
+.sv-sim-trades {
+  margin: 0;
+  padding-left: 18px;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.82rem;
+}
+
+@media (max-width: 640px) {
+  .sv-sim-balances {
+    grid-template-columns: 1fr;
   }
 }
