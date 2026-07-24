@@ -25,11 +25,11 @@ export default function Landing({
   extensionBusy,
   error,
 }: LandingProps) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [showLoginChoices, setShowLoginChoices] = useState(false);
 
   return (
-    <div className="sv-landing" id="topo">
+    <div className="sv-landing" id="topo" translate="no">
       <SiteNav
         onStart={() =>
           document.getElementById("acesso")?.scrollIntoView({ behavior: "smooth" })
@@ -39,13 +39,13 @@ export default function Landing({
       <div className="sv-landing-body">
         <section className="sv-hero" aria-label={t.landing.presentation} id="plataforma">
           <div className="sv-hero-main">
-            <div className="sv-hero-intro">
-              <p className="sv-eyebrow sv-rise">
+            <div className="sv-hero-intro" key={locale}>
+              <p className="sv-eyebrow sv-rise" translate="no">
                 <span aria-hidden="true">✦</span>
                 {t.landing.eyebrow}
               </p>
 
-              <h1 className="sv-rise sv-rise-delay-1">
+              <h1 className="sv-rise sv-rise-delay-1" translate="no">
                 {t.landing.headlineBefore}
                 <em>{t.landing.headlineEm}</em>
                 {t.landing.headlineAfter}
@@ -53,8 +53,8 @@ export default function Landing({
             </div>
 
             <div className="sv-hero-actions sv-rise sv-rise-delay-2" id="acesso">
-              <div className="sv-cta-stack">
-                <button type="button" className="sv-btn-primary" onClick={onCreateAccount}>
+              <div className="sv-cta-stack" key={`cta-${locale}`}>
+                <button type="button" className="sv-btn-primary" translate="no" onClick={onCreateAccount}>
                   {t.landing.invest}
                   <span aria-hidden="true">→</span>
                 </button>
@@ -151,24 +151,21 @@ export default function Landing({
         </section>
       </div>
 
-      <section className="sv-landing-ext" aria-label="SatVantage Copiloto">
+            <section className="sv-landing-ext" aria-label={t.landing.copilotoTitle}>
         <div className="sv-ext-promo">
           <div className="sv-ext-promo-text">
-            <p className="sv-ext-promo-eyebrow">Extensão Chrome</p>
-            <h3 className="sv-ext-promo-title">SatVantage Copiloto</h3>
-            <p className="sv-ext-promo-copy">
-              Leve nossa IA para outros sites: peça um guia passo a passo ou uma análise de
-              risco em páginas de carteiras, corretoras e ofertas de Bitcoin.
-            </p>
+            <p className="sv-ext-promo-eyebrow">{t.landing.copilotoEyebrow}</p>
+            <h3 className="sv-ext-promo-title">{t.landing.copilotoTitle}</h3>
+            <p className="sv-ext-promo-copy">{t.landing.copilotoCopy}</p>
           </div>
           <button
             type="button"
             className="sv-ext-promo-btn"
-            title="Em breve"
+            title={t.landing.copilotoBtnTitle}
             aria-disabled="true"
             onClick={(e) => e.preventDefault()}
           >
-            Baixar extensão
+            {t.landing.copilotoBtn}
           </button>
         </div>
       </section>

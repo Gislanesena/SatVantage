@@ -63,6 +63,12 @@ export type Dict = {
     choosePhoto: string;
     removePhoto: string;
     pickPhotoAria: string;
+    myNostrKey: string;
+    nostrKeyTitle: string;
+    nostrKeyHint: string;
+    copyKey: string;
+    keyCopied: string;
+    closeKeyModal: string;
     estateSoon: string;
     emergencySoon: string;
     emergencyModalTitle: string;
@@ -114,9 +120,96 @@ export type Dict = {
   a11y: {
     readPage: string;
     stopReading: string;
+    pauseReading: string;
+    resumeReading: string;
+    voiceHoldToStop: string;
     reading: string;
     voiceUnsupported: string;
     footerLabel: string;
+    helpBtn: string;
+    helpTitle: string;
+    helpAudioTitle: string;
+    helpAudioBody: string;
+    helpVlibrasTitle: string;
+    helpVlibrasBody: string;
+    helpClose: string;
+  };
+  mentor: {
+    name: string;
+    close: string;
+    exit: string;
+    loading: string;
+    typing: string;
+    skipQuestion: string;
+    skipConversation: string;
+    continueM2: string;
+    optionalTopics: string;
+    goDashboard: string;
+    closeChat: string;
+    backToTopics: string;
+    backToDashboard: string;
+    practiceMode: string;
+    redoWithoutSats: string;
+    gateBody: string;
+    send: string;
+    askPlaceholder: string;
+    openNagAI: string;
+    closeNagAI: string;
+    helpPrompt: string;
+    importantDoubts: string;
+    suggestions: string;
+    withSats: string;
+    satsAlready: string;
+    earnSats: string;
+    practice: string;
+    m1Title: string;
+    m2Title: string;
+    sheetM1: string;
+    sheetM2: string;
+    introM1: string;
+    introM2: string;
+    skipAllM1: string;
+    skipAllM2: string;
+    guideSubtitle: string;
+    nudgeNostr: string;
+    createSimple: string;
+    enterExt: string;
+    downloadAlby: string;
+    thanks: string;
+    guideScript1: string;
+    guideScript2: string;
+    guideScript3: string;
+    guideScript4: string;
+    freeTopicLead: string;
+    freeTopicDoneEmbedded: string;
+    freeTopicDoneDash: string;
+    askMore: string;
+    practiceIntro: string;
+    alreadySkipped: string;
+    alreadyDone: string;
+    skipAllOk: string;
+    /** Use {n} for sats credited */
+    satsWon: string;
+    withdrawHint: string;
+    /** Use {n} for balance */
+    balanceLine: string;
+    balanceGuaranteed: string;
+    practiceDone: string;
+    noNewSats: string;
+    continuePromptM1: string;
+    optionalTopicsPrompt: string;
+    savingProgress: string;
+    skipQUser: string;
+    skipAllUser: string;
+    okContinue: string;
+    topicSkipOk: string;
+    anotherTopicOrDash: string;
+    extrasDone: string;
+    anotherOptionalOrDash: string;
+    rereadOrDash: string;
+    sugPatrimonio: string;
+    sugComprar: string;
+    sugGeopolitica: string;
   };
   exch: {
     title: string;
@@ -163,6 +256,11 @@ export type Dict = {
     vaultBody: string;
     extTitle: string;
     extBody: string;
+    copilotoEyebrow: string;
+    copilotoTitle: string;
+    copilotoCopy: string;
+    copilotoBtn: string;
+    copilotoBtnTitle: string;
     emergencyTitle: string;
     emergencyBody: string;
   };
@@ -205,6 +303,75 @@ export type Dict = {
     supportSubject: string;
     copyright: string;
     risk: string;
+  };
+  auth: {
+    back: string;
+    titleCreate: string;
+    titleLogin: string;
+    titleRecover: string;
+    ledeCreate: string;
+    ledeLogin: string;
+    ledeRecover: string;
+    usernamePh: string;
+    passwordPh: string;
+    passwordMinPh: string;
+    questionPh: string;
+    answerPh: string;
+    answerYourPh: string;
+    hintSocial: string;
+    createBtn: string;
+    creating: string;
+    loginBtn: string;
+    opening: string;
+    forgotPassword: string;
+    foot: string;
+    checkingUser: string;
+    userAvailable: string;
+    userTaken: string;
+    userInvalid: string;
+    questionShort: string;
+    answerShort: string;
+    createFail: string;
+    loginFail: string;
+    recoverFail: string;
+    sessionWarn: string;
+    goMyAccount: string;
+    createAnyway: string;
+    recoverHint: string;
+    continue: string;
+    searching: string;
+    mnemonicPh: string;
+    newPasswordPh: string;
+    resetPassword: string;
+    verifying: string;
+    backupTitle: string;
+    backupBody: string;
+    copyWords: string;
+    copied: string;
+    alreadyNoted: string;
+    confirmTitle: string;
+    confirmBody: string;
+    backToWords: string;
+    confirmContinue: string;
+    wrongOrder: string;
+    gapsLabel: string;
+    missingWordsLabel: string;
+    phraseLabel: string;
+    loading: string;
+    claimTitle: string;
+    claimMentorTitle: string;
+    claimCopyBefore: string;
+    claimCopyAfter: string;
+    claimConfirm: string;
+    claimBusy: string;
+    claimOk: string;
+    claimFail: string;
+    claimBalance: string;
+    claimEmpty: string;
+    inactivityWarning: string;
+    scanQr: string;
+    pointCamera: string;
+    scanToPay: string;
   };
 };
 
@@ -263,6 +430,13 @@ const dictionaries: Record<Locale, Dict> = {
       choosePhoto: "Escolher foto",
       removePhoto: "Remover",
       pickPhotoAria: "Escolher foto de perfil",
+      myNostrKey: "Minha chave Nostr",
+      nostrKeyTitle: "Sua chave Nostr (npub)",
+      nostrKeyHint:
+        "Use esta identidade pública para conferir a conta. Para entrar com extensão (Alby/nos2x) na mesma identidade, importe as 12 palavras geradas no cadastro — elas derivam esta chave (NIP-06).",
+      copyKey: "Copiar",
+      keyCopied: "Copiada",
+      closeKeyModal: "Sair",
       estateSoon: "Herança chega em breve — ainda estamos montando.",
       emergencySoon:
         "Modo Emergência chega em breve — a base NWC já está pronta.",
@@ -325,9 +499,117 @@ const dictionaries: Record<Locale, Dict> = {
     a11y: {
       readPage: "Ler página em voz alta",
       stopReading: "Parar leitura",
+      pauseReading: "Pausar leitura",
+      resumeReading: "Continuar leitura",
+      voiceHoldToStop: "Segure para parar",
       reading: "Lendo…",
       voiceUnsupported: "Leitura por voz não disponível neste navegador",
       footerLabel: "Acessibilidade",
+      helpBtn: "Ajuda de acessibilidade",
+      helpTitle: "Acessibilidade",
+      helpAudioTitle: "Ícone de áudio (canto inferior direito)",
+      helpAudioBody:
+        "Ele lê o texto da página em voz alta. Toque uma vez para começar; toque de novo para pausar; toque outra vez para continuar. Segure o botão para parar a leitura.",
+      helpVlibrasTitle: "VLibras",
+      helpVlibrasBody:
+        "O botão VLibras (acima da ajuda de acessibilidade) traduz o conteúdo para Libras. Você pode configurar o idioma e as opções no próprio widget, do jeito que preferir.",
+      helpClose: "Fechar",
+    },
+    mentor: {
+      name: "NagAI",
+      close: "Fechar",
+      exit: "Sair",
+      loading: "Abrindo conversa…",
+      typing: "digitando…",
+      skipQuestion: "Pular pergunta",
+      skipConversation: "Pular conversa",
+      continueM2: "Continuar · carteira e Lightning",
+      optionalTopics: "Assuntos opcionais",
+      goDashboard: "Ir para o dashboard financeiro",
+      closeChat: "Fechar chat",
+      backToTopics: "Voltar aos assuntos",
+      backToDashboard: "Voltar ao dashboard",
+      practiceMode: "Modo prática · sem novos sats",
+      redoWithoutSats: "Refazer sem novos sats",
+      gateBody:
+        "Você já recebeu os sats desta mentoria nesta conta. Pode refazer a conversa para praticar — sem crédito extra.",
+      send: "Enviar",
+      askPlaceholder: "Digite sua dúvida…",
+      openNagAI: "Abrir NagAI",
+      closeNagAI: "Fechar NagAI",
+      helpPrompt: "Em que posso te ajudar?",
+      importantDoubts: "Dúvidas importantes",
+      suggestions: "Sugestões",
+      withSats: "Com NagAI · sats",
+      satsAlready: "(já creditados nesta conta)",
+      earnSats: "ganha sats",
+      practice: "prática",
+      m1Title: "NagAI · Primeiros passos",
+      m2Title: "NagAI · Corretoras e Lightning",
+      sheetM1: "Primeiros passos no Bitcoin",
+      sheetM2: "Corretoras e Lightning",
+      introM1:
+        "Oi! Eu sou a NagAI, do SatVantage. Vou te explicar um ponto de cada vez e depois te perguntar se fez sentido. Pode pular uma pergunta ou a conversa inteira quando quiser.",
+      introM2:
+        "Agora o básico pra quem nunca abriu uma carteira: o que ela guarda, como proteger a frase de recuperação, e o que é Lightning no dia a dia. Pode pular pergunta ou a conversa toda.",
+      skipAllM1:
+        "Tudo bem. Na próxima você pode aprender carteira e Lightning — ou ir direto ao dashboard.",
+      skipAllM2:
+        "Sem problema. Se quiser, depois a gente fala de corretora, transferência e carteira fria — ou você vai direto ao dashboard.",
+      guideSubtitle: "Mapa rápido do SatVantage",
+      nudgeNostr: "Como entrar usando Nostr",
+      createSimple: "Criar conta simplificada",
+      enterExt: "Entrar com extensão Nostr",
+      downloadAlby: "Baixar extensão Alby",
+      thanks: "Entendi, obrigado",
+      guideScript1:
+        "Oi! Aqui no SatVantage a conta é uma identidade Nostr — um par de chaves. Assim você não precisa de e-mail, e a chave privada nunca fica no nosso servidor.",
+      guideScript2:
+        "Por que Nostr? Porque provar quem você é na internet não precisa ser um formulário com dado pessoal. Você assina um desafio; a gente só verifica a assinatura.",
+      guideScript3:
+        "Tem dois caminhos pra entrar:\n\n1) Conta simplificada — usuário e senha. Sua chave fica cifrada no navegador (o cofre). A gente guarda o cofre, nunca a chave em claro.\n\n2) Extensão Nostr (Alby ou nos2x) — a chave fica no seu dispositivo; no login você só autoriza uma assinatura.",
+      guideScript4:
+        "Pode criar a conta simplificada agora, ou abrir a extensão se já tiver. Qualquer dúvida, é só voltar aqui.",
+      freeTopicLead: "Boa pergunta. Vou te explicar com calma.",
+      freeTopicDoneEmbedded:
+        "Pode fechar o chat ou abrir outro assunto no NagAI — o dashboard continua aí.",
+      freeTopicDoneDash:
+        "Pode voltar ao dashboard quando quiser — ou abrir outro assunto no NagAI.",
+      askMore: "Quer perguntar mais alguma coisa sobre este assunto?",
+      practiceIntro:
+        "Vamos praticar de novo. Lembre: os sats desta conversa já foram creditados na sua conta — agora é só aprendizado.",
+      alreadySkipped:
+        "Você já tinha pulado esta conversa. Pode reler o que quiser acima ou seguir em frente.",
+      alreadyDone:
+        "Você já tinha concluído esta conversa. A conversa fica aqui se quiser reler.",
+      skipAllOk:
+        "Conversa pulada — sem problema. Enquanto você só pular, ainda pode voltar depois e ganhar sats na primeira conclusão de verdade.",
+      satsWon:
+        "Satoshis conquistados nesta conversa: ⚡ {n}. Eles ficam no saldo SatVantage da sua conta (ainda não foram para a carteira Lightning).",
+      withdrawHint:
+        "Garantia: o crédito está registrado na sua chave Nostr. Para sacar de verdade, no dashboard toque em Receber → voucher da mentoria e cole uma cobrança MutinyNet (lntbs) do valor exato.",
+      balanceLine: "Saldo na conta: ⚡ {n} sats.",
+      balanceGuaranteed: "Saldo garantido na conta: ⚡ {n} sats · saque em Receber",
+      practiceDone:
+        "Prática concluída. Nesta conta os sats desta conversa já foram creditados antes — refazer não gera saldo novo nem a diferença do que errou.",
+      noNewSats: "Pronto. Desta vez não entrou sats novos (perguntas puladas).",
+      continuePromptM1:
+        "Quando quiser, seguimos para carteira e Lightning — ou você pode ir ao dashboard financeiro. A conversa continua visível se precisar reler.",
+      optionalTopicsPrompt:
+        "Se quiser aprofundar, tenho outros assuntos opcionais — corretora, como transferir para a carteira, carteira quente e fria. Pode escolher um, vários, ou nenhum.",
+      savingProgress: "Pronto por aqui. Vou guardar o que você aprendeu nesta conversa.",
+      skipQUser: "Pular esta pergunta",
+      skipAllUser: "Quero pular a conversa",
+      okContinue: "Sem problema. Seguimos.",
+      topicSkipOk: "Beleza. O importante era a explicação.",
+      anotherTopicOrDash: "Quer ver outro assunto, ou prefere ir ao dashboard?",
+      extrasDone:
+        "Esses eram os extras. Pode reler a conversa acima ou ir ao dashboard financeiro.",
+      anotherOptionalOrDash: "Quer outro assunto opcional, ou vamos ao dashboard?",
+      rereadOrDash: "Pode reler a conversa ou ir ao dashboard.",
+      sugPatrimonio: "Como conquistar seu primeiro patrimônio",
+      sugComprar: "Como comprar bitcoin",
+      sugGeopolitica: "Geopolítica e por que acompanhar",
     },
     exch: {
       title: "Corretoras",
@@ -380,6 +662,12 @@ const dictionaries: Record<Locale, Dict> = {
       extTitle: "Extensão = a chave não sai do seu dispositivo.",
       extBody:
         "Com Alby ou nos2x, só pedimos uma assinatura. Verificamos a prova — não a chave.",
+      copilotoEyebrow: "Extensão Chrome",
+      copilotoTitle: "SatVantage Copiloto",
+      copilotoCopy:
+        "Leve nossa IA para outros sites: peça um guia passo a passo ou uma análise de risco em páginas de carteiras, corretoras e ofertas de Bitcoin.",
+      copilotoBtn: "Baixar extensão",
+      copilotoBtnTitle: "Em breve",
       emergencyTitle: "Modo emergência e fricção consciente.",
       emergencyBody:
         "Revogue conexões num toque se perder o aparelho. Em operações fora do padrão, alertamos antes — você decide.",
@@ -423,7 +711,7 @@ const dictionaries: Record<Locale, Dict> = {
         title: "Tecnologia que evolui",
         body: "Da rede principal ao Lightning: pagamentos instantâneos e globais, 24 horas por dia, 7 dias por semana.",
       },
-      socialLearn: "Aprenda com nossos vídeos no TikTok e Instagram",
+      socialLearn: "Aprenda com os nossos vídeos",
       tiktok: "TikTok",
       instagram: "Instagram",
     },
@@ -453,6 +741,81 @@ const dictionaries: Record<Locale, Dict> = {
       supportSubject: "Suporte SatVantage",
       copyright: "© 2026 SatVantage. Todos os direitos reservados.",
       risk: "Investir em Bitcoin envolve riscos. Estude antes de investir.",
+    },
+    auth: {
+      back: "Voltar",
+      titleCreate: "Criar conta",
+      titleLogin: "Entrar",
+      titleRecover: "Recuperar acesso",
+      ledeCreate:
+        "Usuário e senha. Por baixo, uma identidade Nostr real — a chave fica cifrada com a sua senha.",
+      ledeLogin: "Abra o cofre da sua conta SatVantage.",
+      ledeRecover: "Duas provas: pergunta de segurança e as 12 palavras de recuperação.",
+      usernamePh: "usuário",
+      passwordPh: "senha",
+      passwordMinPh: "senha (mínimo 8 caracteres)",
+      questionPh: "pergunta de segurança (só você sabe a resposta)",
+      answerPh: "resposta",
+      answerYourPh: "sua resposta",
+      hintSocial: "Evite respostas que estejam nas suas redes sociais.",
+      createBtn: "Criar conta",
+      creating: "Criando cofre…",
+      loginBtn: "Entrar",
+      opening: "Abrindo cofre…",
+      forgotPassword: "Esqueci minha senha",
+      foot: "Sua conta é uma identidade Nostr. Guardamos o cofre, nunca a chave.",
+      checkingUser: "Verificando usuário…",
+      userAvailable: "Usuário disponível.",
+      userTaken: "Esse usuário já está em uso. Escolha outro nome.",
+      userInvalid: "Usuário inválido (3-20 caracteres: letras minúsculas, números, _).",
+      questionShort: "Escreva uma pergunta de segurança (mínimo 8 caracteres).",
+      answerShort: "Escreva a resposta da sua pergunta.",
+      createFail: "Falha ao criar conta",
+      loginFail: "Falha no login",
+      recoverFail: "Falha na recuperação",
+      sessionWarn:
+        "Você já está conectado como {npub}. Criar uma conta nova gera uma identidade Nostr diferente — o saldo e o progresso da conta atual ficam nela, não passam para a nova.",
+      goMyAccount: "Ir para minha conta",
+      createAnyway: "Criar conta nova mesmo assim",
+      recoverHint:
+        "Vamos verificar a posse da conta: pergunta de segurança e as 12 palavras de recuperação.",
+      continue: "Continuar",
+      searching: "Buscando…",
+      mnemonicPh: "12 palavras de recuperação (separadas por espaço)",
+      newPasswordPh: "senha nova (mínimo 8 caracteres)",
+      resetPassword: "Redefinir senha",
+      verifying: "Verificando posse…",
+      backupTitle: "Guarde suas 12 palavras",
+      backupBody:
+        "Esta frase é o documento de posse da sua conta. Você não vai usá-la no dia a dia — só se esquecer a senha (junto com a pergunta de segurança). Anote fora do computador. Ela não será mostrada de novo.",
+      copyWords: "Copiar palavras",
+      copied: "Copiada",
+      alreadyNoted: "Já anotei, continuar",
+      confirmTitle: "Confirme que anotou",
+      confirmBody:
+        "Complete as lacunas na ordem (1 → 2 → 3), clicando nas palavras abaixo. As lacunas não mudam se você voltar para conferir a frase.",
+      backToWords: "Voltar para ver as palavras",
+      confirmContinue: "Continuar para o SatVantage",
+      wrongOrder: "Ordem errada — confira as palavras e tente de novo",
+      gapsLabel: "Frase com lacunas",
+      missingWordsLabel: "Palavras que faltam",
+      phraseLabel: "Frase de recuperação",
+      loading: "Carregando…",
+      claimTitle: "Saldo SatVantage",
+      claimMentorTitle: "Receber sats da mentoria",
+      claimCopyBefore: "Gere na carteira MutinyNet uma cobrança de exatamente",
+      claimCopyAfter: "sats (começa com lntbs) e cole abaixo.",
+      claimConfirm: "Confirmar recebimento",
+      claimBusy: "Recebendo…",
+      claimOk: "Pronto: ⚡ {n} sats foram para a sua carteira.",
+      claimFail: "falha no resgate",
+      claimBalance: "Saldo SatVantage",
+      claimEmpty: "Sem saldo para receber agora.",
+      inactivityWarning:
+        "Por inatividade, você vai ser desconectado em instantes — toque na tela para continuar conectado.",
+      scanQr: "Ler QR code",
+      pointCamera: "Aponte a câmera para o QR",
+      scanToPay: "Escaneie para pagar (MutinyNet)",
     },
   },
   en: {
@@ -509,6 +872,13 @@ const dictionaries: Record<Locale, Dict> = {
       choosePhoto: "Choose photo",
       removePhoto: "Remove",
       pickPhotoAria: "Choose profile photo",
+      myNostrKey: "My Nostr key",
+      nostrKeyTitle: "Your Nostr key (npub)",
+      nostrKeyHint:
+        "Use this public identity to verify your account. To sign in with an extension (Alby/nos2x) on the same identity, import the 12 words from signup — they derive this key (NIP-06).",
+      copyKey: "Copy",
+      keyCopied: "Copied",
+      closeKeyModal: "Close",
       estateSoon: "Inheritance is coming soon — we’re still building it.",
       emergencySoon:
         "Emergency mode is coming soon — the NWC foundation is ready.",
@@ -571,9 +941,117 @@ const dictionaries: Record<Locale, Dict> = {
     a11y: {
       readPage: "Read page aloud",
       stopReading: "Stop reading",
+      pauseReading: "Pause reading",
+      resumeReading: "Resume reading",
+      voiceHoldToStop: "Hold to stop",
       reading: "Reading…",
       voiceUnsupported: "Speech readout is not available in this browser",
       footerLabel: "Accessibility",
+      helpBtn: "Accessibility help",
+      helpTitle: "Accessibility",
+      helpAudioTitle: "Audio icon (bottom right)",
+      helpAudioBody:
+        "It reads the page text aloud. Tap once to start; tap again to pause; tap again to resume. Hold the button to stop reading.",
+      helpVlibrasTitle: "VLibras",
+      helpVlibrasBody:
+        "The VLibras button (above the accessibility help icon) translates content into Brazilian Sign Language (Libras). You can set the language and options in the widget itself.",
+      helpClose: "Close",
+    },
+    mentor: {
+      name: "NagAI",
+      close: "Close",
+      exit: "Exit",
+      loading: "Opening chat…",
+      typing: "typing…",
+      skipQuestion: "Skip question",
+      skipConversation: "Skip conversation",
+      continueM2: "Continue · wallet and Lightning",
+      optionalTopics: "Optional topics",
+      goDashboard: "Go to financial dashboard",
+      closeChat: "Close chat",
+      backToTopics: "Back to topics",
+      backToDashboard: "Back to dashboard",
+      practiceMode: "Practice mode · no new sats",
+      redoWithoutSats: "Redo without new sats",
+      gateBody:
+        "You already received sats for this mentorship on this account. You can redo the conversation to practice — with no extra credit.",
+      send: "Send",
+      askPlaceholder: "Type your question…",
+      openNagAI: "Open NagAI",
+      closeNagAI: "Close NagAI",
+      helpPrompt: "How can I help you?",
+      importantDoubts: "Important questions",
+      suggestions: "Suggestions",
+      withSats: "With NagAI · sats",
+      satsAlready: "(already credited on this account)",
+      earnSats: "earn sats",
+      practice: "practice",
+      m1Title: "NagAI · First steps",
+      m2Title: "NagAI · Exchanges and Lightning",
+      sheetM1: "First steps in Bitcoin",
+      sheetM2: "Exchanges and Lightning",
+      introM1:
+        "Hi! I’m NagAI, from SatVantage. I’ll explain one point at a time and then ask if it made sense. You can skip a question or the whole conversation anytime.",
+      introM2:
+        "Now the basics for anyone who never opened a wallet: what it holds, how to protect the recovery phrase, and what Lightning is day to day. You can skip a question or the whole chat.",
+      skipAllM1:
+        "That’s fine. Next you can learn wallet and Lightning — or go straight to the dashboard.",
+      skipAllM2:
+        "No problem. Later we can talk about exchanges, transfers and cold wallets — or you can go straight to the dashboard.",
+      guideSubtitle: "Quick map of SatVantage",
+      nudgeNostr: "How to sign in with Nostr",
+      createSimple: "Create simplified account",
+      enterExt: "Sign in with Nostr extension",
+      downloadAlby: "Download Alby extension",
+      thanks: "Got it, thanks",
+      guideScript1:
+        "Hi! At SatVantage your account is a Nostr identity — a key pair. So you don’t need email, and your private key never sits on our server.",
+      guideScript2:
+        "Why Nostr? Proving who you are online doesn’t need a form with personal data. You sign a challenge; we only verify the signature.",
+      guideScript3:
+        "There are two ways in:\n\n1) Simplified account — username and password. Your key stays encrypted in the browser (the vault). We store the vault, never the key in clear.\n\n2) Nostr extension (Alby or nos2x) — the key stays on your device; at login you only authorize a signature.",
+      guideScript4:
+        "You can create the simplified account now, or open the extension if you already have one. Any questions, just come back here.",
+      freeTopicLead: "Good question. I’ll explain it calmly.",
+      freeTopicDoneEmbedded:
+        "You can close the chat or open another topic in NagAI — the dashboard is still there.",
+      freeTopicDoneDash:
+        "You can go back to the dashboard whenever you want — or open another topic in NagAI.",
+      askMore: "Want to ask anything else about this topic?",
+      practiceIntro:
+        "Let’s practice again. Remember: sats for this conversation were already credited to your account — now it’s just learning.",
+      alreadySkipped:
+        "You had already skipped this conversation. You can reread anything above or move on.",
+      alreadyDone:
+        "You had already finished this conversation. It stays here if you want to reread.",
+      skipAllOk:
+        "Conversation skipped — no problem. While you only skip, you can still come back later and earn sats on the first real completion.",
+      satsWon:
+        "Satoshis earned in this conversation: ⚡ {n}. They sit in your SatVantage account balance (not yet in your Lightning wallet).",
+      withdrawHint:
+        "Guarantee: the credit is tied to your Nostr key. To withdraw for real, on the dashboard tap Receive → mentorship voucher and paste a MutinyNet invoice (lntbs) for the exact amount.",
+      balanceLine: "Account balance: ⚡ {n} sats.",
+      balanceGuaranteed: "Guaranteed balance: ⚡ {n} sats · withdraw in Receive",
+      practiceDone:
+        "Practice complete. On this account, sats for this conversation were already credited — redoing doesn’t add new balance or make up what you missed.",
+      noNewSats: "Done. No new sats this time (skipped questions).",
+      continuePromptM1:
+        "When you’re ready, we can continue to wallet and Lightning — or go to the financial dashboard. The conversation stays visible if you need to reread.",
+      optionalTopicsPrompt:
+        "If you want to go deeper, I have optional topics — exchanges, how to transfer to a wallet, hot and cold wallets. Pick one, several, or none.",
+      savingProgress: "That’s it for now. I’ll save what you learned in this conversation.",
+      skipQUser: "Skip this question",
+      skipAllUser: "I want to skip the conversation",
+      okContinue: "No problem. Let’s continue.",
+      topicSkipOk: "Alright. The explanation was the important part.",
+      anotherTopicOrDash: "Want another topic, or prefer the dashboard?",
+      extrasDone:
+        "Those were the extras. You can reread the conversation above or go to the financial dashboard.",
+      anotherOptionalOrDash: "Want another optional topic, or shall we go to the dashboard?",
+      rereadOrDash: "You can reread the conversation or go to the dashboard.",
+      sugPatrimonio: "How to build your first nest egg",
+      sugComprar: "How to buy bitcoin",
+      sugGeopolitica: "Geopolitics and why it matters",
     },
     exch: {
       title: "Exchanges",
@@ -626,6 +1104,12 @@ const dictionaries: Record<Locale, Dict> = {
       extTitle: "Extension = the key never leaves your device.",
       extBody:
         "With Alby or nos2x, we only ask for a signature. We verify the proof — not the key.",
+      copilotoEyebrow: "Chrome extension",
+      copilotoTitle: "SatVantage Copilot",
+      copilotoCopy:
+        "Take our AI to other sites: ask for a step-by-step guide or a risk analysis on wallet pages, exchanges and Bitcoin offers.",
+      copilotoBtn: "Download extension",
+      copilotoBtnTitle: "Coming soon",
       emergencyTitle: "Emergency mode and mindful friction.",
       emergencyBody:
         "Revoke connections in one tap if you lose your device. On unusual operations, we alert first — you decide.",
@@ -669,7 +1153,7 @@ const dictionaries: Record<Locale, Dict> = {
         title: "Technology that evolves",
         body: "From the base layer to Lightning: instant global payments, 24 hours a day, 7 days a week.",
       },
-      socialLearn: "Learn with our videos on TikTok and Instagram",
+      socialLearn: "Learn with our videos",
       tiktok: "TikTok",
       instagram: "Instagram",
     },
@@ -699,6 +1183,81 @@ const dictionaries: Record<Locale, Dict> = {
       supportSubject: "SatVantage Support",
       copyright: "© 2026 SatVantage. All rights reserved.",
       risk: "Investing in Bitcoin involves risks. Study before you invest.",
+    },
+    auth: {
+      back: "Back",
+      titleCreate: "Create account",
+      titleLogin: "Sign in",
+      titleRecover: "Recover access",
+      ledeCreate:
+        "Username and password. Underneath, a real Nostr identity — the key is encrypted with your password.",
+      ledeLogin: "Open the vault of your SatVantage account.",
+      ledeRecover: "Two proofs: security question and your 12 recovery words.",
+      usernamePh: "username",
+      passwordPh: "password",
+      passwordMinPh: "password (minimum 8 characters)",
+      questionPh: "security question (only you know the answer)",
+      answerPh: "answer",
+      answerYourPh: "your answer",
+      hintSocial: "Avoid answers that appear on your social networks.",
+      createBtn: "Create account",
+      creating: "Creating vault…",
+      loginBtn: "Sign in",
+      opening: "Opening vault…",
+      forgotPassword: "I forgot my password",
+      foot: "Your account is a Nostr identity. We store the vault, never the key.",
+      checkingUser: "Checking username…",
+      userAvailable: "Username available.",
+      userTaken: "That username is taken. Choose another name.",
+      userInvalid: "Invalid username (3-20 characters: lowercase letters, numbers, _).",
+      questionShort: "Write a security question (minimum 8 characters).",
+      answerShort: "Write the answer to your question.",
+      createFail: "Failed to create account",
+      loginFail: "Login failed",
+      recoverFail: "Recovery failed",
+      sessionWarn:
+        "You are already signed in as {npub}. Creating a new account makes a different Nostr identity — balance and progress stay on the current one and do not move to the new one.",
+      goMyAccount: "Go to my account",
+      createAnyway: "Create a new account anyway",
+      recoverHint:
+        "We will verify account ownership: security question and the 12 recovery words.",
+      continue: "Continue",
+      searching: "Searching…",
+      mnemonicPh: "12 recovery words (separated by spaces)",
+      newPasswordPh: "new password (minimum 8 characters)",
+      resetPassword: "Reset password",
+      verifying: "Verifying ownership…",
+      backupTitle: "Save your 12 words",
+      backupBody:
+        "This phrase is the ownership document for your account. You will not use it day to day — only if you forget your password (together with the security question). Write it down offline. It will not be shown again.",
+      copyWords: "Copy words",
+      copied: "Copied",
+      alreadyNoted: "I wrote them down, continue",
+      confirmTitle: "Confirm you wrote them down",
+      confirmBody:
+        "Fill the gaps in order (1 → 2 → 3) by tapping the words below. The gaps stay the same if you go back to check the phrase.",
+      backToWords: "Back to see the words",
+      confirmContinue: "Continue to SatVantage",
+      wrongOrder: "Wrong order — check the words and try again",
+      gapsLabel: "Phrase with gaps",
+      missingWordsLabel: "Missing words",
+      phraseLabel: "Recovery phrase",
+      loading: "Loading…",
+      claimTitle: "SatVantage balance",
+      claimMentorTitle: "Receive mentorship sats",
+      claimCopyBefore: "In your MutinyNet wallet, create an invoice for exactly",
+      claimCopyAfter: "sats (starts with lntbs) and paste it below.",
+      claimConfirm: "Confirm receipt",
+      claimBusy: "Receiving…",
+      claimOk: "Done: ⚡ {n} sats went to your wallet.",
+      claimFail: "claim failed",
+      claimBalance: "SatVantage balance",
+      claimEmpty: "No balance to receive right now.",
+      inactivityWarning:
+        "Due to inactivity, you will be signed out shortly — tap the screen to stay signed in.",
+      scanQr: "Scan QR code",
+      pointCamera: "Point the camera at the QR",
+      scanToPay: "Scan to pay (MutinyNet)",
     },
   },
   es: {
@@ -755,6 +1314,13 @@ const dictionaries: Record<Locale, Dict> = {
       choosePhoto: "Elegir foto",
       removePhoto: "Quitar",
       pickPhotoAria: "Elegir foto de perfil",
+      myNostrKey: "Mi clave Nostr",
+      nostrKeyTitle: "Tu clave Nostr (npub)",
+      nostrKeyHint:
+        "Usa esta identidad pública para verificar la cuenta. Para entrar con extensión (Alby/nos2x) en la misma identidad, importa las 12 palabras del registro — derivan esta clave (NIP-06).",
+      copyKey: "Copiar",
+      keyCopied: "Copiada",
+      closeKeyModal: "Salir",
       estateSoon: "Herencia llega pronto — aún lo estamos armando.",
       emergencySoon:
         "Modo emergencia llega pronto — la base NWC ya está lista.",
@@ -817,9 +1383,117 @@ const dictionaries: Record<Locale, Dict> = {
     a11y: {
       readPage: "Leer la página en voz alta",
       stopReading: "Detener lectura",
+      pauseReading: "Pausar lectura",
+      resumeReading: "Continuar lectura",
+      voiceHoldToStop: "Mantén pulsado para detener",
       reading: "Leyendo…",
       voiceUnsupported: "La lectura por voz no está disponible en este navegador",
       footerLabel: "Accesibilidad",
+      helpBtn: "Ayuda de accesibilidad",
+      helpTitle: "Accesibilidad",
+      helpAudioTitle: "Icono de audio (esquina inferior derecha)",
+      helpAudioBody:
+        "Lee el texto de la página en voz alta. Toca una vez para empezar; otra vez para pausar; otra vez para continuar. Mantén pulsado el botón para detener la lectura.",
+      helpVlibrasTitle: "VLibras",
+      helpVlibrasBody:
+        "El botón VLibras (encima de la ayuda de accesibilidad) traduce el contenido a lengua de señas. Puedes configurar el idioma y las opciones en el propio widget.",
+      helpClose: "Cerrar",
+    },
+    mentor: {
+      name: "NagAI",
+      close: "Cerrar",
+      exit: "Salir",
+      loading: "Abriendo conversación…",
+      typing: "escribiendo…",
+      skipQuestion: "Saltar pregunta",
+      skipConversation: "Saltar conversación",
+      continueM2: "Continuar · cartera y Lightning",
+      optionalTopics: "Temas opcionales",
+      goDashboard: "Ir al dashboard financiero",
+      closeChat: "Cerrar chat",
+      backToTopics: "Volver a los temas",
+      backToDashboard: "Volver al dashboard",
+      practiceMode: "Modo práctica · sin nuevos sats",
+      redoWithoutSats: "Repetir sin nuevos sats",
+      gateBody:
+        "Ya recibiste los sats de esta mentoría en esta cuenta. Puedes repetir la conversación para practicar — sin crédito extra.",
+      send: "Enviar",
+      askPlaceholder: "Escribe tu duda…",
+      openNagAI: "Abrir NagAI",
+      closeNagAI: "Cerrar NagAI",
+      helpPrompt: "¿En qué puedo ayudarte?",
+      importantDoubts: "Dudas importantes",
+      suggestions: "Sugerencias",
+      withSats: "Con NagAI · sats",
+      satsAlready: "(ya acreditados en esta cuenta)",
+      earnSats: "gana sats",
+      practice: "práctica",
+      m1Title: "NagAI · Primeros pasos",
+      m2Title: "NagAI · Corretoras y Lightning",
+      sheetM1: "Primeros pasos en Bitcoin",
+      sheetM2: "Corretoras y Lightning",
+      introM1:
+        "¡Hola! Soy NagAI, de SatVantage. Te explico un punto a la vez y luego pregunto si tuvo sentido. Puedes saltar una pregunta o toda la conversación cuando quieras.",
+      introM2:
+        "Ahora lo básico para quien nunca abrió una cartera: qué guarda, cómo proteger la frase de recuperación y qué es Lightning en el día a día. Puedes saltar pregunta o toda la charla.",
+      skipAllM1:
+        "Está bien. La próxima puedes aprender cartera y Lightning — o ir directo al dashboard.",
+      skipAllM2:
+        "Sin problema. Después podemos hablar de exchanges, transferencias y cartera fría — o ir directo al dashboard.",
+      guideSubtitle: "Mapa rápido de SatVantage",
+      nudgeNostr: "Cómo entrar usando Nostr",
+      createSimple: "Crear cuenta simplificada",
+      enterExt: "Entrar con extensión Nostr",
+      downloadAlby: "Descargar extensión Alby",
+      thanks: "Entendido, gracias",
+      guideScript1:
+        "¡Hola! En SatVantage la cuenta es una identidad Nostr — un par de claves. Así no necesitas correo, y la clave privada nunca queda en nuestro servidor.",
+      guideScript2:
+        "¿Por qué Nostr? Porque demostrar quién eres en internet no necesita un formulario con dato personal. Firmas un desafío; solo verificamos la firma.",
+      guideScript3:
+        "Hay dos caminos para entrar:\n\n1) Cuenta simplificada — usuario y contraseña. Tu clave queda cifrada en el navegador (la bóveda). Guardamos la bóveda, nunca la clave en claro.\n\n2) Extensión Nostr (Alby o nos2x) — la clave queda en tu dispositivo; en el login solo autorizas una firma.",
+      guideScript4:
+        "Puedes crear la cuenta simplificada ahora, o abrir la extensión si ya tienes una. Cualquier duda, vuelve aquí.",
+      freeTopicLead: "Buena pregunta. Te lo explico con calma.",
+      freeTopicDoneEmbedded:
+        "Puedes cerrar el chat o abrir otro tema en NagAI — el dashboard sigue ahí.",
+      freeTopicDoneDash:
+        "Puedes volver al dashboard cuando quieras — o abrir otro tema en NagAI.",
+      askMore: "¿Quieres preguntar algo más sobre este tema?",
+      practiceIntro:
+        "Vamos a practicar de nuevo. Recuerda: los sats de esta conversación ya fueron acreditados en tu cuenta — ahora es solo aprendizaje.",
+      alreadySkipped:
+        "Ya habías saltado esta conversación. Puedes releer lo de arriba o seguir adelante.",
+      alreadyDone:
+        "Ya habías terminado esta conversación. Queda aquí si quieres releer.",
+      skipAllOk:
+        "Conversación saltada — sin problema. Mientras solo saltes, aún puedes volver después y ganar sats en la primera conclusión de verdad.",
+      satsWon:
+        "Satoshis conquistados en esta conversación: ⚡ {n}. Quedan en el saldo SatVantage de tu cuenta (aún no en la cartera Lightning).",
+      withdrawHint:
+        "Garantía: el crédito está registrado en tu clave Nostr. Para retirar de verdad, en el dashboard toca Recibir → voucher de la mentoría y pega un cobro MutinyNet (lntbs) del valor exacto.",
+      balanceLine: "Saldo en la cuenta: ⚡ {n} sats.",
+      balanceGuaranteed: "Saldo garantizado: ⚡ {n} sats · retiro en Recibir",
+      practiceDone:
+        "Práctica concluida. En esta cuenta los sats de esta conversación ya fueron acreditados — repetir no genera saldo nuevo ni la diferencia de lo que erraste.",
+      noNewSats: "Listo. Esta vez no entraron sats nuevos (preguntas saltadas).",
+      continuePromptM1:
+        "Cuando quieras, seguimos con cartera y Lightning — o puedes ir al dashboard financiero. La conversación sigue visible si necesitas releer.",
+      optionalTopicsPrompt:
+        "Si quieres profundizar, tengo otros temas opcionales — exchange, cómo transferir a la cartera, cartera caliente y fría. Elige uno, varios o ninguno.",
+      savingProgress: "Listo por aquí. Voy a guardar lo que aprendiste en esta conversación.",
+      skipQUser: "Saltar esta pregunta",
+      skipAllUser: "Quiero saltar la conversación",
+      okContinue: "Sin problema. Seguimos.",
+      topicSkipOk: "Vale. Lo importante era la explicación.",
+      anotherTopicOrDash: "¿Quieres ver otro tema, o prefieres ir al dashboard?",
+      extrasDone:
+        "Esos eran los extras. Puedes releer la conversación de arriba o ir al dashboard financiero.",
+      anotherOptionalOrDash: "¿Quieres otro tema opcional, o vamos al dashboard?",
+      rereadOrDash: "Puedes releer la conversación o ir al dashboard.",
+      sugPatrimonio: "Cómo conquistar tu primer patrimonio",
+      sugComprar: "Cómo comprar bitcoin",
+      sugGeopolitica: "Geopolítica y por qué seguirla",
     },
     exch: {
       title: "Exchanges",
@@ -872,6 +1546,12 @@ const dictionaries: Record<Locale, Dict> = {
       extTitle: "Extensión = la clave no sale de tu dispositivo.",
       extBody:
         "Con Alby o nos2x, solo pedimos una firma. Verificamos la prueba — no la clave.",
+      copilotoEyebrow: "Extensión Chrome",
+      copilotoTitle: "SatVantage Copiloto",
+      copilotoCopy:
+        "Lleva nuestra IA a otros sitios: pide una guía paso a paso o un análisis de riesgo en páginas de carteras, exchanges y ofertas de Bitcoin.",
+      copilotoBtn: "Descargar extensión",
+      copilotoBtnTitle: "Pronto",
       emergencyTitle: "Modo emergencia y fricción consciente.",
       emergencyBody:
         "Revoca conexiones en un toque si pierdes el aparato. En operaciones fuera de patrón, avisamos antes — tú decides.",
@@ -915,7 +1595,7 @@ const dictionaries: Record<Locale, Dict> = {
         title: "Tecnología que evoluciona",
         body: "De la red principal a Lightning: pagos instantáneos y globales, 24 horas al día, 7 días a la semana.",
       },
-      socialLearn: "Aprende con nuestros videos en TikTok e Instagram",
+      socialLearn: "Aprende con nuestros videos",
       tiktok: "TikTok",
       instagram: "Instagram",
     },
@@ -946,6 +1626,81 @@ const dictionaries: Record<Locale, Dict> = {
       copyright: "© 2026 SatVantage. Todos los derechos reservados.",
       risk: "Invertir en Bitcoin implica riesgos. Estudia antes de invertir.",
     },
+    auth: {
+      back: "Volver",
+      titleCreate: "Crear cuenta",
+      titleLogin: "Entrar",
+      titleRecover: "Recuperar acceso",
+      ledeCreate:
+        "Usuario y contraseña. Por debajo, una identidad Nostr real — la clave queda cifrada con tu contraseña.",
+      ledeLogin: "Abre la bóveda de tu cuenta SatVantage.",
+      ledeRecover: "Dos pruebas: pregunta de seguridad y las 12 palabras de recuperación.",
+      usernamePh: "usuario",
+      passwordPh: "contraseña",
+      passwordMinPh: "contraseña (mínimo 8 caracteres)",
+      questionPh: "pregunta de seguridad (solo tú sabes la respuesta)",
+      answerPh: "respuesta",
+      answerYourPh: "tu respuesta",
+      hintSocial: "Evita respuestas que estén en tus redes sociales.",
+      createBtn: "Crear cuenta",
+      creating: "Creando bóveda…",
+      loginBtn: "Entrar",
+      opening: "Abriendo bóveda…",
+      forgotPassword: "Olvidé mi contraseña",
+      foot: "Tu cuenta es una identidad Nostr. Guardamos la bóveda, nunca la clave.",
+      checkingUser: "Verificando usuario…",
+      userAvailable: "Usuario disponible.",
+      userTaken: "Ese usuario ya está en uso. Elige otro nombre.",
+      userInvalid: "Usuario inválido (3-20 caracteres: minúsculas, números, _).",
+      questionShort: "Escribe una pregunta de seguridad (mínimo 8 caracteres).",
+      answerShort: "Escribe la respuesta de tu pregunta.",
+      createFail: "Error al crear la cuenta",
+      loginFail: "Error al iniciar sesión",
+      recoverFail: "Error en la recuperación",
+      sessionWarn:
+        "Ya estás conectado como {npub}. Crear una cuenta nueva genera una identidad Nostr distinta — el saldo y el progreso de la cuenta actual se quedan en ella, no pasan a la nueva.",
+      goMyAccount: "Ir a mi cuenta",
+      createAnyway: "Crear cuenta nueva de todos modos",
+      recoverHint:
+        "Vamos a verificar la posesión de la cuenta: pregunta de seguridad y las 12 palabras de recuperación.",
+      continue: "Continuar",
+      searching: "Buscando…",
+      mnemonicPh: "12 palabras de recuperación (separadas por espacio)",
+      newPasswordPh: "contraseña nueva (mínimo 8 caracteres)",
+      resetPassword: "Restablecer contraseña",
+      verifying: "Verificando posesión…",
+      backupTitle: "Guarda tus 12 palabras",
+      backupBody:
+        "Esta frase es el documento de posesión de tu cuenta. No la usarás en el día a día — solo si olvidas la contraseña (junto con la pregunta de seguridad). Anótala fuera del ordenador. No se mostrará de nuevo.",
+      copyWords: "Copiar palabras",
+      copied: "Copiada",
+      alreadyNoted: "Ya las anoté, continuar",
+      confirmTitle: "Confirma que las anotaste",
+      confirmBody:
+        "Completa los huecos en orden (1 → 2 → 3) tocando las palabras de abajo. Los huecos no cambian si vuelves a ver la frase.",
+      backToWords: "Volver a ver las palabras",
+      confirmContinue: "Continuar a SatVantage",
+      wrongOrder: "Orden incorrecto — revisa las palabras e inténtalo de nuevo",
+      gapsLabel: "Frase con huecos",
+      missingWordsLabel: "Palabras que faltan",
+      phraseLabel: "Frase de recuperación",
+      loading: "Cargando…",
+      claimTitle: "Saldo SatVantage",
+      claimMentorTitle: "Recibir sats de la mentoría",
+      claimCopyBefore: "Genera en la cartera MutinyNet un cobro de exactamente",
+      claimCopyAfter: "sats (empieza con lntbs) y pégalo abajo.",
+      claimConfirm: "Confirmar recepción",
+      claimBusy: "Recibiendo…",
+      claimOk: "Listo: ⚡ {n} sats fueron a tu cartera.",
+      claimFail: "fallo en el canje",
+      claimBalance: "Saldo SatVantage",
+      claimEmpty: "Sin saldo para recibir ahora.",
+      inactivityWarning:
+        "Por inactividad, serás desconectado en instantes — toca la pantalla para seguir conectado.",
+      scanQr: "Leer código QR",
+      pointCamera: "Apunta la cámara al QR",
+      scanToPay: "Escanea para pagar (MutinyNet)",
+    },
   },
 };
 
@@ -960,6 +1715,8 @@ const I18nContext = createContext<I18nCtx | null>(null);
 function readLocale(): Locale {
   if (typeof window === "undefined") return "pt";
   try {
+    const boot = (window as Window & { __SV_LOCALE__?: string }).__SV_LOCALE__;
+    if (boot === "pt" || boot === "en" || boot === "es") return boot;
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved === "pt" || saved === "en" || saved === "es") return saved;
   } catch {
@@ -979,13 +1736,18 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     const next = readLocale();
     setLocaleState(next);
     document.documentElement.lang = htmlLang(next);
+    document.documentElement.setAttribute("translate", "no");
+    document.documentElement.classList.add("notranslate");
   }, []);
 
   const setLocale = useCallback((next: Locale) => {
     setLocaleState(next);
     document.documentElement.lang = htmlLang(next);
+    document.documentElement.setAttribute("translate", "no");
+    document.documentElement.classList.add("notranslate");
     try {
       localStorage.setItem(STORAGE_KEY, next);
+      (window as Window & { __SV_LOCALE__?: string }).__SV_LOCALE__ = next;
     } catch {
       /* ignore */
     }
@@ -996,7 +1758,14 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     [locale, setLocale],
   );
 
-  return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
+  // Remonta NÃO — key={locale} derrubava a mentoria ao trocar idioma.
+  return (
+    <I18nContext.Provider value={value}>
+      <div className="notranslate sv-i18n-root" lang={htmlLang(locale)} translate="no">
+        {children}
+      </div>
+    </I18nContext.Provider>
+  );
 }
 
 export function useI18n(): I18nCtx {

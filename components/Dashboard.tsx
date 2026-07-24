@@ -10,7 +10,6 @@ import BtcMarket from "@/components/BtcMarket";
 import MentorChat from "@/components/MentorChat";
 import FreeTopicChat from "@/components/FreeTopicChat";
 import LanguageSelect from "@/components/LanguageSelect";
-import AccessibilityFooter from "@/components/AccessibilityFooter";
 import EmergencyMode from "@/components/EmergencyMode";
 import HerancaPanel from "@/components/HerancaPanel";
 import QrScanButton from "@/components/QrScanButton";
@@ -23,6 +22,7 @@ import {
   topicById,
   type OptionalTopic,
 } from "@/lib/optional-topics";
+import { localizeTopic } from "@/lib/topics-i18n";
 import "./dash.css";
 import "./wallet.css";
 
@@ -121,6 +121,8 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
   const [hideBalance, setHideBalance] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [nostrKeyOpen, setNostrKeyOpen] = useState(false);
+  const [keyCopied, setKeyCopied] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [soonMsg, setSoonMsg] = useState<string | null>(null);
   const [emergencyOpen, setEmergencyOpen] = useState(false);
@@ -261,6 +263,9 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
     setTheme(t);
     applyTheme(t);
     void refreshBalances();
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
   }, [user.npub, refreshBalances]);
 
   // Reposiciona o VLibras ao abrir o dash (o plugin às vezes some na troca de tela)
@@ -269,6 +274,17 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
     const id = window.setTimeout(() => {
       window.dispatchEvent(new Event("sv-vlibras-repin"));
     }, 900);
+    return () => window.clearTimeout(id);
+  }, []);
+
+  // Ao montar o dash (ex.: saída da mentoria), garante topo da página = saldo.
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    const id = window.setTimeout(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    }, 50);
     return () => window.clearTimeout(id);
   }, []);
 
@@ -370,7 +386,7 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
     const topic = topicById(id);
     if (!topic) return;
     setMentorStep(null);
-    setFreeTopic(topic);
+    setFreeTopic(localizeTopic(topic, locale));
     setMentorOpen(true);
   }
 
@@ -386,6 +402,7 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
     setFreeTopic(null);
     setMentorOpen(false);
     void refreshBalances();
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
   }
 
   return (
@@ -512,7 +529,7 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
                   <button
                     type="button"
                     role="menuitem"
-                    className="sv-bank-menu-item"
+                    className="sv-bank-menu-item sv-bank-menu-item--emergency"
                     onClick={() => {
                       setMenuOpen(false);
                       setEmergencyOpen(true);
@@ -520,6 +537,14 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
                   >
                     {t.dash.emergency}
                   </button>
+                  <a
+                    role="menuitem"
+                    className="sv-bank-menu-item"
+                    href={`mailto:suporte@satvantage.com.br?subject=${encodeURIComponent(t.footer.supportSubject)}`}
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    {t.nav.support}
+                  </a>
                   <button
                     type="button"
                     role="menuitem"
@@ -561,6 +586,18 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
                   >
                     {t.dash.choosePhoto}
                   </button>
+                  {user.npub && (
+                    <button
+                      type="button"
+                      className="sv-bank-profile-btn sv-bank-profile-btn--ghost"
+                      onClick={() => {
+                        setNostrKeyOpen(true);
+                        setKeyCopied(false);
+                      }}
+                    >
+                      {t.dash.myNostrKey}
+                    </button>
+                  )}
                   {avatarUrl && (
                     <button
                       type="button"
@@ -903,27 +940,27 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
           <div
             className={`sv-mentor-sheet${chatActive ? " sv-mentor-sheet--chat" : ""}`}
             role="dialog"
-            aria-label="NagAI SatVantage"
+            aria-label={`${t.mentor.name} SatVantage`}
           >
             <div className="sv-mentor-sheet-head">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/satvantage-mentor.png" alt="" width={40} height={40} />
               <div className="sv-mentor-sheet-titles">
-                <strong>NagAI</strong>
+                <strong>{t.mentor.name}</strong>
                 <p>
                   {freeTopic
                     ? freeTopic.label
                     : mentorStep === "m1"
-                      ? "Primeiros passos no Bitcoin"
+                      ? t.mentor.sheetM1
                       : mentorStep === "m2"
-                        ? "Carteira e Lightning"
-                        : "Em que posso te ajudar?"}
+                        ? t.mentor.sheetM2
+                        : t.mentor.helpPrompt}
                 </p>
               </div>
               <button
                 type="button"
                 className="sv-mentor-sheet-close"
-                aria-label="Fechar NagAI"
+                aria-label={t.mentor.closeNagAI}
                 onClick={endMentorChat}
               >
                 <span aria-hidden="true">×</span>
@@ -955,36 +992,54 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
               ) : null
             ) : (
               <>
-                <p className="sv-mentor-sheet-label">Dúvidas importantes</p>
+                <p className="sv-mentor-sheet-label">{t.mentor.importantDoubts}</p>
                 <div className="sv-mentor-chips">
-                  {KNOW_QUESTIONS.map((s) => (
-                    <button
-                      key={s.id}
-                      type="button"
-                      className="sv-mentor-chip"
-                      onClick={() => openGuideTopic(s.id)}
-                    >
-                      {s.label}
-                    </button>
-                  ))}
+                  {KNOW_QUESTIONS.map((s) => {
+                    const knowLabel =
+                      s.id === "imposto-quando"
+                        ? t.know.qImpostoQuando
+                        : s.id === "ir-2027"
+                          ? t.know.qIr2027
+                          : s.id === "patrimonio-crypto"
+                            ? t.know.qPatrimonio
+                            : t.know.qInforme;
+                    return (
+                      <button
+                        key={s.id}
+                        type="button"
+                        className="sv-mentor-chip"
+                        onClick={() => openGuideTopic(s.id)}
+                      >
+                        {knowLabel}
+                      </button>
+                    );
+                  })}
                 </div>
 
-                <p className="sv-mentor-sheet-label">Sugestões</p>
+                <p className="sv-mentor-sheet-label">{t.mentor.suggestions}</p>
                 <div className="sv-mentor-chips">
-                  {MENTOR_SUGGESTIONS.map((s) => (
-                    <button
-                      key={s.id}
-                      type="button"
-                      className="sv-mentor-chip"
-                      onClick={() => openGuideTopic(s.id)}
-                    >
-                      {s.label}
-                    </button>
-                  ))}
+                  {MENTOR_SUGGESTIONS.map((s) => {
+                    const sugLabel =
+                      s.id === "patrimonio"
+                        ? t.mentor.sugPatrimonio
+                        : s.id === "comprar"
+                          ? t.mentor.sugComprar
+                          : t.mentor.sugGeopolitica;
+                    return (
+                      <button
+                        key={s.id}
+                        type="button"
+                        className="sv-mentor-chip"
+                        onClick={() => openGuideTopic(s.id)}
+                      >
+                        {sugLabel}
+                      </button>
+                    );
+                  })}
                 </div>
 
                 <p className="sv-mentor-sheet-label">
-                  Com NagAI · sats {canEarn ? "" : "(já creditados nesta conta)"}
+                  {t.mentor.withSats} {canEarn ? "" : t.mentor.satsAlready}
                 </p>
                 <div className="sv-mentor-chips">
                   <button
@@ -996,7 +1051,8 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
                       setMentorStep("m1");
                     }}
                   >
-                    NagAI · Bitcoin {m1Eligible ? "· ganha sats" : "· prática"}
+                    {t.mentor.name} · Bitcoin{" "}
+                    {m1Eligible ? `· ${t.mentor.earnSats}` : `· ${t.mentor.practice}`}
                   </button>
                   <button
                     type="button"
@@ -1007,7 +1063,8 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
                       setMentorStep("m2");
                     }}
                   >
-                    NagAI · Carteira e Lightning {m2Eligible ? "· ganha sats" : "· prática"}
+                    {t.mentor.m2Title}{" "}
+                    {m2Eligible ? `· ${t.mentor.earnSats}` : `· ${t.mentor.practice}`}
                   </button>
                 </div>
               </>
@@ -1018,7 +1075,7 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
         <button
           type="button"
           className="sv-mentor-fab"
-          aria-label={mentorOpen ? "Fechar NagAI" : "Abrir NagAI"}
+          aria-label={mentorOpen ? t.mentor.closeNagAI : t.mentor.openNagAI}
           aria-expanded={mentorOpen}
           onClick={() => {
             if (mentorOpen) endMentorChat();
@@ -1034,8 +1091,6 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
         </button>
       </div>
 
-      <AccessibilityFooter />
-
       <EmergencyMode
         open={emergencyOpen}
         onClose={() => setEmergencyOpen(false)}
@@ -1044,6 +1099,52 @@ export default function Dashboard({ user, onExitToHome }: DashboardProps) {
           void refreshBalances();
         }}
       />
+
+      {nostrKeyOpen && user.npub && (
+        <div
+          className="sv-key-modal-backdrop"
+          role="presentation"
+          onClick={() => setNostrKeyOpen(false)}
+        >
+          <div
+            className="sv-key-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="sv-nostr-key-title"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 id="sv-nostr-key-title" className="sv-key-modal-title">
+              {t.dash.nostrKeyTitle}
+            </h2>
+            <p className="sv-key-modal-hint">{t.dash.nostrKeyHint}</p>
+            <code className="sv-key-modal-npub">{user.npub}</code>
+            <div className="sv-key-modal-actions">
+              <button
+                type="button"
+                className="sv-bank-profile-btn"
+                onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(user.npub!);
+                    setKeyCopied(true);
+                    setTimeout(() => setKeyCopied(false), 2000);
+                  } catch {
+                    /* ignore */
+                  }
+                }}
+              >
+                {keyCopied ? t.dash.keyCopied : t.dash.copyKey}
+              </button>
+              <button
+                type="button"
+                className="sv-bank-profile-btn sv-bank-profile-btn--ghost"
+                onClick={() => setNostrKeyOpen(false)}
+              >
+                {t.dash.closeKeyModal}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

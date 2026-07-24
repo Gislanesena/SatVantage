@@ -2,12 +2,14 @@
 // Chat de mentoria: painel único, histórico permanente, tópicos opcionais no fim.
 import { useCallback, useEffect, useRef, useState } from "react";
 import SiteNav from "@/components/SiteNav";
+import { useI18n } from "@/lib/i18n";
 import {
   MISSION_1_SLUG,
   MISSION_2_SLUG,
   type MissionSlug,
 } from "@/lib/missions";
 import { OPTIONAL_TOPICS, type OptionalTopic } from "@/lib/optional-topics";
+import { localizeTopic } from "@/lib/topics-i18n";
 import "./mentor.css";
 
 type Lesson = {
@@ -50,26 +52,6 @@ type MentorChatProps = {
   sheetHosted?: boolean;
 };
 
-const COPY: Record<
-  MissionSlug,
-  { title: string; intro: string; skipAllAgent: string }
-> = {
-  [MISSION_1_SLUG]: {
-    title: "NagAI · Primeiros passos",
-    intro:
-      "Oi! Eu sou a NagAI, do SatVantage. Vou te explicar um ponto de cada vez e depois te perguntar se fez sentido. Pode pular uma pergunta ou a conversa inteira quando quiser.",
-    skipAllAgent:
-      "Tudo bem. Na próxima você pode aprender carteira e Lightning — ou ir direto ao dashboard.",
-  },
-  [MISSION_2_SLUG]: {
-    title: "NagAI · Carteira e Lightning",
-    intro:
-      "Agora o básico pra quem nunca abriu uma carteira: o que ela guarda, como proteger a frase de recuperação, e o que é Lightning no dia a dia. Pode pular pergunta ou a conversa toda.",
-    skipAllAgent:
-      "Sem problema. Se quiser, depois a gente fala de corretora, transferência e carteira fria — ou você vai direto ao dashboard.",
-  },
-};
-
 function sleep(ms: number) {
   return new Promise((r) => setTimeout(r, ms));
 }
@@ -84,7 +66,12 @@ export default function MentorChat({
   embedded = false,
   sheetHosted = false,
 }: MentorChatProps) {
-  const copy = COPY[slug];
+  const { t, locale } = useI18n();
+  const m = t.mentor;
+  const copy =
+    slug === MISSION_1_SLUG
+      ? { title: m.m1Title, intro: m.introM1, skipAllAgent: m.skipAllM1 }
+      : { title: m.m2Title, intro: m.introM2, skipAllAgent: m.skipAllM2 };
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -176,7 +163,9 @@ export default function MentorChat({
   );
 
   function remainingTopics(exclude: string[] = doneTopicsRef.current) {
-    return OPTIONAL_TOPICS.filter((t) => !exclude.includes(t.id));
+    return OPTIONAL_TOPICS.filter((topic) => !exclude.includes(topic.id)).map((topic) =>
+      localizeTopic(topic, locale),
+    );
   }
 
   async function showEndMenu(
@@ -194,47 +183,30 @@ export default function MentorChat({
     let satsLine: string | null = null;
     if (opts.alreadyDone) {
       await typeAgent(
-        opts.skipAll
-          ?         "Você já tinha pulado esta conversa. Pode reler o que quiser acima ou seguir em frente."
-          : "Você já tinha concluído esta conversa. A conversa fica aqui se quiser reler.",
+        opts.skipAll ? m.alreadySkipped : m.alreadyDone,
         runId,
       );
       if (typeof opts.satsBalance === "number") {
-        satsLine = `Saldo na conta: ⚡ ${opts.satsBalance} sats.`;
+        satsLine = m.balanceLine.replace("{n}", String(opts.satsBalance));
       }
     } else if (opts.skipAll) {
-      await typeAgent(
-        "Conversa pulada — sem problema. Enquanto você só pular, ainda pode voltar depois e ganhar sats na primeira conclusão de verdade.",
-        runId,
-      );
+      await typeAgent(m.skipAllOk, runId);
     } else if (typeof opts.satsCredited === "number" && opts.satsCredited > 0) {
-      await typeAgent(
-        `Satoshis conquistados nesta conversa: ⚡ ${opts.satsCredited}. Eles ficam no saldo SatVantage da sua conta (ainda não foram para a carteira Lightning).`,
-        runId,
-      );
-      await typeAgent(
-        "Garantia: o crédito está registrado na sua chave Nostr. Para sacar de verdade, no dashboard toque em Receber → voucher da mentoria e cole uma cobrança MutinyNet (lntbs) do valor exato.",
-        runId,
-      );
+      await typeAgent(m.satsWon.replace("{n}", String(opts.satsCredited)), runId);
+      await typeAgent(m.withdrawHint, runId);
       if (typeof opts.satsBalance === "number") {
-        satsLine = `Saldo garantido na conta: ⚡ ${opts.satsBalance} sats · saque em Receber`;
+        satsLine = m.balanceGuaranteed.replace("{n}", String(opts.satsBalance));
       }
     } else if (opts.practiceOnly) {
-      await typeAgent(
-        "Prática concluída. Nesta conta os sats desta conversa já foram creditados antes — refazer não gera saldo novo nem a diferença do que errou.",
-        runId,
-      );
+      await typeAgent(m.practiceDone, runId);
     } else if (typeof opts.satsCredited === "number") {
-      await typeAgent("Pronto. Desta vez não entrou sats novos (perguntas puladas).", runId);
+      await typeAgent(m.noNewSats, runId);
     }
 
     if (!alive(runId)) return;
 
     if (slug === MISSION_1_SLUG) {
-      await typeAgent(
-        "Quando quiser, seguimos para carteira e Lightning — ou você pode ir ao dashboard financeiro. A conversa continua visível se precisar reler.",
-        runId,
-      );
+      await typeAgent(m.continuePromptM1, runId);
       if (!alive(runId)) return;
       setComposer({
         type: "end",
@@ -243,10 +215,7 @@ export default function MentorChat({
         satsLine,
       });
     } else {
-      await typeAgent(
-        "Se quiser aprofundar, tenho outros assuntos opcionais — corretora, como transferir para a carteira, carteira quente e fria. Pode escolher um, vários, ou nenhum.",
-        runId,
-      );
+      await typeAgent(m.optionalTopicsPrompt, runId);
       if (!alive(runId)) return;
       setComposer({
         type: "end",
@@ -279,7 +248,9 @@ export default function MentorChat({
 
     (async () => {
       try {
-        const res = await fetch(`/api/missions?slug=${encodeURIComponent(slug)}`);
+        const res = await fetch(
+          `/api/missions?slug=${encodeURIComponent(slug)}&locale=${encodeURIComponent(locale)}`,
+        );
         const data = await res.json();
         if (!alive(runId)) return;
         if (!res.ok) throw new Error(data.error ?? "erro ao carregar");
@@ -304,9 +275,7 @@ export default function MentorChat({
         if (!loaded.length) return;
 
         setBusy(true);
-        const intro = !data.rewardEligible
-          ? "Vamos praticar de novo. Lembre: os sats desta conversa já foram creditados na sua conta — agora é só aprendizado."
-          : copy.intro;
+        const intro = !data.rewardEligible ? m.practiceIntro : copy.intro;
         await typeAgent(intro, runId);
         if (!alive(runId)) return;
         await sleep(320);
@@ -326,7 +295,7 @@ export default function MentorChat({
       runIdRef.current++;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [slug, sessionKey, forcePractice]);
+  }, [slug, sessionKey, forcePractice, locale]);
 
   async function finish(payload: { responses: ResponseSlot[] } | { skipAll: true }) {
     const runId = runIdRef.current;
@@ -376,7 +345,7 @@ export default function MentorChat({
     if (nextStep >= list.length) {
       await sleep(360);
       if (!alive(runId)) return;
-      await typeAgent("Pronto por aqui. Vou guardar o que você aprendeu nesta conversa.", runId);
+      await typeAgent(m.savingProgress, runId);
       if (!alive(runId)) return;
       const full = list.map((_, i) => nextResponses[i] ?? { answer: null, skipped: true });
       await finish({ responses: full });
@@ -407,6 +376,7 @@ export default function MentorChat({
           slug,
           lessonIndex: stepRef.current,
           answer: optionIndex,
+          locale,
         }),
       });
       const check = await checkRes.json();
@@ -435,7 +405,7 @@ export default function MentorChat({
     if (busy || composer.type !== "mission" || !lessonsRef.current[stepRef.current]) return;
     setBusy(true);
     setComposer({ type: "hidden" });
-    pushUser("Pular esta pergunta");
+    pushUser(m.skipQUser);
 
     const nextResponses = [...responsesRef.current];
     nextResponses[stepRef.current] = { answer: null, skipped: true };
@@ -443,7 +413,7 @@ export default function MentorChat({
     responsesRef.current = nextResponses;
 
     await sleep(140);
-    await typeAgent("Sem problema. Seguimos.", runId);
+    await typeAgent(m.okContinue, runId);
     if (!alive(runId)) return;
     await advance(nextResponses, stepRef.current + 1);
   }
@@ -453,7 +423,7 @@ export default function MentorChat({
     if (busy) return;
     setBusy(true);
     setComposer({ type: "hidden" });
-    pushUser("Quero pular a conversa");
+    pushUser(m.skipAllUser);
     await typeAgent(copy.skipAllAgent, runId);
     if (!alive(runId)) return;
     await finish({ skipAll: true });
@@ -486,8 +456,10 @@ export default function MentorChat({
   async function answerTopic(optionIndex: number) {
     const runId = runIdRef.current;
     if (composer.type !== "topic-q" || busy) return;
-    const topic = OPTIONAL_TOPICS.find((t) => t.id === composer.topicId);
-    if (!topic?.options || topic.correct == null) return;
+    const base = OPTIONAL_TOPICS.find((t) => t.id === composer.topicId);
+    if (!base?.options || base.correct == null) return;
+    const topic = localizeTopic(base, locale);
+    if (!topic.options || topic.correct == null) return;
 
     setBusy(true);
     setComposer({ type: "hidden" });
@@ -510,9 +482,9 @@ export default function MentorChat({
     const left = remainingTopics(nextDone);
     await sleep(280);
     if (left.length) {
-      await typeAgent("Quer ver outro assunto, ou prefere ir ao dashboard?", runId);
+      await typeAgent(m.anotherTopicOrDash, runId);
     } else {
-      await typeAgent("Esses eram os extras. Pode reler a conversa acima ou ir ao dashboard financeiro.", runId);
+      await typeAgent(m.extrasDone, runId);
     }
     if (!alive(runId)) return;
     setComposer({
@@ -532,8 +504,8 @@ export default function MentorChat({
 
     setBusy(true);
     setComposer({ type: "hidden" });
-    pushUser("Pular esta pergunta");
-    await typeAgent("Beleza. O importante era a explicação.", runId);
+    pushUser(m.skipQUser);
+    await typeAgent(m.topicSkipOk, runId);
     if (!alive(runId)) return;
 
     const nextDone = [...doneTopicsRef.current, topic.id];
@@ -543,9 +515,7 @@ export default function MentorChat({
 
     await sleep(200);
     await typeAgent(
-      left.length
-        ? "Quer outro assunto opcional, ou vamos ao dashboard?"
-        : "Pode reler a conversa ou ir ao dashboard.",
+      left.length > 0 ? m.anotherOptionalOrDash : m.rereadOrDash,
       runId,
     );
     if (!alive(runId)) return;
@@ -562,12 +532,36 @@ export default function MentorChat({
         <div className="sv-mentor-embed-bar">
           <span>{copy.title}</span>
           <button type="button" className="linkish" onClick={leave}>
-            Fechar
+            {m.exit}
           </button>
         </div>
       );
     }
-    return <SiteNav variant="mentor" onExitMentor={leave} />;
+    return <SiteNav variant="mentor" />;
+  }
+
+  function mentorTitleBar() {
+    if (embedded || sheetHosted) return null;
+    return (
+      <header className="sv-mentor-head">
+        <div className="sv-mentor-head-row">
+          <img
+            src="/satvantage-mentor.png"
+            alt=""
+            className="sv-mentor-head-face"
+            width={40}
+            height={40}
+          />
+          <h1>{copy.title}</h1>
+          <button type="button" className="sv-mentor-exit" onClick={leave}>
+            {m.exit}
+          </button>
+        </div>
+        {!rewardEligible && !showGate && !loading && (
+          <p className="sv-mentor-practice-tag">{m.practiceMode}</p>
+        )}
+      </header>
+    );
   }
 
   if (loading) {
@@ -575,7 +569,8 @@ export default function MentorChat({
       <div className={shellClass}>
         {shellNav()}
         <div className="sv-mentor-body">
-          <p className="sv-mentor-status">Abrindo conversa…</p>
+          {mentorTitleBar()}
+          <p className="sv-mentor-status">{m.loading}</p>
         </div>
       </div>
     );
@@ -586,6 +581,7 @@ export default function MentorChat({
       <div className={shellClass}>
         {shellNav()}
         <div className="sv-mentor-body">
+          {mentorTitleBar()}
           <div className="sv-mentor-gate">
             <img
               src="/satvantage-mentor.png"
@@ -595,11 +591,7 @@ export default function MentorChat({
               height={88}
             />
             <h1>{copy.title}</h1>
-            <p>
-              Nesta conta os sats desta conversa <strong>já foram creditados</strong>. Você pode
-              refazer para praticar, mas não ganha de novo — nem a diferença se tiver errado
-              antes.
-            </p>
+            <p>{m.gateBody}</p>
             <div className="sv-mentor-gate-actions">
               <button
                 type="button"
@@ -610,10 +602,10 @@ export default function MentorChat({
                   setSessionKey((k) => k + 1);
                 }}
               >
-                Refazer sem novos sats
+                {m.redoWithoutSats}
               </button>
               <button type="button" className="sv-chat-cta sv-chat-cta--ghost" onClick={onGoDashboard}>
-                Voltar ao dashboard
+                {m.backToDashboard}
               </button>
             </div>
           </div>
@@ -627,25 +619,9 @@ export default function MentorChat({
       {shellNav()}
 
       <div className="sv-mentor-body">
-        {!embedded && (
-          <header className="sv-mentor-head">
-            <div className="sv-mentor-head-row">
-              <img
-                src="/satvantage-mentor.png"
-                alt=""
-                className="sv-mentor-head-face"
-                width={40}
-                height={40}
-              />
-              <h1>{copy.title}</h1>
-            </div>
-            {!rewardEligible && (
-              <p className="sv-mentor-practice-tag">Modo prática · sem novos sats</p>
-            )}
-          </header>
-        )}
+        {mentorTitleBar()}
         {embedded && !rewardEligible && (
-          <p className="sv-mentor-practice-tag">Modo prática · sem novos sats</p>
+          <p className="sv-mentor-practice-tag">{m.practiceMode}</p>
         )}
 
         <div className="sv-chat-panel">
@@ -661,7 +637,7 @@ export default function MentorChat({
                     height={36}
                   />
                   <div className="sv-bubble sv-bubble--agent">
-                    <span className="sv-bubble-label">NagAI</span>
+                    <span className="sv-bubble-label">{m.name}</span>
                     <span className="sv-bubble-text">
                       {line.text}
                       {typing && i === lines.length - 1 ? (
@@ -704,7 +680,7 @@ export default function MentorChat({
                     disabled={busy}
                     onClick={() => void skipQuestion()}
                   >
-                    Pular pergunta
+                    {m.skipQuestion}
                   </button>
                   <button
                     type="button"
@@ -712,7 +688,7 @@ export default function MentorChat({
                     disabled={busy}
                     onClick={() => void skipAll()}
                   >
-                    Pular conversa
+                    {m.skipConversation}
                   </button>
                 </div>
               </div>
@@ -740,7 +716,7 @@ export default function MentorChat({
                     disabled={busy}
                     onClick={() => void skipTopicQuestion()}
                   >
-                    Pular pergunta
+                    {m.skipQuestion}
                   </button>
                 </div>
               </div>
@@ -757,22 +733,22 @@ export default function MentorChat({
                     disabled={busy}
                     onClick={onContinueMentor}
                   >
-                    Continuar · carteira e Lightning
+                    {m.continueM2}
                   </button>
                 )}
 
                 {composer.topics.length > 0 && (
                   <div className="sv-topic-list">
-                    <p className="sv-chat-end-note">Assuntos opcionais</p>
-                    {composer.topics.map((t) => (
+                    <p className="sv-chat-end-note">{m.optionalTopics}</p>
+                    {composer.topics.map((topic) => (
                       <button
-                        key={t.id}
+                        key={topic.id}
                         type="button"
                         className="sv-topic-btn"
                         disabled={busy}
-                        onClick={() => void startOptionalTopic(t)}
+                        onClick={() => void startOptionalTopic(topic)}
                       >
-                        {t.label}
+                        {topic.label}
                       </button>
                     ))}
                   </div>
@@ -788,7 +764,7 @@ export default function MentorChat({
                   disabled={busy}
                   onClick={onGoDashboard}
                 >
-                  {embedded ? "Fechar chat" : "Ir para o dashboard financeiro"}
+                  {embedded ? m.closeChat : m.goDashboard}
                 </button>
               </div>
             )}

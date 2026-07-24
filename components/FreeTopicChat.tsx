@@ -4,6 +4,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import SiteNav from "@/components/SiteNav";
 import { matchTopicAnswer, type OptionalTopic } from "@/lib/optional-topics";
+import { useI18n } from "@/lib/i18n";
+import { EMPTY_DOUBT, NO_MATCH_DOUBT, type TopicLocale } from "@/lib/topics-i18n";
 import "./mentor.css";
 
 type ChatLine = { kind: "agent" | "user"; text: string };
@@ -27,6 +29,8 @@ export default function FreeTopicChat({
   embedded = false,
   sheetHosted = false,
 }: Props) {
+  const { t, locale } = useI18n();
+  const m = t.mentor;
   const isConverse = topic.mode === "converse";
   const [lines, setLines] = useState<ChatLine[]>([]);
   const [busy, setBusy] = useState(true);
@@ -84,7 +88,7 @@ export default function FreeTopicChat({
       setLines([{ kind: "user", text: topic.label }]);
       await sleep(800);
       if (runIdRef.current !== runId) return;
-      await typeAgent("Boa pergunta. Vou te explicar com calma.", runId);
+      await typeAgent(m.freeTopicLead, runId);
       if (runIdRef.current !== runId) return;
       for (const msg of topic.teach) {
         if (runIdRef.current !== runId) return;
@@ -115,7 +119,7 @@ export default function FreeTopicChat({
     return () => {
       runIdRef.current++;
     };
-  }, [topic, typeAgent, isConverse]);
+  }, [topic, typeAgent, isConverse, locale, m.freeTopicLead]);
 
   async function answerQuiz(i: number) {
     if (busy || !showQ || !topic.options || topic.correct == null) return;
@@ -131,9 +135,7 @@ export default function FreeTopicChat({
     );
     if (runIdRef.current !== runId) return;
     await typeAgent(
-      embedded
-        ? "Pode fechar o chat ou abrir outro assunto no NagAI — o dashboard continua aí."
-        : "Pode voltar ao dashboard quando quiser — ou abrir outro assunto no NagAI.",
+      embedded ? m.freeTopicDoneEmbedded : m.freeTopicDoneDash,
       runId,
     );
     if (runIdRef.current !== runId) return;
@@ -151,10 +153,13 @@ export default function FreeTopicChat({
     await sleep(500);
     if (runIdRef.current !== runId) return;
 
-    const reply = matchTopicAnswer(topic, text);
+    const reply = matchTopicAnswer(topic, text, {
+      empty: EMPTY_DOUBT[locale as TopicLocale] ?? EMPTY_DOUBT.pt,
+      noMatch: NO_MATCH_DOUBT[locale as TopicLocale] ?? NO_MATCH_DOUBT.pt,
+    });
     await typeAgent(reply, runId);
     if (runIdRef.current !== runId) return;
-    await typeAgent("Quer perguntar mais alguma coisa sobre este assunto?", runId);
+    await typeAgent(m.askMore, runId);
     if (runIdRef.current !== runId) return;
     setBusy(false);
   }
@@ -167,11 +172,11 @@ export default function FreeTopicChat({
         <div className="sv-mentor-embed-bar">
           <span>{topic.label}</span>
           <button type="button" className="linkish" onClick={onBack}>
-            Fechar
+            {m.exit}
           </button>
         </div>
       ) : !embedded ? (
-        <SiteNav variant="mentor" onExitMentor={onBack} />
+        <SiteNav variant="mentor" />
       ) : null}
       <div className="sv-mentor-body">
         {!embedded && (
@@ -185,6 +190,9 @@ export default function FreeTopicChat({
                 height={40}
               />
               <h1>{topic.label}</h1>
+              <button type="button" className="sv-mentor-exit" onClick={onBack}>
+                {m.exit}
+              </button>
             </div>
           </header>
         )}
@@ -202,7 +210,7 @@ export default function FreeTopicChat({
                     height={36}
                   />
                   <div className="sv-bubble sv-bubble--agent">
-                    <span className="sv-bubble-label">NagAI</span>
+                    <span className="sv-bubble-label">{m.name}</span>
                     <span className="sv-bubble-text">
                       {line.text}
                       {typing && idx === lines.length - 1 ? (
@@ -253,7 +261,7 @@ export default function FreeTopicChat({
                   type="text"
                   value={draft}
                   disabled={busy}
-                  placeholder="Digite sua dúvida…"
+                  placeholder={m.askPlaceholder}
                   autoComplete="off"
                   onChange={(e) => setDraft(e.target.value)}
                 />
@@ -262,14 +270,14 @@ export default function FreeTopicChat({
                   className="sv-chat-ask-send"
                   disabled={busy || !draft.trim()}
                 >
-                  Enviar
+                  {m.send}
                 </button>
               </form>
             )}
 
             {(done || canAsk) && (
               <button type="button" className="sv-chat-cta sv-chat-cta--ghost" onClick={onBack}>
-                {embedded ? "Voltar aos assuntos" : "Voltar ao dashboard"}
+                {embedded ? m.backToTopics : m.backToDashboard}
               </button>
             )}
           </div>

@@ -17,14 +17,36 @@
       />
       <div class="sv-head-text">
         <strong>SatVantage Copiloto</strong>
-        <p id="head-sub">Ajuda rápida sobre Bitcoin e segurança nesta página.</p>
+        <p id="head-sub">Ferramentas rápidas de segurança e Bitcoin nesta aba.</p>
       </div>
     </header>
 
+    <div class="sv-quick" role="group" aria-label="Ações rápidas">
+      <button type="button" id="btn-oficial" class="sv-btn sv-btn--quick">
+        É o site oficial?
+      </button>
+      <button type="button" id="enviar" class="sv-btn sv-btn--quick">Analisar página</button>
+      <button type="button" id="capturar" class="sv-btn sv-btn--quick sv-btn--ghost">
+        Selecionar área da tela
+      </button>
+      <button type="button" id="btn-btc" class="sv-btn sv-btn--quick sv-btn--ghost">
+        Preço do Bitcoin
+      </button>
+    </div>
+
     <div id="page-url-wrap" class="sv-url-wrap" hidden>
-      <span id="page-url-badge" class="sv-url-badge" hidden>Site oficial</span>
+      <span id="page-url-badge" class="sv-seal" data-seal="ok" hidden>Site oficial</span>
       <p id="page-url" class="sv-url" title=""></p>
     </div>
+
+    <section id="domain-result" class="sv-domain" hidden>
+      <div id="domain-seal" class="sv-seal" data-seal="unknown"></div>
+      <p id="domain-detail" class="sv-domain-detail"></p>
+      <p class="sv-domain-disclaimer">
+        Checagem heurística local (lista fixa + padrões clássicos). Não é base completa nem
+        garantia total — confirme sempre o endereço na barra.
+      </p>
+    </section>
 
     <section id="btc-card" class="sv-btc" hidden>
       <p class="sv-btc-label">Bitcoin (CoinGecko)</p>
@@ -33,10 +55,13 @@
     </section>
 
     <label class="sv-label" for="pergunta">Sua pergunta <span class="sv-optional">(opcional)</span></label>
+    <label class="sv-label" for="pergunta"
+      >Sua pergunta <span class="sv-optional">(opcional)</span></label
+    >
     <textarea
       id="pergunta"
       rows="3"
-      placeholder="Deixe em branco para um resumo de onde você está, ou pergunte algo…"
+      placeholder="Deixe em branco para um resumo, ou pergunte (ex.: preço do Bitcoin)…"
     ></textarea>
 
     <div class="sv-suggestions" role="group" aria-label="Sugestões">
@@ -76,16 +101,27 @@
     <section id="resultado" class="sv-result" hidden>
       <p id="result-url" class="sv-result-url" hidden></p>
       <div id="badge" class="sv-badge" hidden></div>
-      <div id="risco" class="sv-risco" hidden></div>
+      <div id="risco" class="sv-seal sv-risco" hidden></div>
       <p id="explicacao" class="sv-explicacao"></p>
       <p id="passos-title" class="sv-passos-title">Próximos passos</p>
       <ol id="passos" class="sv-passos"></ol>
     </section>
 
+    <section id="history-wrap" class="sv-history" hidden>
+      <div class="sv-history-head">
+        <p class="sv-passos-title">Histórico recente</p>
+        <button type="button" id="history-clear" class="sv-link-btn">Limpar</button>
+      </div>
+      <div id="history-list" class="sv-history-list"></div>
+    </section>
+
     <footer class="sv-foot">
-      Envia URL, texto/imagem da página e a pergunta (se houver) ao backend SatVantage.
+      API: sat-vantage-gislanesena.vercel.app — sem chave de IA na extensão. Preferências e
+      histórico ficam em chrome.storage.local.
     </footer>
 
+    <script src="domain-check.js"></script>
+    <script src="storage.js"></script>
     <script src="popup.js"></script>
   </body>
 </html>

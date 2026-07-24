@@ -8,6 +8,7 @@ import {
   isMissionSlug,
   type MissionSlug,
 } from "@/lib/missions";
+import { QUIZ_I18N, type QuizLocale } from "@/lib/quiz-i18n";
 
 export { MISSION_1_SLUG, MISSION_2_SLUG, isMissionSlug, type MissionSlug };
 
@@ -26,161 +27,132 @@ interface QuizQuestion {
   feedbackWrong: string;
 }
 
+/** Mentoria 1 — Primeiros Passos no Bitcoin (4 perguntas). */
 export const MISSION_1_QUESTIONS: QuizQuestion[] = [
   {
     id: "q1",
     teach:
-      "Bitcoin é dinheiro digital que funciona sem banco no meio. Ninguém 'imprime' do nada: as regras são públicas e qualquer um pode verificar.",
-    question: "O que é o Bitcoin?",
+      "Bitcoin é dinheiro digital que não depende de bancos nem de governos para existir. Funciona numa rede mundial: as regras são públicas e qualquer pessoa pode conferir. É a forma mais autêntica de moeda fora do sistema tradicional — você não precisa pedir permissão para usar.",
+    question: "O que descreve melhor o Bitcoin?",
     options: [
-      "Uma empresa de tecnologia com sede nos Estados Unidos",
-      "Um dinheiro digital que funciona sem depender de bancos ou governos",
-      "Um aplicativo de investimentos criado por uma corretora",
-      "Uma moeda física de colecionador banhada a ouro",
+      "Um aplicativo de banco que só funciona no Brasil",
+      "Dinheiro digital numa rede mundial, sem depender de bancos ou governos",
+      "Uma ação de empresa de tecnologia cotada na bolsa",
+      "Um cartão de crédito internacional com cashback em ouro",
     ],
-      correct: 1,
-    feedbackCorrect: "Isso — soberania sem pedir licença a um banco.",
-    feedbackWrong: "Quase. Pense em dinheiro digital sem intermediário obrigatório.",
+    correct: 1,
+    feedbackCorrect: "Isso — dinheiro digital com regras públicas, sem intermediário obrigatório.",
+    feedbackWrong: "Pense em dinheiro digital global, sem banco no meio do caminho.",
   },
   {
     id: "q2",
     teach:
-      "Sua chave privada é o segredo que prova que os bitcoins são seus. Quem tem a chave, controla o dinheiro. Por isso nunca compartilhe.",
-    question: "O que é uma chave privada?",
+      "Os golpes mais comuns hoje prometem 'dobrar seu dinheiro', vendem pirâmides disfarçadas de investimento, ou fingem ser suporte pedindo sua chave ou frase seed. Também usam urgência artificial: 'faça agora ou perde'. Proteção simples: desconfie de promessa fácil, nunca compartilhe seed/chave e respire antes de clicar.",
+    question:
+      "Alguém no chat diz: 'Sou do suporte — me manda sua frase seed agora ou sua conta será bloqueada'. O que fazer?",
     options: [
-      "A senha do aplicativo da corretora",
-      "Um código que a empresa guarda para você recuperar a conta",
-      "O segredo que prova que os bitcoins são seus — quem tem a chave, tem os bitcoins",
-      "O número da sua carteira, que você compartilha para receber pagamentos",
+      "Enviar a seed só se o perfil tiver foto profissional",
+      "Enviar um pedaço da seed para 'provar' que é você",
+      "Não enviar nada: suporte legítimo nunca pede seed ou chave privada",
+      "Pedir o CPF do suporte e, se bater, enviar a seed",
     ],
     correct: 2,
-    feedbackCorrect: "Exato. A chave é a posse.",
-    feedbackWrong: "A chave privada não é para compartilhar — ela é o controle.",
+    feedbackCorrect: "Perfeito. Seed e chave privada nunca vão para chat, e-mail ou 'suporte'.",
+    feedbackWrong: "Urgência + pedido de seed = golpe. Não envie nunca.",
   },
   {
     id: "q3",
     teach:
-      "Golpes adoram pressa e 'dinheiro fácil'. Se alguém promete dobrar seus bitcoins, desconfie: é o golpe mais clássico do ecossistema.",
-    question:
-      "Você recebe uma mensagem: 'Dobre seus bitcoins! Envie 0,01 BTC e receba 0,02 de volta'. O que fazer?",
+      "Uma carteira de Bitcoin não guarda 'moedinhas' como uma carteira de couro. Ela guarda o acesso — as chaves — aos seus bitcoins na rede. Em corretora (custodial), a empresa segura as chaves por você. Na carteira própria, você controla. Abrir uma carteira própria costuma ser: baixar um app confiável, anotar a frase de recuperação offline e nunca compartilhá-la.",
+    question: "O que uma carteira de Bitcoin faz de verdade?",
     options: [
-      "Enviar um valor pequeno primeiro, para testar se é verdade",
-      "Ignorar e denunciar: promessa de multiplicar dinheiro é o golpe mais clássico que existe",
-      "Verificar se o site tem cadeado de segurança e, se tiver, enviar",
-      "Enviar apenas se a mensagem vier de um perfil verificado",
+      "Guarda moedas físicas de bitcoin num cofre digital",
+      "Guarda o acesso (as chaves) aos seus bitcoins na rede",
+      "Imprime bitcoins novos toda vez que você abre o app",
+      "Substitui o CPF e o banco na Receita Federal",
     ],
     correct: 1,
-    feedbackCorrect: "Perfeito. Promessa de multiplicar = bandeira vermelha.",
-    feedbackWrong: "Nunca envie para 'dobrar'. Isso é golpe clássico.",
+    feedbackCorrect: "Exato — a carteira é o controle do acesso, não um bauzinho de moedas.",
+    feedbackWrong: "A carteira guarda as chaves de acesso — não moedas físicas.",
   },
   {
     id: "q4",
     teach:
-      "Autocustódia é você guardar a própria chave — sem depender da corretora. Mais responsabilidade, mais liberdade.",
-    question: "O que significa 'autocustódia'?",
+      "No Brasil, Bitcoin entra na conversa do Imposto de Renda. Em geral, você declara a posse e os ganhos quando vende ou troca. Há uma ideia prática importante: vendas mensais abaixo de um limite de isenção (valor em reais) podem não gerar imposto sobre o ganho naquele mês — mas a regra muda com o tempo e vale conferir a orientação oficial ou um contador. O ponto: não ignore; organize e declare quando for o caso.",
+    question: "Sobre imposto e Bitcoin no Brasil, qual afirmação faz mais sentido?",
     options: [
-      "Deixar os bitcoins guardados na corretora, que cuida de tudo",
-      "Guardar você mesmo a chave dos seus bitcoins, sem depender de empresas",
-      "Contratar um cofre físico em um banco para guardar as moedas",
-      "Imprimir os bitcoins em papel e guardar em casa",
+      "Bitcoin nunca precisa ser declarado, em nenhuma situação",
+      "Só declara quem tem mais de 1 bitcoin inteiro",
+      "Em geral declara-se posse/ganhos nas vendas; há isenção mensal de vendas até um limite — confira a regra vigente",
+      "Imposto só existe se você usar Lightning Network",
     ],
-    correct: 1,
-    feedbackCorrect: "Isso. Você no controle da chave.",
-    feedbackWrong: "Autocustódia = você com a chave, não a corretora.",
-  },
-  {
-    id: "q5",
-    teach:
-      "Um bitcoin se divide em satoshis — a menor unidade. É assim que dá para aprender e ganhar valores pequenos sem precisar de um bitcoin inteiro.",
-    question: "O que é um satoshi?",
-    options: [
-      "A menor fração do bitcoin — cada bitcoin tem 100 milhões de satoshis",
-      "Uma criptomoeda concorrente do Bitcoin",
-      "A taxa cobrada pelas corretoras em cada compra",
-      "O nome do banco central que emite os bitcoins",
-    ],
-    correct: 0,
-    feedbackCorrect: "Mandou bem. Sats são os 'centavos' do Bitcoin.",
-    feedbackWrong: "Satoshi é a menor fração do bitcoin.",
+    correct: 2,
+    feedbackCorrect: "Isso — organize e declare quando houver posse ou ganho; a isenção mensal tem limite.",
+    feedbackWrong: "Bitcoin pode precisar de declaração; a isenção de vendas é mensal e tem teto.",
   },
 ];
 
-/** Mentoria 2: carteira + Lightning — para quem ainda não sabe nada disso. */
+/** Mentoria 2 — Corretoras e Lightning (4 perguntas). */
 export const MISSION_2_QUESTIONS: QuizQuestion[] = [
   {
     id: "w1",
     teach:
-      "Uma carteira de Bitcoin não guarda 'moedas' como uma carteira de couro. Ela guarda as chaves que controlam seus bitcoins na rede. Sem a chave, ninguém move o seu dinheiro — nem a gente.",
-    question: "O que uma carteira de Bitcoin guarda de verdade?",
+      "Corretoras são a ponte entre reais (ou outra moeda) e Bitcoin: você deposita dinheiro, compra BTC e pode sacar para uma carteira. No Brasil há várias conhecidas — Mercado Bitcoin, Foxbit, NovaDAX, Binance e outras. Nenhuma é 'a oficial'; o importante é entender o papel delas e os riscos de deixar tudo na corretora.",
+    question: "Qual é o papel principal de uma corretora de Bitcoin?",
     options: [
-      "As moedas físicas de bitcoin que você comprou",
-      "As chaves que controlam seus bitcoins na rede",
-      "O extrato do seu banco, só que em dólares",
-      "Um cadastro da Receita Federal com seu CPF",
+      "Emitir bitcoins novos como um banco central",
+      "Servir de ponte entre reais (ou outra moeda) e Bitcoin",
+      "Guardar obrigatoriamente a seed de todo mundo",
+      "Substituir a Lightning Network no mundo todo",
     ],
     correct: 1,
-    feedbackCorrect: "Isso. A carteira é o controle das chaves.",
-    feedbackWrong: "A carteira guarda as chaves — não moedinhas físicas.",
+    feedbackCorrect: "Isso — corretora conecta o dinheiro do dia a dia ao Bitcoin.",
+    feedbackWrong: "A corretora é a ponte entre reais e Bitcoin — não emite moeda nova.",
   },
   {
     id: "w2",
     teach:
-      "Quando você cria uma carteira, aparece uma frase de recuperação (seed) — várias palavras. É o backup mestre. Quem tem essa frase pode recriar a carteira. Nunca fotografe, nunca mande no WhatsApp, nunca digite em site estranho.",
-    question: "O que fazer com a frase de recuperação (seed) da carteira?",
+      "A Lightning Network é a 'via expressa' do Bitcoin: uma camada feita para pagamentos instantâneos e baratos, ideal no dia a dia. Em vez de cada cafezinho ir direto na blockchain principal (mais lenta e cara), a Lightning move sats rápido. Na prática você usa uma carteira Lightning, gera ou cola uma cobrança (invoice) e o pagamento chega em segundos.",
+    question: "O que melhor descreve a Lightning Network?",
     options: [
-      "Mandar no WhatsApp para um amigo 'de confiança' guardar",
-      "Fotografar e salvar na nuvem do celular, para não perder",
-      "Anotar offline em lugar seguro e nunca compartilhar com ninguém",
-      "Colar no Instagram Stories para lembrar depois",
+      "Uma corretora brasileira obrigatória para comprar Bitcoin",
+      "A via expressa do Bitcoin: pagamentos rápidos e com taxas baixas",
+      "Um imposto especial cobrado pela Receita sobre cada sat",
+      "Um tipo de carteira fria que nunca se conecta à internet",
     ],
-    correct: 2,
-    feedbackCorrect: "Perfeito. Offline, seguro, só você.",
-    feedbackWrong: "Seed nunca vai para chat, foto ou nuvem — é o backup mestre.",
+    correct: 1,
+    feedbackCorrect: "Exato — Lightning = velocidade e custo baixo no uso diário.",
+    feedbackWrong: "Lightning é a camada rápida e barata por cima do Bitcoin.",
   },
   {
     id: "w3",
     teach:
-      "A rede Lightning é uma 'camada' em cima do Bitcoin para pagar rápido e barato — tipo pix, mas em sats. Ideal para o dia a dia. Os sats que você ganha aqui podem ir para uma carteira Lightning quando você estiver pronto.",
-    question: "Para que serve a Lightning Network?",
+      "Comprar Bitcoin numa corretora é só o primeiro passo. Se o dinheiro ficar sempre lá, você depende da empresa (custódia dela). Autocustódia é sacar para uma carteira em que você controla as chaves. Caminho clássico: comprar → transferir para carteira própria → guardar a seed com cuidado. Assim o Bitcoin é realmente seu.",
+    question: "Por que sacar Bitcoin da corretora para uma carteira própria?",
     options: [
-      "Substituir o Bitcoin por outra moeda",
-      "Pagar com sats de forma rápida e com taxas baixas",
-      "Esconder transações do governo automaticamente",
-      "Imprimir bitcoins novos mais depressa",
+      "Porque a corretora apaga o saldo todo mês automaticamente",
+      "Para ter autocustódia: você controla as chaves, sem depender da empresa",
+      "Porque Bitcoin só existe dentro de carteiras frias de fábrica",
+      "Para pagar menos imposto — a Receita não vê carteira própria",
     ],
     correct: 1,
-    feedbackCorrect: "Exato — velocidade e taxas baixas no dia a dia.",
-    feedbackWrong: "Lightning = pagamentos rápidos e baratos em sats.",
+    feedbackCorrect: "Isso — comprar é o começo; autocustódia é você com as chaves.",
+    feedbackWrong: "Sacar para carteira própria = você no controle, não a corretora.",
   },
   {
     id: "w4",
     teach:
-      "Para receber sats na Lightning, sua carteira gera uma cobrança (invoice) — um código longo que começa com letras. Quem vai te pagar cola esse código e a rede envia. Você não precisa 'saber o endereço' de memória.",
-    question: "Como você recebe um pagamento Lightning?",
+      "Carteira fria (cold wallet) fica offline — sem conexão constante à internet. Serve para guardar por longo prazo com menos exposição a vírus e invasões online. Carteiras quentes (no celular/computador ligados) são práticas no dia a dia; o frio é o cofre. Muita gente usa os dois: pouco no dia a dia, o restante no frio.",
+    question: "O que é uma carteira fria (cold wallet)?",
     options: [
-      "Pedindo o CPF de quem vai pagar",
-      "Gerando uma cobrança (invoice) na sua carteira e passando para quem paga",
-      "Ligando para a corretora e pedindo um TED",
-      "Enviando sua senha da SatVantage para a outra pessoa",
+      "Uma carteira que só funciona abaixo de 10 °C",
+      "Uma carteira offline, sem conexão à internet, mais segura para guardar a longo prazo",
+      "A conta da corretora quando você ativa o modo noturno",
+      "Qualquer carteira Lightning usada para pagar café",
     ],
     correct: 1,
-    feedbackCorrect: "Isso. Invoice = cobrança gerada pela carteira.",
-    feedbackWrong: "Quem recebe gera a cobrança; quem paga cola o código.",
-  },
-  {
-    id: "w5",
-    teach:
-      "Aqui no SatVantage estamos em rede de teste (MutinyNet). Os sats de aprendizado não são dinheiro de verdade — dá para errar, treinar e entender sem medo. Quando for pra vida real, aí sim o cuidado com seed e carteira vale ouro.",
-    question: "Por que usamos rede de teste nesta plataforma?",
-    options: [
-      "Porque a Lightning não funciona no Brasil",
-      "Para você aprender e treinar sem arriscar dinheiro de verdade",
-      "Porque sats de teste valem mais que bitcoin real",
-      "Para o governo acompanhar cada clique",
-    ],
-    correct: 1,
-    feedbackCorrect: "Mandou bem. Aqui é laboratório seguro.",
-    feedbackWrong: "Rede de teste = aprender sem risco de dinheiro real.",
+    feedbackCorrect: "Perfeito — frio = offline, pensado para guardar com mais segurança.",
+    feedbackWrong: "Cold wallet = offline, para custódia de longo prazo.",
   },
 ];
 
@@ -194,13 +166,16 @@ export function questionsFor(slug: MissionSlug): QuizQuestion[] {
 }
 
 /** Conteúdo seguro para o cliente (sem gabarito). */
-export function lessonsForClient(slug: MissionSlug) {
-  return questionsFor(slug).map(({ id, teach, question, options }) => ({
-    id,
-    teach,
-    question,
-    options,
-  }));
+export function lessonsForClient(slug: MissionSlug, locale: QuizLocale = "pt") {
+  return questionsFor(slug).map((q) => {
+    const pack = locale === "pt" ? null : QUIZ_I18N[locale]?.[q.id];
+    return {
+      id: q.id,
+      teach: pack?.teach ?? q.teach,
+      question: pack?.question ?? q.question,
+      options: pack?.options ?? q.options,
+    };
+  });
 }
 
 export type MentorResponse = {
