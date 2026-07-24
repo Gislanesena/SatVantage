@@ -28,10 +28,9 @@ export async function postAgent<T extends Record<string, unknown> = Record<strin
     (data as { degraded?: boolean }).degraded ||
       (data as { fonte?: string }).fonte === "local",
   );
+  const rawUpstreamFail = (data as { upstream_fail?: unknown }).upstream_fail;
   const upstreamFail =
-    typeof (data as { upstream_fail?: string }).upstream_fail === "string"
-      ? (data as { upstream_fail: string }).upstream_fail
-      : undefined;
+    typeof rawUpstreamFail === "string" ? rawUpstreamFail : undefined;
 
   if (degraded || !res.ok) {
     console.warn(

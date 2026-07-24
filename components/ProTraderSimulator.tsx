@@ -409,12 +409,12 @@ export default function ProTraderSimulator({
         trades: [
           {
             id: `${Date.now()}-buy`,
-            side: "buy",
+            side: "buy" as const,
             brl,
             btc: qty,
             priceBrl: px,
             at: new Date().toISOString(),
-            reason: "manual",
+            reason: "manual" as const,
           },
           ...state.trades,
         ].slice(0, 30),
@@ -450,12 +450,12 @@ export default function ProTraderSimulator({
       trades: [
         {
           id: `${Date.now()}-sell`,
-          side: "sell",
+          side: "sell" as const,
           brl,
           btc: qty,
           priceBrl: px,
           at: new Date().toISOString(),
-          reason: "manual",
+          reason: "manual" as const,
         },
         ...state.trades,
       ].slice(0, 30),

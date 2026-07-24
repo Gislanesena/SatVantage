@@ -111,7 +111,7 @@ function closeLong(
     trades: [
       {
         id: `${Date.now()}-${reason}`,
-        side: "sell",
+        side: "sell" as const,
         brl,
         btc: qty,
         priceBrl,
