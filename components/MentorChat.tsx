@@ -873,6 +873,15 @@ export default function MentorChat({
     setError(null);
     pushUser(text);
     try {
+      // Histórico recente para a API (messages[]) — inclui a mensagem atual.
+      const prior = linesRef.current
+        .filter((l) => (l.text || "").trim().length > 0)
+        .map((l) => ({
+          role: l.kind === "user" ? "user" : "assistant",
+          content: l.text.trim(),
+        }));
+      const messages = [...prior, { role: "user", content: text }].slice(-16);
+
       const { ok, data, degraded, upstreamFail } = await postAgent<{
         error?: string;
         resposta_ia?: string;
@@ -882,6 +891,7 @@ export default function MentorChat({
         degraded?: boolean;
         upstream_fail?: string;
       }>("interact", {
+        messages,
         mensagem_usuario: text,
         tema_atual: "Bitcoin",
         idioma: locale,
@@ -1126,7 +1136,11 @@ export default function MentorChat({
             ? SATS_CORRECT
             : SATS_TRIED;
 
-      // Credita em silêncio — não anuncia sats no meio da mentoria.
+      const satsNote = check.correct
+        ? t.nagai.hitSats.replace("{sats}", String(sats))
+        : t.nagai.trySats.replace("{sats}", String(sats));
+      const highlight = rewardEligible ? satsNote : t.nagai.practiceNoSats;
+
       if (rewardEligible) {
         setSessionSats((prev) => prev + sats);
       }
@@ -1143,7 +1157,10 @@ export default function MentorChat({
       onBalanceChanged?.();
 
       await sleep(180);
-      await typeAgent(feedbackText, runId);
+      await typeAgent(feedbackText, runId, {
+        satsNote: highlight,
+        sats: rewardEligible ? sats : 0,
+      });
       if (!alive(runId)) return;
       await advance(nextResponses, idx + 1);
     } catch (e: any) {
@@ -1166,7 +1183,16 @@ export default function MentorChat({
     setResponses(nextResponses);
     responsesRef.current = nextResponses;
     await sleep(140);
-    await typeAgent(t.nagai.zeroSatsQuestion, runId);
+    await typeAgent(t.nagai.zeroSatsQuestion, runId, {
+      satsNote: rewardEligible
+        ? locale === "en"
+          ? "+0 sats (skipped)"
+          : locale === "es"
+            ? "+0 sats (omitida)"
+            : "+0 sats (pulada)"
+        : t.nagai.practiceNoSats,
+      sats: 0,
+    });
     if (!alive(runId)) return;
     await advance(nextResponses, idx + 1);
   }
