@@ -8,6 +8,7 @@ import {
   lessonsForClient,
   MISSION_1_SLUG,
 } from "@/lib/quiz";
+import { normalizeQuizLocale } from "@/lib/quiz-i18n";
 
 function wasRewarded(marker: string | null | undefined): boolean {
   if (!marker) return false;
@@ -26,6 +27,8 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "missão inválida" }, { status: 400 });
   }
   const slug = raw;
+  const rawLocale = req.nextUrl.searchParams.get("locale") ?? "pt";
+  const locale = normalizeQuizLocale(rawLocale);
 
   let mission;
   try {
@@ -59,8 +62,6 @@ export async function GET(req: NextRequest) {
         ? "concluida"
         : "em_andamento"; // já respondeu algo (crédito incremental) mas ainda não terminou
 
-  const rawLocale = req.nextUrl.searchParams.get("locale") ?? "pt";
-
   return NextResponse.json({
     mission: {
       slug: mission.slug,
@@ -75,6 +76,6 @@ export async function GET(req: NextRequest) {
     xp: user?.xp ?? 0,
     satsBalance: user?.sats_balance ?? 0,
     locale: rawLocale,
-    lessons: lessonsForClient(slug, rawLocale),
+    lessons: lessonsForClient(slug, locale),
   });
 }

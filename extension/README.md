@@ -1,41 +1,66 @@
-# SatVantage Copiloto — extensão Chrome (MVP)
+# SatVantage Copiloto — extensão Chrome (Side Panel)
 
-Extensão **independente** do app SatVantage. Lê o texto (e opcionalmente uma captura) da aba ativa e envia, junto com a sua pergunta, para o backend Next. **Não** acessa sessão, saldo, chave nem cookies da conta SatVantage.
+Extensão **independente** do app. Chama os endpoints Next.js em produção (ou localhost quando a aba ativa é o site oficial em dev):
 
-**Site oficial registrado:** https://sat-vantage-iau60jdhv-gislanesena.vercel.app/  
-Quando a aba é esse domínio (ou `localhost` em dev), o Copiloto usa o **mapa do site** e responde com tom empático / “vendendo” a plataforma com honestidade.
+**https://sat-vantage-gislanesena.vercel.app**
 
-## Requisitos
+- `POST /api/extension/analisar`
+- `POST /api/extension/analisar-imagem`
+- `GET /api/market/btc` — cotação Bitcoin (CoinGecko, sem chave)
 
-1. Chrome (ou Chromium / Edge baseado em Chromium).
-2. Backend: produção no Vercel (padrão em `popup.js`) **ou** `npm run dev` local — nesse caso troque `API_BASE` para `http://localhost:3000`.
-3. (Opcional, análise de imagem) `ANTHROPIC_API_KEY` no `.env.local`, ou endpoint `/extension/analisar-imagem` em `AGENTS_API_URL`.
+Não há chave de IA na extensão. Não usa FastAPI/`agents-api` direto.
+
+**Site oficial:** quando a aba é esse domínio (ou `localhost` em dev), o Copiloto usa o **mapa do site** e resumo local (saldo, extrato, carteira, herança).
 
 ## Instalar (carregar sem compactação)
 
-1. Abra o Chrome e vá em `chrome://extensions`.
-2. Ative **Modo do desenvolvedor**.
-3. Clique em **Carregar sem compactação**.
-4. Selecione esta pasta: `extension/`.
-5. Se já estava carregada, clique em **Atualizar** após mudanças.
+### Opção A — pasta `extension/` (mais rápida)
 
-## Usar
+1. Abra o Chrome → `chrome://extensions`
+2. Ative **Modo do desenvolvedor** (canto superior direito)
+3. Clique em **Carregar sem compactação**
+4. Selecione a pasta: `web/extension/`
+5. Clique no ícone SatVantage → abre o **Side Panel**
 
-1. Abra o site oficial ou outra página http/https.
-2. Clique no ícone da extensão.
-3. No site oficial: sugestões “Mapa do site”, “Herança”, “Conectar carteira”, etc.
-4. Pergunte em texto (**Analisar página**) ou use **📷 Selecionar área da tela**.
-5. Respostas em dois modos:
-   - **Avaliação** (ex.: “isso é golpe?”) → badge de risco (no site oficial: risco baixo + confirmação).
-   - **Guia** (ex.: “onde fica a herança?”) → passo a passo com o mapa SatVantage.
+### Opção B — pasta de build `dist/`
+
+No terminal:
+
+```bash
+cd web/extension
+npm run build
+```
+
+Isso gera `web/extension/dist/`. Em `chrome://extensions` → **Carregar sem compactação** → escolha `dist/`.
+
+Após mudanças no código: em `chrome://extensions` clique em **Atualizar** na extensão.
+
+## Backend / CORS (importante para o demo)
+
+A extensão chama a **URL de produção** por padrão. Em aba oficial (`localhost` ou Vercel), usa a mesma origem — útil para testar código local.
+
+CORS nas rotas `web/app/api/extension/*` e `web/app/api/market/btc` já está com `Access-Control-Allow-Origin: *` (hackathon).  
+**Para valer em produção:** commit + push + novo deploy na Vercel.
+
+## Ferramentas do painel
+
+| Ação | Destino |
+| --- | --- |
+| É o site oficial? | Heurística local (`domain-check.js`) |
+| Analisar página | `/api/extension/analisar` (ou resumo local no site oficial) |
+| Selecionar área | Captura + `/api/extension/analisar-imagem` |
+| Preço do Bitcoin | `/api/market/btc` (botão ou chip) |
+
+Preferências (`tema`, `último modo`) e histórico das últimas 10 análises ficam em `chrome.storage.local`.
 
 ## Arquivos
 
 | Arquivo | Função |
 | --- | --- |
-| `manifest.json` | MV3 + ícones + hosts oficiais |
-| `icons/` | Logo 16/48/128 + logo do popup |
-| `content.js` | Extrai texto visível |
-| `popup.*` | UI, captura/recorte, chips oficiais |
-
-Backend: `app/api/extension/analisar`, `app/api/extension/analisar-imagem` · mapa em `lib/extension-satvantage-site.ts`.
+| `manifest.json` | MV3, Side Panel, `storage` |
+| `background.js` | Abre o painel no clique |
+| `popup.*` | UI do Side Panel |
+| `domain-check.js` | Domínio oficial (local) |
+| `storage.js` | Preferências + histórico |
+| `content.js` | Texto visível da aba |
+| `build.js` / `package.json` | Cópia estática → `dist/` |

@@ -6,8 +6,84 @@ import MentorChat, { type MentorIntent } from "@/components/MentorChat";
 import Dashboard from "@/components/Dashboard";
 import { MISSION_1_SLUG, MISSION_2_SLUG } from "@/lib/missions";
 import { useInactivityLogout } from "@/lib/useInactivityLogout";
+import { useI18n } from "@/lib/i18n";
 
 type View = "landing" | "auth" | "mentor1" | "mentor2" | "dashboard";
+
+const VIEW_KEY = "sv_active_view";
+
+function persistView(v: View) {
+  try {
+    if (v === "mentor1" || v === "mentor2" || v === "dashboard") {
+      sessionStorage.setItem(VIEW_KEY, v);
+    } else {
+      sessionStorage.removeItem(VIEW_KEY);
+    }
+  } catch {
+    /* ignore */
+  }
+}
+
+function readPersistedView(): View | null {
+  try {
+    const v = sessionStorage.getItem(VIEW_KEY);
+    if (v === "mentor1" || v === "mentor2" || v === "dashboard") return v;
+  } catch {
+    /* ignore */
+  }
+  return null;
+}
+
+function clearPersistedView() {
+  try {
+    sessionStorage.removeItem(VIEW_KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
+function m1StillOpen(status: string | undefined) {
+  return !status || status === "disponivel" || status === "em_andamento";
+}
+
+function m2StillOpen(status: string | undefined) {
+  return status === "disponivel" || status === "em_andamento";
+}
+
+function m1Finished(status: string | undefined) {
+  return status === "concluida" || status === "pulada";
+}
+
+/** Decide mentor1 / mentor2 / dashboard para iniciante. */
+async function resolveInicianteView(opts: {
+  /** true no F5: respeita se a pessoa saiu pro dash nesta aba */
+  preferPersisted: boolean;
+}): Promise<View> {
+  try {
+    const res = await fetch("/api/missions/overview");
+    const data = await res.json().catch(() => ({}));
+    const s1 = data?.mentoria1?.status as string | undefined;
+    const s2 = data?.mentoria2?.status as string | undefined;
+
+    const persisted = opts.preferPersisted ? readPersistedView() : null;
+
+    // Nesta aba a pessoa saiu da mentoria (sem concluir) → fica no dash até o próximo login
+    if (persisted === "dashboard") return "dashboard";
+
+    if (persisted === "mentor2" && m1Finished(s1) && m2StillOpen(s2)) {
+      return "mentor2";
+    }
+    if (persisted === "mentor1" && m1StillOpen(s1)) {
+      return "mentor1";
+    }
+
+    // Login novo / sem persistência: mentoria 1 em tela cheia enquanto não concluiu/pulou
+    if (m1StillOpen(s1)) return "mentor1";
+    return "dashboard";
+  } catch {
+    return "dashboard";
+  }
+}
 
 async function logoutRequest() {
   try {
@@ -18,7 +94,8 @@ async function logoutRequest() {
 }
 
 export default function Home() {
-  const [view, setView] = useState<View>("landing");
+  const { t } = useI18n();
+  const [view, setViewState] = useState<View>("landing");
   const [authMode, setAuthMode] = useState<AuthMode>("create");
   const [user, setUser] = useState<any>(null);
   const [checkingSession, setCheckingSession] = useState(true);
@@ -27,8 +104,12 @@ export default function Home() {
   const [mentorIntent, setMentorIntent] = useState<MentorIntent>("chat");
   const [mentorPracticeConfirmed, setMentorPracticeConfirmed] = useState(false);
 
-  // Restaura a sessão existente (cookie httpOnly de 12h) ao carregar/dar F5 —
-  // sem isso, todo refresh derrubava a pessoa de volta pra landing.
+  function setView(next: View) {
+    setViewState(next);
+    persistView(next);
+  }
+
+  // Restaura a sessão existente (cookie httpOnly de 12h) ao carregar/dar F5
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -37,7 +118,12 @@ export default function Home() {
         const data = await res.json().catch(() => ({ user: null }));
         if (!cancelled && data.user) {
           setUser(data.user);
-          setView("dashboard");
+          if (data.user.knowledgeLevel !== "iniciante") {
+            setView("dashboard");
+          } else {
+            const next = await resolveInicianteView({ preferPersisted: true });
+            if (!cancelled) setView(next);
+          }
         }
       } finally {
         if (!cancelled) setCheckingSession(false);
@@ -57,31 +143,23 @@ export default function Home() {
   function afterLogin(u: any) {
     setUser(u);
     // Extensão / não-iniciante → dash.
-    // Iniciante: só abre mentoria em tela cheia na 1ª vez.
-    // Se já pulou ou concluiu, vai ao dashboard (refazer fica no chat do canto).
+    // Iniciante: mentoria 1 em tela cheia enquanto não concluiu/pulou.
     if (u?.knowledgeLevel !== "iniciante") {
       setView("dashboard");
       return;
     }
     void (async () => {
-      try {
-        const res = await fetch("/api/missions/overview");
-        const data = await res.json().catch(() => ({}));
-        const status = data?.mentoria1?.status as string | undefined;
-        if (!status || status === "disponivel") {
-          setView("mentor1");
-        } else {
-          setView("dashboard");
-        }
-      } catch {
-        setView("dashboard");
-      }
+      // Novo login: não herda "saí pro dash" de sessão anterior desta aba
+      clearPersistedView();
+      const next = await resolveInicianteView({ preferPersisted: false });
+      setView(next);
     })();
   }
 
   function exitToHome() {
     setUser(null);
-    setView("landing");
+    clearPersistedView();
+    setViewState("landing");
     void logoutRequest();
   }
 
@@ -133,7 +211,7 @@ export default function Home() {
           color: "var(--ink-muted)",
         }}
       >
-        Carregando…
+        {t.a11y.loading}
       </main>
     );
   }
@@ -142,8 +220,7 @@ export default function Home() {
     <>
       {inactivityWarning && (
         <div className="sv-inactivity-banner" role="alert">
-          Por inatividade, você vai ser desconectado em instantes — toque na tela para
-          continuar conectado.
+          {t.auth.inactivityWarning}
         </div>
       )}
 

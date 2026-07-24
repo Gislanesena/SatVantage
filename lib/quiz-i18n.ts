@@ -307,6 +307,11 @@ export function normalizeQuizLocale(raw: string | null | undefined): QuizLocale 
   return "pt";
 }
 
+/** Alias usado pelas rotas legadas de missão (main). */
+export function parseQuizLocale(raw: string | null | undefined): QuizLocale {
+  return normalizeQuizLocale(raw);
+}
+
 /** Aplica tradução EN/ES a uma lição vinda da API (fallback no cliente). */
 export function localizeLessonClient<
   T extends { id: string; teach: string; question: string; options: string[] },

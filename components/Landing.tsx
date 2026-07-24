@@ -26,11 +26,11 @@ export default function Landing({
   extensionBusy,
   error,
 }: LandingProps) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [showLoginChoices, setShowLoginChoices] = useState(false);
 
   return (
-    <div className="sv-landing" id="topo">
+    <div className="sv-landing" id="topo" translate="no">
       <SkipToContent href="#conteudo" />
       <SiteNav
         onStart={() =>
@@ -41,13 +41,13 @@ export default function Landing({
       <div className="sv-landing-body" id="conteudo" tabIndex={-1}>
         <section className="sv-hero" aria-label={t.landing.presentation} id="plataforma">
           <div className="sv-hero-main">
-            <div className="sv-hero-intro">
-              <p className="sv-eyebrow sv-rise">
+            <div className="sv-hero-intro" key={locale}>
+              <p className="sv-eyebrow sv-rise" translate="no">
                 <span aria-hidden="true">✦</span>
                 {t.landing.eyebrow}
               </p>
 
-              <h1 className="sv-rise sv-rise-delay-1">
+              <h1 className="sv-rise sv-rise-delay-1" translate="no">
                 {t.landing.headlineBefore}
                 <em>{t.landing.headlineEm}</em>
                 {t.landing.headlineAfter}
@@ -55,8 +55,8 @@ export default function Landing({
             </div>
 
             <div className="sv-hero-actions sv-rise sv-rise-delay-2" id="acesso">
-              <div className="sv-cta-stack">
-                <button type="button" className="sv-btn-primary" onClick={onCreateAccount}>
+              <div className="sv-cta-stack" key={`cta-${locale}`}>
+                <button type="button" className="sv-btn-primary" translate="no" onClick={onCreateAccount}>
                   {t.landing.invest}
                   <span aria-hidden="true">→</span>
                 </button>

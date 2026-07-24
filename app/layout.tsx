@@ -21,8 +21,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt-BR" data-theme="dark" suppressHydrationWarning>
+    <html
+      lang="pt-BR"
+      data-theme="dark"
+      translate="no"
+      className="notranslate"
+      suppressHydrationWarning
+    >
       <head>
+        <meta name="google" content="notranslate" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
@@ -31,7 +38,7 @@ export default function RootLayout({
         />
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('sv_theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);var l=localStorage.getItem('sv_locale');if(l==='pt'||l==='en'||l==='es')document.documentElement.lang=l==='pt'?'pt-BR':l;}catch(e){}})();`,
+            __html: `(function(){try{var t=localStorage.getItem('sv_theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);var l=localStorage.getItem('sv_locale');if(l==='pt'||l==='en'||l==='es'){document.documentElement.lang=l==='pt'?'pt-BR':l;window.__SV_LOCALE__=l;}}catch(e){}})();`,
           }}
         />
       </head>

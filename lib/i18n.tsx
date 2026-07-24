@@ -126,16 +126,19 @@ export type Dict = {
   a11y: {
     readPage: string;
     stopReading: string;
+    pauseReading: string;
+    resumeReading: string;
+    voiceHoldToStop: string;
     reading: string;
     voiceUnsupported: string;
     footerLabel: string;
-    listenMessage: string;
-    listen: string;
-    skipToContent: string;
-    micStart: string;
-    micStop: string;
-    sendMessage: string;
-    chatInput: string;
+    helpBtn: string;
+    helpTitle: string;
+    helpAudioTitle: string;
+    helpAudioBody: string;
+    helpVlibrasTitle: string;
+    helpVlibrasBody: string;
+    helpClose: string;
     closeDialog: string;
     loading: string;
     optionsLabel: string;
@@ -144,8 +147,90 @@ export type Dict = {
     panelTts: string;
     panelVlibras: string;
     panelSkip: string;
-    pauseReading: string;
-    resumeReading: string;
+    listenMessage: string;
+    listen: string;
+    skipToContent: string;
+    micStart: string;
+    micStop: string;
+    sendMessage: string;
+    chatInput: string;
+  };
+  mentor: {
+    name: string;
+    close: string;
+    exit: string;
+    loading: string;
+    typing: string;
+    skipQuestion: string;
+    skipConversation: string;
+    continueM2: string;
+    optionalTopics: string;
+    goDashboard: string;
+    closeChat: string;
+    backToTopics: string;
+    backToDashboard: string;
+    practiceMode: string;
+    redoWithoutSats: string;
+    gateBody: string;
+    send: string;
+    askPlaceholder: string;
+    openNagAI: string;
+    closeNagAI: string;
+    helpPrompt: string;
+    importantDoubts: string;
+    suggestions: string;
+    withSats: string;
+    satsAlready: string;
+    earnSats: string;
+    practice: string;
+    m1Title: string;
+    m2Title: string;
+    sheetM1: string;
+    sheetM2: string;
+    introM1: string;
+    introM2: string;
+    skipAllM1: string;
+    skipAllM2: string;
+    guideSubtitle: string;
+    nudgeNostr: string;
+    createSimple: string;
+    enterExt: string;
+    downloadAlby: string;
+    thanks: string;
+    guideScript1: string;
+    guideScript2: string;
+    guideScript3: string;
+    guideScript4: string;
+    freeTopicLead: string;
+    freeTopicDoneEmbedded: string;
+    freeTopicDoneDash: string;
+    askMore: string;
+    practiceIntro: string;
+    alreadySkipped: string;
+    alreadyDone: string;
+    skipAllOk: string;
+    /** Use {n} for sats credited */
+    satsWon: string;
+    withdrawHint: string;
+    /** Use {n} for balance */
+    balanceLine: string;
+    balanceGuaranteed: string;
+    practiceDone: string;
+    noNewSats: string;
+    continuePromptM1: string;
+    optionalTopicsPrompt: string;
+    savingProgress: string;
+    skipQUser: string;
+    skipAllUser: string;
+    okContinue: string;
+    topicSkipOk: string;
+    anotherTopicOrDash: string;
+    extrasDone: string;
+    anotherOptionalOrDash: string;
+    rereadOrDash: string;
+    sugPatrimonio: string;
+    sugComprar: string;
+    sugGeopolitica: string;
   };
   exch: {
     title: string;
@@ -320,7 +405,7 @@ export type Dict = {
       risk: { title: string; body: string };
       order: { title: string; body: string };
     };
-  };
+  },
   nagai: {
     titleM1: string;
     titleM2: string;
@@ -386,6 +471,75 @@ export type Dict = {
     historyDelete: string;
     historyOpen: string;
     historyNew: string;
+  },
+  auth: {
+    back: string;
+    titleCreate: string;
+    titleLogin: string;
+    titleRecover: string;
+    ledeCreate: string;
+    ledeLogin: string;
+    ledeRecover: string;
+    usernamePh: string;
+    passwordPh: string;
+    passwordMinPh: string;
+    questionPh: string;
+    answerPh: string;
+    answerYourPh: string;
+    hintSocial: string;
+    createBtn: string;
+    creating: string;
+    loginBtn: string;
+    opening: string;
+    forgotPassword: string;
+    foot: string;
+    checkingUser: string;
+    userAvailable: string;
+    userTaken: string;
+    userInvalid: string;
+    questionShort: string;
+    answerShort: string;
+    createFail: string;
+    loginFail: string;
+    recoverFail: string;
+    sessionWarn: string;
+    goMyAccount: string;
+    createAnyway: string;
+    recoverHint: string;
+    continue: string;
+    searching: string;
+    mnemonicPh: string;
+    newPasswordPh: string;
+    resetPassword: string;
+    verifying: string;
+    backupTitle: string;
+    backupBody: string;
+    copyWords: string;
+    copied: string;
+    alreadyNoted: string;
+    confirmTitle: string;
+    confirmBody: string;
+    backToWords: string;
+    confirmContinue: string;
+    wrongOrder: string;
+    gapsLabel: string;
+    missingWordsLabel: string;
+    phraseLabel: string;
+    loading: string;
+    claimTitle: string;
+    claimMentorTitle: string;
+    claimCopyBefore: string;
+    claimCopyAfter: string;
+    claimConfirm: string;
+    claimBusy: string;
+    claimOk: string;
+    claimFail: string;
+    claimBalance: string;
+    claimEmpty: string;
+    inactivityWarning: string;
+    scanQr: string;
+    pointCamera: string;
+    scanToPay: string;
   };
 };
 
@@ -520,16 +674,21 @@ const dictionaries: Record<Locale, Dict> = {
     a11y: {
       readPage: "Ler página em voz alta",
       stopReading: "Parar leitura",
+      pauseReading: "Pausar leitura",
+      resumeReading: "Continuar leitura",
+      voiceHoldToStop: "Segure para parar",
       reading: "Lendo…",
       voiceUnsupported: "Leitura por voz não disponível neste navegador",
       footerLabel: "Acessibilidade",
-      listenMessage: "Ouvir mensagem",
-      listen: "Ouvir",
-      skipToContent: "Ir para o conteúdo",
-      micStart: "Microfone de voz",
-      micStop: "Parar microfone",
-      sendMessage: "Enviar mensagem",
-      chatInput: "Mensagem para a NagAI",
+      helpBtn: "Ajuda de acessibilidade",
+      helpTitle: "Acessibilidade",
+      helpAudioTitle: "Ícone de áudio (canto inferior direito)",
+      helpAudioBody:
+        "Ele lê o texto da página em voz alta. Toque uma vez para começar; toque de novo para pausar; toque outra vez para continuar. Segure o botão para parar a leitura.",
+      helpVlibrasTitle: "VLibras",
+      helpVlibrasBody:
+        "O botão VLibras (acima da ajuda de acessibilidade) traduz o conteúdo para Libras. Você pode configurar o idioma e as opções no próprio widget, do jeito que preferir.",
+      helpClose: "Fechar",
       closeDialog: "Fechar",
       loading: "Carregando",
       optionsLabel: "Opções de Acessibilidade",
@@ -540,10 +699,110 @@ const dictionaries: Record<Locale, Dict> = {
         "Leitura em voz alta: o botão 🔊 no canto inferior direito lê o conteúdo principal (play, pausa e parar).",
       panelVlibras:
         "VLibras: o ícone oficial fica imediatamente acima do botão de leitura e traduz o conteúdo para Libras (também no celular).",
-      panelSkip:
-        "No início de cada página há o link “Ir para o conteúdo” para pular a navegação.",
-      pauseReading: "Pausar leitura",
-      resumeReading: "Continuar leitura",
+      panelSkip: "Ir para o conteúdo: atalho no topo da página.",
+      listenMessage: "Ouvir mensagem",
+      listen: "Ouvir",
+      skipToContent: "Ir para o conteúdo",
+      micStart: "Microfone de voz",
+      micStop: "Parar microfone",
+      sendMessage: "Enviar mensagem",
+      chatInput: "Mensagem para a NagAI",
+    },
+    mentor: {
+      name: "NagAI",
+      close: "Fechar",
+      exit: "Sair",
+      loading: "Abrindo conversa…",
+      typing: "digitando…",
+      skipQuestion: "Pular pergunta",
+      skipConversation: "Pular conversa",
+      continueM2: "Continuar · carteira e Lightning",
+      optionalTopics: "Assuntos opcionais",
+      goDashboard: "Ir para o dashboard financeiro",
+      closeChat: "Fechar chat",
+      backToTopics: "Voltar aos assuntos",
+      backToDashboard: "Voltar ao dashboard",
+      practiceMode: "Modo prática · sem novos sats",
+      redoWithoutSats: "Refazer sem novos sats",
+      gateBody:
+        "Você já recebeu os sats desta mentoria nesta conta. Pode refazer a conversa para praticar — sem crédito extra.",
+      send: "Enviar",
+      askPlaceholder: "Digite sua dúvida…",
+      openNagAI: "Abrir NagAI",
+      closeNagAI: "Fechar NagAI",
+      helpPrompt: "Em que posso te ajudar?",
+      importantDoubts: "Dúvidas importantes",
+      suggestions: "Sugestões",
+      withSats: "Com NagAI · sats",
+      satsAlready: "(já creditados nesta conta)",
+      earnSats: "ganha sats",
+      practice: "prática",
+      m1Title: "NagAI · Primeiros passos",
+      m2Title: "NagAI · Corretoras e Lightning",
+      sheetM1: "Primeiros passos no Bitcoin",
+      sheetM2: "Corretoras e Lightning",
+      introM1:
+        "Oi! Eu sou a NagAI, do SatVantage. Vou te explicar um ponto de cada vez e depois te perguntar se fez sentido. Pode pular uma pergunta ou a conversa inteira quando quiser.",
+      introM2:
+        "Agora o básico pra quem nunca abriu uma carteira: o que ela guarda, como proteger a frase de recuperação, e o que é Lightning no dia a dia. Pode pular pergunta ou a conversa toda.",
+      skipAllM1:
+        "Tudo bem. Na próxima você pode aprender carteira e Lightning — ou ir direto ao dashboard.",
+      skipAllM2:
+        "Sem problema. Se quiser, depois a gente fala de corretora, transferência e carteira fria — ou você vai direto ao dashboard.",
+      guideSubtitle: "Mapa rápido do SatVantage",
+      nudgeNostr: "Como entrar usando Nostr",
+      createSimple: "Criar conta simplificada",
+      enterExt: "Entrar com extensão Nostr",
+      downloadAlby: "Baixar extensão Alby",
+      thanks: "Entendi, obrigado",
+      guideScript1:
+        "Oi! Aqui no SatVantage a conta é uma identidade Nostr — um par de chaves. Assim você não precisa de e-mail, e a chave privada nunca fica no nosso servidor.",
+      guideScript2:
+        "Por que Nostr? Porque provar quem você é na internet não precisa ser um formulário com dado pessoal. Você assina um desafio; a gente só verifica a assinatura.",
+      guideScript3:
+        "Tem dois caminhos pra entrar:\n\n1) Conta simplificada — usuário e senha. Sua chave fica cifrada no navegador (o cofre). A gente guarda o cofre, nunca a chave em claro.\n\n2) Extensão Nostr (Alby ou nos2x) — a chave fica no seu dispositivo; no login você só autoriza uma assinatura.",
+      guideScript4:
+        "Pode criar a conta simplificada agora, ou abrir a extensão se já tiver. Qualquer dúvida, é só voltar aqui.",
+      freeTopicLead: "Boa pergunta. Vou te explicar com calma.",
+      freeTopicDoneEmbedded:
+        "Pode fechar o chat ou abrir outro assunto no NagAI — o dashboard continua aí.",
+      freeTopicDoneDash:
+        "Pode voltar ao dashboard quando quiser — ou abrir outro assunto no NagAI.",
+      askMore: "Quer perguntar mais alguma coisa sobre este assunto?",
+      practiceIntro:
+        "Vamos praticar de novo. Lembre: os sats desta conversa já foram creditados na sua conta — agora é só aprendizado.",
+      alreadySkipped:
+        "Você já tinha pulado esta conversa. Pode reler o que quiser acima ou seguir em frente.",
+      alreadyDone:
+        "Você já tinha concluído esta conversa. A conversa fica aqui se quiser reler.",
+      skipAllOk:
+        "Conversa pulada — sem problema. Enquanto você só pular, ainda pode voltar depois e ganhar sats na primeira conclusão de verdade.",
+      satsWon:
+        "Satoshis conquistados nesta conversa: ⚡ {n}. Eles ficam no saldo SatVantage da sua conta (ainda não foram para a carteira Lightning).",
+      withdrawHint:
+        "Garantia: o crédito está registrado na sua chave Nostr. Para sacar de verdade, no dashboard toque em Receber → voucher da mentoria e cole uma cobrança MutinyNet (lntbs) do valor exato.",
+      balanceLine: "Saldo na conta: ⚡ {n} sats.",
+      balanceGuaranteed: "Saldo garantido na conta: ⚡ {n} sats · saque em Receber",
+      practiceDone:
+        "Prática concluída. Nesta conta os sats desta conversa já foram creditados antes — refazer não gera saldo novo nem a diferença do que errou.",
+      noNewSats: "Pronto. Desta vez não entrou sats novos (perguntas puladas).",
+      continuePromptM1:
+        "Quando quiser, seguimos para carteira e Lightning — ou você pode ir ao dashboard financeiro. A conversa continua visível se precisar reler.",
+      optionalTopicsPrompt:
+        "Se quiser aprofundar, tenho outros assuntos opcionais — corretora, como transferir para a carteira, carteira quente e fria. Pode escolher um, vários, ou nenhum.",
+      savingProgress: "Pronto por aqui. Vou guardar o que você aprendeu nesta conversa.",
+      skipQUser: "Pular esta pergunta",
+      skipAllUser: "Quero pular a conversa",
+      okContinue: "Sem problema. Seguimos.",
+      topicSkipOk: "Beleza. O importante era a explicação.",
+      anotherTopicOrDash: "Quer ver outro assunto, ou prefere ir ao dashboard?",
+      extrasDone:
+        "Esses eram os extras. Pode reler a conversa acima ou ir ao dashboard financeiro.",
+      anotherOptionalOrDash: "Quer outro assunto opcional, ou vamos ao dashboard?",
+      rereadOrDash: "Pode reler a conversa ou ir ao dashboard.",
+      sugPatrimonio: "Como conquistar seu primeiro patrimônio",
+      sugComprar: "Como comprar bitcoin",
+      sugGeopolitica: "Geopolítica e por que acompanhar",
     },
     exch: {
       title: "Corretoras",
@@ -649,7 +908,7 @@ const dictionaries: Record<Locale, Dict> = {
         title: "Tecnologia que evolui",
         body: "Da rede principal ao Lightning: pagamentos instantâneos e globais, 24 horas por dia, 7 dias por semana.",
       },
-      socialLearn: "Aprenda com nossos vídeos no TikTok e Instagram",
+      socialLearn: "Aprenda com os nossos vídeos",
       tiktok: "TikTok",
       instagram: "Instagram",
     },
@@ -873,6 +1132,81 @@ const dictionaries: Record<Locale, Dict> = {
       historyOpen: "Histórico",
       historyNew: "Nova conversa",
     },
+    auth: {
+      back: "Voltar",
+      titleCreate: "Criar conta",
+      titleLogin: "Entrar",
+      titleRecover: "Recuperar acesso",
+      ledeCreate:
+        "Usuário e senha. Por baixo, uma identidade Nostr real — a chave fica cifrada com a sua senha.",
+      ledeLogin: "Abra o cofre da sua conta SatVantage.",
+      ledeRecover: "Duas provas: pergunta de segurança e as 12 palavras de recuperação.",
+      usernamePh: "usuário",
+      passwordPh: "senha",
+      passwordMinPh: "senha (mínimo 8 caracteres)",
+      questionPh: "pergunta de segurança (só você sabe a resposta)",
+      answerPh: "resposta",
+      answerYourPh: "sua resposta",
+      hintSocial: "Evite respostas que estejam nas suas redes sociais.",
+      createBtn: "Criar conta",
+      creating: "Criando cofre…",
+      loginBtn: "Entrar",
+      opening: "Abrindo cofre…",
+      forgotPassword: "Esqueci minha senha",
+      foot: "Sua conta é uma identidade Nostr. Guardamos o cofre, nunca a chave.",
+      checkingUser: "Verificando usuário…",
+      userAvailable: "Usuário disponível.",
+      userTaken: "Esse usuário já está em uso. Escolha outro nome.",
+      userInvalid: "Usuário inválido (3-20 caracteres: letras minúsculas, números, _).",
+      questionShort: "Escreva uma pergunta de segurança (mínimo 8 caracteres).",
+      answerShort: "Escreva a resposta da sua pergunta.",
+      createFail: "Falha ao criar conta",
+      loginFail: "Falha no login",
+      recoverFail: "Falha na recuperação",
+      sessionWarn:
+        "Você já está conectado como {npub}. Criar uma conta nova gera uma identidade Nostr diferente — o saldo e o progresso da conta atual ficam nela, não passam para a nova.",
+      goMyAccount: "Ir para minha conta",
+      createAnyway: "Criar conta nova mesmo assim",
+      recoverHint:
+        "Vamos verificar a posse da conta: pergunta de segurança e as 12 palavras de recuperação.",
+      continue: "Continuar",
+      searching: "Buscando…",
+      mnemonicPh: "12 palavras de recuperação (separadas por espaço)",
+      newPasswordPh: "senha nova (mínimo 8 caracteres)",
+      resetPassword: "Redefinir senha",
+      verifying: "Verificando posse…",
+      backupTitle: "Guarde suas 12 palavras",
+      backupBody:
+        "Esta frase é o documento de posse da sua conta. Você não vai usá-la no dia a dia — só se esquecer a senha (junto com a pergunta de segurança). Anote fora do computador. Ela não será mostrada de novo.",
+      copyWords: "Copiar palavras",
+      copied: "Copiada",
+      alreadyNoted: "Já anotei, continuar",
+      confirmTitle: "Confirme que anotou",
+      confirmBody:
+        "Complete as lacunas na ordem (1 → 2 → 3), clicando nas palavras abaixo. As lacunas não mudam se você voltar para conferir a frase.",
+      backToWords: "Voltar para ver as palavras",
+      confirmContinue: "Continuar para o SatVantage",
+      wrongOrder: "Ordem errada — confira as palavras e tente de novo",
+      gapsLabel: "Frase com lacunas",
+      missingWordsLabel: "Palavras que faltam",
+      phraseLabel: "Frase de recuperação",
+      loading: "Carregando…",
+      claimTitle: "Saldo SatVantage",
+      claimMentorTitle: "Receber sats da mentoria",
+      claimCopyBefore: "Gere na carteira MutinyNet uma cobrança de exatamente",
+      claimCopyAfter: "sats (começa com lntbs) e cole abaixo.",
+      claimConfirm: "Confirmar recebimento",
+      claimBusy: "Recebendo…",
+      claimOk: "Pronto: ⚡ {n} sats foram para a sua carteira.",
+      claimFail: "falha no resgate",
+      claimBalance: "Saldo SatVantage",
+      claimEmpty: "Sem saldo para receber agora.",
+      inactivityWarning:
+        "Por inatividade, você vai ser desconectado em instantes — toque na tela para continuar conectado.",
+      scanQr: "Ler QR code",
+      pointCamera: "Aponte a câmera para o QR",
+      scanToPay: "Escaneie para pagar (MutinyNet)",
+    },
   },
   en: {
     nav: {
@@ -991,7 +1325,7 @@ const dictionaries: Record<Locale, Dict> = {
       satsAlreadyAfter:
         "to this account. You can review the test for practice, but you won’t earn sats again.",
       satsAlreadyCancel: "Cancel",
-      satsAlreadyProceed: "Continue to review",
+      satsAlreadyProceed: "Proceed to review",
     },
     btc: {
       live: "Live Bitcoin",
@@ -1004,16 +1338,21 @@ const dictionaries: Record<Locale, Dict> = {
     a11y: {
       readPage: "Read page aloud",
       stopReading: "Stop reading",
+      pauseReading: "Pause reading",
+      resumeReading: "Resume reading",
+      voiceHoldToStop: "Hold to stop",
       reading: "Reading…",
       voiceUnsupported: "Speech readout is not available in this browser",
       footerLabel: "Accessibility",
-      listenMessage: "Listen to message",
-      listen: "Listen",
-      skipToContent: "Skip to content",
-      micStart: "Voice microphone",
-      micStop: "Stop microphone",
-      sendMessage: "Send message",
-      chatInput: "Message for NagAI",
+      helpBtn: "Accessibility help",
+      helpTitle: "Accessibility",
+      helpAudioTitle: "Audio icon (bottom right)",
+      helpAudioBody:
+        "It reads the page text aloud. Tap once to start; tap again to pause; tap again to resume. Hold the button to stop reading.",
+      helpVlibrasTitle: "VLibras",
+      helpVlibrasBody:
+        "The VLibras button (above the accessibility help icon) translates content into Brazilian Sign Language (Libras). You can set the language and options in the widget itself.",
+      helpClose: "Close",
       closeDialog: "Close",
       loading: "Loading",
       optionsLabel: "Accessibility options",
@@ -1026,8 +1365,109 @@ const dictionaries: Record<Locale, Dict> = {
         "VLibras: the official icon sits right above the read-aloud button and translates content to Brazilian Sign Language (also on mobile).",
       panelSkip:
         "At the start of each page there is a “Skip to content” link to bypass navigation.",
-      pauseReading: "Pause reading",
-      resumeReading: "Resume reading",
+      listenMessage: "Listen to message",
+      listen: "Listen",
+      skipToContent: "Skip to content",
+      micStart: "Voice microphone",
+      micStop: "Stop microphone",
+      sendMessage: "Send message",
+      chatInput: "Message for NagAI",
+    },
+    mentor: {
+      name: "NagAI",
+      close: "Close",
+      exit: "Exit",
+      loading: "Opening chat…",
+      typing: "typing…",
+      skipQuestion: "Skip question",
+      skipConversation: "Skip conversation",
+      continueM2: "Continue · wallet and Lightning",
+      optionalTopics: "Optional topics",
+      goDashboard: "Go to financial dashboard",
+      closeChat: "Close chat",
+      backToTopics: "Back to topics",
+      backToDashboard: "Back to dashboard",
+      practiceMode: "Practice mode · no new sats",
+      redoWithoutSats: "Redo without new sats",
+      gateBody:
+        "You already received sats for this mentorship on this account. You can redo the conversation to practice — with no extra credit.",
+      send: "Send",
+      askPlaceholder: "Type your question…",
+      openNagAI: "Open NagAI",
+      closeNagAI: "Close NagAI",
+      helpPrompt: "How can I help you?",
+      importantDoubts: "Important questions",
+      suggestions: "Suggestions",
+      withSats: "With NagAI · sats",
+      satsAlready: "(already credited on this account)",
+      earnSats: "earn sats",
+      practice: "practice",
+      m1Title: "NagAI · First steps",
+      m2Title: "NagAI · Exchanges and Lightning",
+      sheetM1: "First steps in Bitcoin",
+      sheetM2: "Exchanges and Lightning",
+      introM1:
+        "Hi! I’m NagAI, from SatVantage. I’ll explain one point at a time and then ask if it made sense. You can skip a question or the whole conversation anytime.",
+      introM2:
+        "Now the basics for anyone who never opened a wallet: what it holds, how to protect the recovery phrase, and what Lightning is day to day. You can skip a question or the whole chat.",
+      skipAllM1:
+        "That’s fine. Next you can learn wallet and Lightning — or go straight to the dashboard.",
+      skipAllM2:
+        "No problem. Later we can talk about exchanges, transfers and cold wallets — or you can go straight to the dashboard.",
+      guideSubtitle: "Quick map of SatVantage",
+      nudgeNostr: "How to sign in with Nostr",
+      createSimple: "Create simplified account",
+      enterExt: "Sign in with Nostr extension",
+      downloadAlby: "Download Alby extension",
+      thanks: "Got it, thanks",
+      guideScript1:
+        "Hi! At SatVantage your account is a Nostr identity — a key pair. So you don’t need email, and your private key never sits on our server.",
+      guideScript2:
+        "Why Nostr? Proving who you are online doesn’t need a form with personal data. You sign a challenge; we only verify the signature.",
+      guideScript3:
+        "There are two ways in:\n\n1) Simplified account — username and password. Your key stays encrypted in the browser (the vault). We store the vault, never the key in clear.\n\n2) Nostr extension (Alby or nos2x) — the key stays on your device; at login you only authorize a signature.",
+      guideScript4:
+        "You can create the simplified account now, or open the extension if you already have one. Any questions, just come back here.",
+      freeTopicLead: "Good question. I’ll explain it calmly.",
+      freeTopicDoneEmbedded:
+        "You can close the chat or open another topic in NagAI — the dashboard is still there.",
+      freeTopicDoneDash:
+        "You can go back to the dashboard whenever you want — or open another topic in NagAI.",
+      askMore: "Want to ask anything else about this topic?",
+      practiceIntro:
+        "Let’s practice again. Remember: sats for this conversation were already credited to your account — now it’s just learning.",
+      alreadySkipped:
+        "You had already skipped this conversation. You can reread anything above or move on.",
+      alreadyDone:
+        "You had already finished this conversation. It stays here if you want to reread.",
+      skipAllOk:
+        "Conversation skipped — no problem. While you only skip, you can still come back later and earn sats on the first real completion.",
+      satsWon:
+        "Satoshis earned in this conversation: ⚡ {n}. They sit in your SatVantage account balance (not yet in your Lightning wallet).",
+      withdrawHint:
+        "Guarantee: the credit is tied to your Nostr key. To withdraw for real, on the dashboard tap Receive → mentorship voucher and paste a MutinyNet invoice (lntbs) for the exact amount.",
+      balanceLine: "Account balance: ⚡ {n} sats.",
+      balanceGuaranteed: "Guaranteed balance: ⚡ {n} sats · withdraw in Receive",
+      practiceDone:
+        "Practice complete. On this account, sats for this conversation were already credited — redoing doesn’t add new balance or make up what you missed.",
+      noNewSats: "Done. No new sats this time (skipped questions).",
+      continuePromptM1:
+        "When you’re ready, we can continue to wallet and Lightning — or go to the financial dashboard. The conversation stays visible if you need to reread.",
+      optionalTopicsPrompt:
+        "If you want to go deeper, I have optional topics — exchanges, how to transfer to a wallet, hot and cold wallets. Pick one, several, or none.",
+      savingProgress: "That’s it for now. I’ll save what you learned in this conversation.",
+      skipQUser: "Skip this question",
+      skipAllUser: "I want to skip the conversation",
+      okContinue: "No problem. Let’s continue.",
+      topicSkipOk: "Alright. The explanation was the important part.",
+      anotherTopicOrDash: "Want another topic, or prefer the dashboard?",
+      extrasDone:
+        "Those were the extras. You can reread the conversation above or go to the financial dashboard.",
+      anotherOptionalOrDash: "Want another optional topic, or shall we go to the dashboard?",
+      rereadOrDash: "You can reread the conversation or go to the dashboard.",
+      sugPatrimonio: "How to build your first nest egg",
+      sugComprar: "How to buy bitcoin",
+      sugGeopolitica: "Geopolitics and why it matters",
     },
     exch: {
       title: "Exchanges",
@@ -1051,7 +1491,7 @@ const dictionaries: Record<Locale, Dict> = {
       suggestions: "Suggestions",
       sPatrimonio: "How to build your first wealth",
       sComprar: "How to buy bitcoin",
-      sGeopolitica: "Geopolitics and why to follow it",
+      sGeopolitica: "Geopolitics and why it matters",
     },
     landing: {
       nostrNotice:
@@ -1133,7 +1573,7 @@ const dictionaries: Record<Locale, Dict> = {
         title: "Technology that evolves",
         body: "From the base layer to Lightning: instant global payments, 24 hours a day, 7 days a week.",
       },
-      socialLearn: "Learn with our videos on TikTok and Instagram",
+      socialLearn: "Learn with our videos",
       tiktok: "TikTok",
       instagram: "Instagram",
     },
@@ -1165,195 +1605,272 @@ const dictionaries: Record<Locale, Dict> = {
       risk: "Investing in Bitcoin involves risks. Study before you invest.",
     },
     tsim: {
-      regionLabel: "Bitcoin trade simulator",
-      realAccount: "LIVE ACCOUNT",
-      simulator: "SIMULATOR",
-      equity: "Equity",
+      regionLabel: "Simulador de trade Bitcoin",
+      realAccount: "CONTA REAL",
+      simulator: "SIMULADOR",
+      equity: "Patrimônio",
       equityTip:
-        "Current total account value: Cash + market value of Bitcoin positions.",
-      grossResult: "Gross P&L",
+        "Valor total atual da conta: Caixa + valor de mercado das posições em Bitcoin.",
+      grossResult: "Resultado bruto",
       grossResultTip:
-        "Accumulated profit or loss from completed and open trades in this simulated session.",
-      cash: "Cash",
-      cashTip: "Fiat available (BRL) ready for new buys in the simulator.",
+        "Lucro ou prejuízo acumulado das operações realizadas e em andamento nesta sessão simulada.",
+      cash: "Caixa",
+      cashTip:
+        "Dinheiro disponível em reais, pronto para novas compras no simulador.",
       btcLabel: "BTC",
-      btcTip: "Total Bitcoin currently held in the simulated wallet.",
-      statsHoverHint: "Hover each item to see what it means",
-      resetAll: "RESET ALL",
-      backToChat: "Back to chat",
+      btcTip:
+        "Quantidade total de Bitcoins atualmente na carteira simulada.",
+      statsHoverHint: "Passe o mouse sobre cada item para entender os detalhes",
+      resetAll: "ZERAR TUDO",
+      backToChat: "Voltar ao chat",
       tourCta:
-        "New to the terminal? Request a guided tour of the order ticket, chart and indicators.",
-      requestTour: "Request tutorial",
-      closeFlash: "Dismiss notice",
-      time: "Timeframe",
-      tf1m: "1 minute",
-      tf5m: "5 minutes",
-      tf15m: "15 minutes",
-      tf1h: "1 hour",
-      chartAria: "Candlestick chart {asset}",
-      orderTicket: "Order ticket",
-      orderTicketAria: "Order ticket",
-      asset: "Asset",
-      buy: "Buy",
-      sell: "Sell",
-      type: "Type",
-      market: "Market",
-      limit: "Limit",
-      validity: "Validity",
-      today: "Today",
-      gtc: "Good till canceled",
-      qtyBtc: "Quantity (BTC)",
-      priceBrl: "Price (R$)",
-      takeProfit: "Target",
+        "Novo no terminal? Peça um tour guiado da boleta, do gráfico e dos indicadores.",
+      requestTour: "Solicitar tutoria",
+      closeFlash: "Fechar aviso",
+      time: "Tempo",
+      tf1m: "1 minuto",
+      tf5m: "5 minutos",
+      tf15m: "15 minutos",
+      tf1h: "1 hora",
+      chartAria: "Gráfico candlestick {asset}",
+      orderTicket: "Boleta",
+      orderTicketAria: "Boleta de ordens",
+      asset: "Ativo",
+      buy: "Compra",
+      sell: "Venda",
+      type: "Tipo",
+      market: "Mercado",
+      limit: "Limitada",
+      validity: "Validade",
+      today: "Hoje",
+      gtc: "Até executar",
+      qtyBtc: "Quantidade (BTC)",
+      priceBrl: "Preço (R$)",
+      takeProfit: "Objetivo",
       takeProfitPh: "Take profit",
       stopLoss: "Stop loss",
       stopLossPh: "Stop",
-      clear: "CLEAR",
-      buyAction: "BUY",
-      sellAction: "SELL",
-      assetsAria: "Asset list",
-      assetCodePh: "Asset code",
-      featuredAssets: "Featured assets",
-      hint: "100% simulated · starting equity R$ {cash} · no real sats.",
-      stepOf: "Step {current} of {total}",
-      skipTour: "Skip tutorial",
-      next: "Next",
-      finish: "Finish",
-      flashReset: "Position and cash reset in the simulator.",
-      flashTourDone: "Tutorial complete — enjoy practicing in the simulator!",
-      flashBadQty: "Enter a valid quantity.",
-      flashBadPrice: "Enter a valid price.",
-      flashNoCash: "Insufficient balance in the simulator.",
-      flashNoBtc: "You don’t have enough BTC to sell.",
+      clear: "LIMPAR",
+      buyAction: "COMPRAR",
+      sellAction: "VENDER",
+      assetsAria: "Lista de ativos",
+      assetCodePh: "Código do ativo",
+      featuredAssets: "Ativos em destaque",
+      hint: "Ambiente 100% simulado · patrimônio inicial R$ {cash} · sem sats reais.",
+      stepOf: "Passo {current} de {total}",
+      skipTour: "Pular tutorial",
+      next: "Avançar",
+      finish: "Concluir",
+      flashReset: "Posição e caixa zerados no simulador.",
+      flashTourDone: "Tutorial concluído — boa prática no simulador!",
+      flashBadQty: "Informe uma quantidade válida.",
+      flashBadPrice: "Informe um preço válido.",
+      flashNoCash: "Saldo insuficiente no simulador.",
+      flashNoBtc: "Você não tem BTC suficiente para vender.",
       flashBuy:
-        "Buy: invested R$ {notional} ({qty} BTC @ R$ {price}). Cash out. Cash now: R$ {cashAfter}. BTC: {btcAfter}.",
+        "Compra: investiu R$ {notional} ({qty} BTC @ R$ {price}). Saída do caixa. Caixa agora: R$ {cashAfter}. BTC: {btcAfter}.",
       flashSell:
-        "Sell: R$ {notional} credited to cash ({qty} BTC @ R$ {price}). Cash now: R$ {cashAfter}. BTC: {btcAfter}.",
-      requiredLegend: "* Required fields to submit the order",
+        "Venda: entrou R$ {notional} no caixa ({qty} BTC @ R$ {price}). Caixa agora: R$ {cashAfter}. BTC: {btcAfter}.",
+      requiredLegend: "* Campos obrigatórios para enviar a ordem",
       requiredMark: "*",
-      optionalNote: "Optional",
+      optionalNote: "Opcional",
       tour: {
         mode: {
-          title: "Simulator mode",
-          body: "You’re on a simulated account — no real sats move. The switch makes clear this is not your live wallet.",
+          title: "Modo Simulador",
+          body: "Você está em conta simulada — nenhum sat real é movido. O seletor deixa claro que isto não é a carteira real.",
         },
         stats: {
-          title: "Equity and P&L",
-          body: "Track cash in R$, BTC held, total equity and the gross result of this fictional session. Hover the labels to learn what each metric means.",
+          title: "Patrimônio e resultado",
+          body: "Acompanhe caixa em R$, BTC na posição, patrimônio total e o resultado bruto desta sessão fictícia. Passe o mouse nos títulos para ver o significado de cada indicador.",
         },
         chart: {
-          title: "Candlestick chart",
-          body: "Candles show open, high, low and close for BTC. Blue is up; orange is down. Use them to read the move before you trade.",
+          title: "Gráfico candlestick",
+          body: "As velas mostram abertura, máxima, mínima e fechamento do BTC. Azul sobe; laranja desce. Use para ler o movimento antes de operar.",
         },
         timeframe: {
-          title: "Chart timeframe",
-          body: "Pick the granularity (1m, 5m, 15m, 1h). Smaller intervals react faster; larger ones smooth out noise.",
+          title: "Tempo do gráfico",
+          body: "Escolha a granularidade (1m, 5m, 15m, 1h). Intervalos menores reagem mais rápido; maiores suavizam o ruído.",
         },
         ativos: {
-          title: "Asset list",
-          body: "Switch the featured pair here (BTC/BRL, sats, etc.). Price and change help you choose what to watch.",
+          title: "Lista de ativos",
+          body: "Aqui você alterna o par em destaque (BTC/BRL, sats, etc.). O preço e a variação ajudam a escolher o que observar.",
         },
         side: {
-          title: "Buy or sell",
-          body: "On the ticket, choose Buy to acquire BTC with simulated cash, or Sell to close a position you already hold.",
+          title: "Compra ou venda",
+          body: "Na boleta, escolha Compra para adquirir BTC com o caixa simulado, ou Venda para liquidar uma posição que você já tem.",
         },
         tipo: {
-          title: "Order type",
-          body: "Market fills now at the current price. Limit only fills if the market reaches the price you set.",
+          title: "Tipo de ordem",
+          body: "Mercado executa já no preço atual. Limitada só entra se o mercado atingir o preço que você definir.",
         },
         qty: {
-          title: "Quantity",
-          body: "Enter how much BTC you want to trade. Start small (e.g. 0.01) to see the impact on cash.",
+          title: "Quantidade",
+          body: "Informe quanto BTC deseja negociar. Comece com valores pequenos (ex.: 0,01) para entender o impacto no caixa.",
         },
         price: {
-          title: "Price",
-          body: "For market orders the price is the last trade. For limit orders, type the R$ amount you’re willing to pay or receive.",
+          title: "Preço",
+          body: "Em ordem a mercado o preço é o último trade. Em limitada, digite o valor em R$ que você aceita pagar ou receber.",
         },
         risk: {
-          title: "Target and stop",
-          body: "Risk fields: take-profit target and stop loss. In the simulator they help build the habit — write down your goals.",
+          title: "Objetivo e stop",
+          body: "Campos de gestão de risco: objetivo (take profit) e stop loss. No simulador servem para praticar o hábito — anote suas metas.",
         },
         order: {
-          title: "Confirm order",
-          body: "CLEAR resets the ticket. BUY / SELL runs the simulated order and updates cash, BTC and gross P&L.",
+          title: "Confirmar ordem",
+          body: "LIMPAR zera a boleta. COMPRAR / VENDER executa a ordem simulada e atualiza caixa, BTC e resultado bruto.",
         },
       },
     },
     nagai: {
-      titleM1: "NagAI · First steps",
-      titleM2: "NagAI · Wallet and Lightning",
+      titleM1: "NagAI · Primeiros passos",
+      titleM2: "NagAI · Carteira e Lightning",
       introM1:
-        "Hi! I'm NagAI from SatVantage. Ask me about Bitcoin, satoshis, Lightning, and self-custody. When you want to check what you learned, tap Knowledge Test.",
+        "Oi! Eu sou a NagAI, do SatVantage. Pode me perguntar sobre Bitcoin, satoshis, Lightning e autocustódia. Quando quiser testar o que aprendeu, toque em Teste de Conhecimento.",
       introM2:
-        "Hi! Here we talk about wallets, recovery phrases, and Lightning day to day. Ask anything — or use Knowledge Test to practice.",
-      opening: "Opening NagAI…",
-      knowledgeTest: "Knowledge Test",
-      backToChat: "Back to NagAI chat",
+        "Oi! Aqui a gente fala de carteira, frase de recuperação e Lightning no dia a dia. Pergunte o que quiser — ou use Teste de Conhecimento para praticar.",
+      opening: "Abrindo NagAI…",
+      knowledgeTest: "Teste de Conhecimento",
+      backToChat: "Voltar ao chat NagAI",
       dashboard: "Dashboard",
-      practiceMode: "Practice mode · no new sats",
-      simTag: "Simulated terminal · fictional portfolio · no real balance",
-      simTitle: "Simulator · Practical Test",
-      askPlaceholder: "Type your Bitcoin question here...",
-      skipQuestion: "Skip question",
-      skipTest: "Skip test",
-      voiceHint: "Tap the microphone to answer by voice",
-      voiceListening: "Listening… say the answer or option number (1–4)",
-      thisTest: "This test: +{sats} sats",
-      accountBalance: "Account balance: ⚡ {sats}",
-      pickTestTitle: "How do you want to test your knowledge?",
+      practiceMode: "Modo prática · sem novos sats",
+      simTag: "Terminal simulado · patrimônio fictício · sem saldo real",
+      simTitle: "Simulador · Teste Prático",
+      askPlaceholder: "Digite sua dúvida sobre Bitcoin aqui...",
+      skipQuestion: "Pular pergunta",
+      skipTest: "Pular teste",
+      voiceHint: "Toque no microfone para responder por voz",
+      voiceListening: "Ouvindo… diga a resposta ou o número da opção (1–4)",
+      thisTest: "Neste teste: +{sats} sats",
+      accountBalance: "Saldo na conta: ⚡ {sats}",
+      pickTestTitle: "Como quer testar seus conhecimentos?",
       pickTestDesc:
-        "Theoretical: one strategic question. Practical opens the Bitcoin trade simulator.",
-      theoretical: "Theoretical",
-      theoreticalDesc: "One strategic question · correct 5 sats · try 3 · skip 0.",
-      practical: "Practical",
-      practicalDesc: "Bitcoin trade simulator with guided tutorial.",
-      cancel: "Cancel",
+        "Teórico: uma pergunta estratégica. Prático abre o terminal de simulação de trade Bitcoin.",
+      theoretical: "Teórica",
+      theoreticalDesc: "Uma pergunta estratégica · acerto 5 sats · erro 3 · pular 0.",
+      practical: "Prática",
+      practicalDesc: "Simulador de trade Bitcoin com tutorial guiado.",
+      cancel: "Cancelar",
       agentError:
-        "I couldn't reach the mentor right now. Try again in a moment — or use Knowledge Test.",
+        "Não consegui falar com o mentor agora. Tente de novo em instantes — ou use Teste de Conhecimento.",
       skipAllAgent:
-        "That's fine. You can go back to the dashboard or keep chatting.",
-      wantTheoretical: "I want the theoretical test",
+        "Tudo bem. Você pode voltar ao dashboard ou continuar no chat livre.",
+      wantTheoretical: "Quero o teste teórico",
       quizIntroEarn:
-        "Perfect! Let's test your knowledge with a quick question. A correct answer earns 5 sats; even trying earns 3 participation sats.",
+        "Perfeito! Vamos testar seu conhecimento com uma pergunta rápida. Acertando você fatura 5 sats, mas mesmo tentando garante 3 sats de participação.",
       quizIntroPractice:
-        "Perfect! Let's review with a quick question — on this account it's practice only, no new sats.",
-      quizGateBodyBefore: "On this account the sats from this test",
-      quizGateBodyStrong: "have already been credited",
+        "Perfeito! Vamos revisar com uma pergunta rápida — nesta conta é só prática, sem novos sats.",
+      quizGateBodyBefore: "Nesta conta os sats deste teste",
+      quizGateBodyStrong: "já foram creditados",
       quizGateBodyAfter:
-        ". You can retake it for practice, but you won’t earn again.",
-      quizGateRetry: "Retake without new sats",
-      quizGateBackChat: "Back to chat",
-      quizEmpty: "There are no questions on this trail yet. You can continue in free chat.",
-      reformulate: "Can you rephrase? I only talk about Bitcoin and self-custody.",
-      backToDashboard: "Back to Dashboard",
-      hitSats: "Correct — +{sats} sats!",
-      trySats: "Participation recorded — +{sats} sats for trying.",
-      practiceNoSats: "Practice — no new sats on this account.",
-      skipThisQuestion: "Skip this question",
-      zeroSatsTest: "You earned 0 sats on this test.",
-      zeroSatsClosed: "Test closed. You earned 0 sats this time.",
-      zeroSatsQuestion: "No problem. You earned 0 sats on this question.",
-      helpTitle: "How can I help you?",
-      withNagai: "With NagAI",
-      satsAlready: "(already credited on this account)",
-      askNagai: "Ask NagAI",
-      earnSats: "Earn sats by answering",
-      testKnowledge: "Test your knowledge",
-      tradeSim: "Trade Simulator",
-      openFullscreen: "Open fullscreen",
-      earnTitle: "Resume the quiz and earn sats (5 correct · 3 for trying)",
+        ". Você pode refazer para praticar, mas não ganha de novo.",
+      quizGateRetry: "Refazer sem novos sats",
+      quizGateBackChat: "Voltar ao chat",
+      quizEmpty: "Ainda não há perguntas nesta trilha. Pode continuar no chat livre.",
+      reformulate: "Pode reformular? Falo só de Bitcoin e autocustódia.",
+      backToDashboard: "Voltar para Dashboard",
+      hitSats: "Você acertou — +{sats} sats!",
+      trySats: "Participação registrada — +{sats} sats por tentar.",
+      practiceNoSats: "Prática — sem novos sats nesta conta.",
+      skipThisQuestion: "Pular esta pergunta",
+      zeroSatsTest: "Você ganhou 0 sats neste teste.",
+      zeroSatsClosed: "Teste encerrado. Você ganhou 0 sats desta vez.",
+      zeroSatsQuestion: "Sem problema. Você ganhou 0 sats nesta pergunta.",
+      helpTitle: "Em que posso te ajudar?",
+      withNagai: "Com NagAI",
+      satsAlready: "(já creditados nesta conta)",
+      askNagai: "Tirar Dúvidas com NagAI",
+      earnSats: "Ganhar sats respondendo",
+      testKnowledge: "Testar conhecimentos",
+      tradeSim: "Simulador de Trade",
+      openFullscreen: "Abrir em tela grande",
+      earnTitle: "Retome o quiz e conquiste sats (5 no acerto · 3 na tentativa)",
       practiceTitle:
-        "Review the knowledge test — practice with no new sats on this account",
-      titleM1Short: "Bitcoin first steps",
-      titleM2Short: "Wallet and Lightning",
-      historyTitle: "NagAI history",
+        "Revise o teste de conhecimentos — prática sem novos sats nesta conta",
+      titleM1Short: "Primeiros passos no Bitcoin",
+      titleM2Short: "Carteira e Lightning",
+      historyTitle: "Histórico NagAI",
       historyDesc:
-        "Previous chats in this language. The list shows only a summary; full messages load when you pick one.",
-      historyEmpty: "No saved chats in this language yet.",
-      historyMessages: "{n} messages",
-      historyDelete: "Delete conversation",
-      historyOpen: "History",
-      historyNew: "New chat",
+        "Conversas anteriores neste idioma. Abrimos só o resumo na lista; as mensagens completas carregam quando você escolhe uma.",
+      historyEmpty: "Nenhuma conversa salva ainda neste idioma.",
+      historyMessages: "{n} mensagens",
+      historyDelete: "Apagar conversa",
+      historyOpen: "Histórico",
+      historyNew: "Nova conversa",
+    },
+    auth: {
+      back: "Back",
+      titleCreate: "Create account",
+      titleLogin: "Sign in",
+      titleRecover: "Recover access",
+      ledeCreate:
+        "Username and password. Underneath, a real Nostr identity — the key is encrypted with your password.",
+      ledeLogin: "Open the vault of your SatVantage account.",
+      ledeRecover: "Two proofs: security question and your 12 recovery words.",
+      usernamePh: "username",
+      passwordPh: "password",
+      passwordMinPh: "password (minimum 8 characters)",
+      questionPh: "security question (only you know the answer)",
+      answerPh: "answer",
+      answerYourPh: "your answer",
+      hintSocial: "Avoid answers that appear on your social networks.",
+      createBtn: "Create account",
+      creating: "Creating vault…",
+      loginBtn: "Sign in",
+      opening: "Opening vault…",
+      forgotPassword: "I forgot my password",
+      foot: "Your account is a Nostr identity. We store the vault, never the key.",
+      checkingUser: "Checking username…",
+      userAvailable: "Username available.",
+      userTaken: "That username is taken. Choose another name.",
+      userInvalid: "Invalid username (3-20 characters: lowercase letters, numbers, _).",
+      questionShort: "Write a security question (minimum 8 characters).",
+      answerShort: "Write the answer to your question.",
+      createFail: "Failed to create account",
+      loginFail: "Login failed",
+      recoverFail: "Recovery failed",
+      sessionWarn:
+        "You are already signed in as {npub}. Creating a new account makes a different Nostr identity — balance and progress stay on the current one and do not move to the new one.",
+      goMyAccount: "Go to my account",
+      createAnyway: "Create a new account anyway",
+      recoverHint:
+        "We will verify account ownership: security question and the 12 recovery words.",
+      continue: "Continue",
+      searching: "Searching…",
+      mnemonicPh: "12 recovery words (separated by spaces)",
+      newPasswordPh: "new password (minimum 8 characters)",
+      resetPassword: "Reset password",
+      verifying: "Verifying ownership…",
+      backupTitle: "Save your 12 words",
+      backupBody:
+        "This phrase is the ownership document for your account. You will not use it day to day — only if you forget your password (together with the security question). Write it down offline. It will not be shown again.",
+      copyWords: "Copy words",
+      copied: "Copied",
+      alreadyNoted: "I wrote them down, continue",
+      confirmTitle: "Confirm you wrote them down",
+      confirmBody:
+        "Fill the gaps in order (1 → 2 → 3) by tapping the words below. The gaps stay the same if you go back to check the phrase.",
+      backToWords: "Back to see the words",
+      confirmContinue: "Continue to SatVantage",
+      wrongOrder: "Wrong order — check the words and try again",
+      gapsLabel: "Phrase with gaps",
+      missingWordsLabel: "Missing words",
+      phraseLabel: "Recovery phrase",
+      loading: "Loading…",
+      claimTitle: "SatVantage balance",
+      claimMentorTitle: "Receive mentorship sats",
+      claimCopyBefore: "In your MutinyNet wallet, create an invoice for exactly",
+      claimCopyAfter: "sats (starts with lntbs) and paste it below.",
+      claimConfirm: "Confirm receipt",
+      claimBusy: "Receiving…",
+      claimOk: "Done: ⚡ {n} sats went to your wallet.",
+      claimFail: "claim failed",
+      claimBalance: "SatVantage balance",
+      claimEmpty: "No balance to receive right now.",
+      inactivityWarning:
+        "Due to inactivity, you will be signed out shortly — tap the screen to stay signed in.",
+      scanQr: "Scan QR code",
+      pointCamera: "Point the camera at the QR",
+      scanToPay: "Scan to pay (MutinyNet)",
     },
   },
   es: {
@@ -1486,16 +2003,21 @@ const dictionaries: Record<Locale, Dict> = {
     a11y: {
       readPage: "Leer la página en voz alta",
       stopReading: "Detener lectura",
+      pauseReading: "Pausar lectura",
+      resumeReading: "Continuar lectura",
+      voiceHoldToStop: "Mantén pulsado para detener",
       reading: "Leyendo…",
       voiceUnsupported: "La lectura por voz no está disponible en este navegador",
       footerLabel: "Accesibilidad",
-      listenMessage: "Escuchar mensaje",
-      listen: "Escuchar",
-      skipToContent: "Ir al contenido",
-      micStart: "Micrófono de voz",
-      micStop: "Detener micrófono",
-      sendMessage: "Enviar mensaje",
-      chatInput: "Mensaje para NagAI",
+      helpBtn: "Ayuda de accesibilidad",
+      helpTitle: "Accesibilidad",
+      helpAudioTitle: "Icono de audio (esquina inferior derecha)",
+      helpAudioBody:
+        "Lee el texto de la página en voz alta. Toca una vez para empezar; otra vez para pausar; otra vez para continuar. Mantén pulsado el botón para detener la lectura.",
+      helpVlibrasTitle: "VLibras",
+      helpVlibrasBody:
+        "El botón VLibras (encima de la ayuda de accesibilidad) traduce el contenido a lengua de señas. Puedes configurar el idioma y las opciones en el propio widget.",
+      helpClose: "Cerrar",
       closeDialog: "Cerrar",
       loading: "Cargando",
       optionsLabel: "Opciones de accesibilidad",
@@ -1508,8 +2030,109 @@ const dictionaries: Record<Locale, Dict> = {
         "VLibras: el icono oficial queda justo encima del botón de lectura y traduce el contenido a lengua de señas (también en móvil).",
       panelSkip:
         "Al inicio de cada página hay el enlace “Ir al contenido” para saltar la navegación.",
-      pauseReading: "Pausar lectura",
-      resumeReading: "Continuar lectura",
+      listenMessage: "Escuchar mensaje",
+      listen: "Escuchar",
+      skipToContent: "Ir al contenido",
+      micStart: "Micrófono de voz",
+      micStop: "Detener micrófono",
+      sendMessage: "Enviar mensaje",
+      chatInput: "Mensaje para NagAI",
+    },
+    mentor: {
+      name: "NagAI",
+      close: "Cerrar",
+      exit: "Salir",
+      loading: "Abriendo conversación…",
+      typing: "escribiendo…",
+      skipQuestion: "Saltar pregunta",
+      skipConversation: "Saltar conversación",
+      continueM2: "Continuar · cartera y Lightning",
+      optionalTopics: "Temas opcionales",
+      goDashboard: "Ir al dashboard financiero",
+      closeChat: "Cerrar chat",
+      backToTopics: "Volver a los temas",
+      backToDashboard: "Volver al dashboard",
+      practiceMode: "Modo práctica · sin nuevos sats",
+      redoWithoutSats: "Repetir sin nuevos sats",
+      gateBody:
+        "Ya recibiste los sats de esta mentoría en esta cuenta. Puedes repetir la conversación para practicar — sin crédito extra.",
+      send: "Enviar",
+      askPlaceholder: "Escribe tu duda…",
+      openNagAI: "Abrir NagAI",
+      closeNagAI: "Cerrar NagAI",
+      helpPrompt: "¿En qué puedo ayudarte?",
+      importantDoubts: "Dudas importantes",
+      suggestions: "Sugerencias",
+      withSats: "Con NagAI · sats",
+      satsAlready: "(ya acreditados en esta cuenta)",
+      earnSats: "gana sats",
+      practice: "práctica",
+      m1Title: "NagAI · Primeros pasos",
+      m2Title: "NagAI · Corretoras y Lightning",
+      sheetM1: "Primeros pasos en Bitcoin",
+      sheetM2: "Corretoras y Lightning",
+      introM1:
+        "¡Hola! Soy NagAI, de SatVantage. Te explico un punto a la vez y luego pregunto si tuvo sentido. Puedes saltar una pregunta o toda la conversación cuando quieras.",
+      introM2:
+        "Ahora lo básico para quien nunca abrió una cartera: qué guarda, cómo proteger la frase de recuperación y qué es Lightning en el día a día. Puedes saltar pregunta o toda la charla.",
+      skipAllM1:
+        "Está bien. La próxima puedes aprender cartera y Lightning — o ir directo al dashboard.",
+      skipAllM2:
+        "Sin problema. Después podemos hablar de exchanges, transferencias y cartera fría — o ir directo al dashboard.",
+      guideSubtitle: "Mapa rápido de SatVantage",
+      nudgeNostr: "Cómo entrar usando Nostr",
+      createSimple: "Crear cuenta simplificada",
+      enterExt: "Entrar con extensión Nostr",
+      downloadAlby: "Descargar extensión Alby",
+      thanks: "Entendido, gracias",
+      guideScript1:
+        "¡Hola! En SatVantage la cuenta es una identidad Nostr — un par de claves. Así no necesitas correo, y la clave privada nunca queda en nuestro servidor.",
+      guideScript2:
+        "¿Por qué Nostr? Porque demostrar quién eres en internet no necesita un formulario con dato personal. Firmas un desafío; solo verificamos la firma.",
+      guideScript3:
+        "Hay dos caminos para entrar:\n\n1) Cuenta simplificada — usuario y contraseña. Tu clave queda cifrada en el navegador (la bóveda). Guardamos la bóveda, nunca la clave en claro.\n\n2) Extensión Nostr (Alby o nos2x) — la clave queda en tu dispositivo; en el login solo autorizas una firma.",
+      guideScript4:
+        "Puedes crear la cuenta simplificada ahora, o abrir la extensión si ya tienes una. Cualquier duda, vuelve aquí.",
+      freeTopicLead: "Buena pregunta. Te lo explico con calma.",
+      freeTopicDoneEmbedded:
+        "Puedes cerrar el chat o abrir otro tema en NagAI — el dashboard sigue ahí.",
+      freeTopicDoneDash:
+        "Puedes volver al dashboard cuando quieras — o abrir otro tema en NagAI.",
+      askMore: "¿Quieres preguntar algo más sobre este tema?",
+      practiceIntro:
+        "Vamos a practicar de nuevo. Recuerda: los sats de esta conversación ya fueron acreditados en tu cuenta — ahora es solo aprendizaje.",
+      alreadySkipped:
+        "Ya habías saltado esta conversación. Puedes releer lo de arriba o seguir adelante.",
+      alreadyDone:
+        "Ya habías terminado esta conversación. Queda aquí si quieres releer.",
+      skipAllOk:
+        "Conversación saltada — sin problema. Mientras solo saltes, aún puedes volver después y ganar sats en la primera conclusión de verdad.",
+      satsWon:
+        "Satoshis conquistados en esta conversación: ⚡ {n}. Quedan en el saldo SatVantage de tu cuenta (aún no en la cartera Lightning).",
+      withdrawHint:
+        "Garantía: el crédito está registrado en tu clave Nostr. Para retirar de verdad, en el dashboard toca Recibir → voucher de la mentoría y pega un cobro MutinyNet (lntbs) del valor exacto.",
+      balanceLine: "Saldo en la cuenta: ⚡ {n} sats.",
+      balanceGuaranteed: "Saldo garantizado: ⚡ {n} sats · retiro en Recibir",
+      practiceDone:
+        "Práctica concluida. En esta cuenta los sats de esta conversación ya fueron acreditados — repetir no genera saldo nuevo ni la diferencia de lo que erraste.",
+      noNewSats: "Listo. Esta vez no entraron sats nuevos (preguntas saltadas).",
+      continuePromptM1:
+        "Cuando quieras, seguimos con cartera y Lightning — o puedes ir al dashboard financiero. La conversación sigue visible si necesitas releer.",
+      optionalTopicsPrompt:
+        "Si quieres profundizar, tengo otros temas opcionales — exchange, cómo transferir a la cartera, cartera caliente y fría. Elige uno, varios o ninguno.",
+      savingProgress: "Listo por aquí. Voy a guardar lo que aprendiste en esta conversación.",
+      skipQUser: "Saltar esta pregunta",
+      skipAllUser: "Quiero saltar la conversación",
+      okContinue: "Sin problema. Seguimos.",
+      topicSkipOk: "Vale. Lo importante era la explicación.",
+      anotherTopicOrDash: "¿Quieres ver otro tema, o prefieres ir al dashboard?",
+      extrasDone:
+        "Esos eran los extras. Puedes releer la conversación de arriba o ir al dashboard financiero.",
+      anotherOptionalOrDash: "¿Quieres otro tema opcional, o vamos al dashboard?",
+      rereadOrDash: "Puedes releer la conversación o ir al dashboard.",
+      sugPatrimonio: "Cómo conquistar tu primer patrimonio",
+      sugComprar: "Cómo comprar bitcoin",
+      sugGeopolitica: "Geopolítica y por qué seguirla",
     },
     exch: {
       title: "Exchanges",
@@ -1615,7 +2238,7 @@ const dictionaries: Record<Locale, Dict> = {
         title: "Tecnología que evoluciona",
         body: "De la red principal a Lightning: pagos instantáneos y globales, 24 horas al día, 7 días a la semana.",
       },
-      socialLearn: "Aprende con nuestros videos en TikTok e Instagram",
+      socialLearn: "Aprende con nuestros videos",
       tiktok: "TikTok",
       instagram: "Instagram",
     },
@@ -1648,196 +2271,271 @@ const dictionaries: Record<Locale, Dict> = {
     },
     tsim: {
       regionLabel: "Simulador de trade Bitcoin",
-      realAccount: "CUENTA REAL",
+      realAccount: "CONTA REAL",
       simulator: "SIMULADOR",
-      equity: "Patrimonio",
+      equity: "Patrimônio",
       equityTip:
-        "Valor total actual de la cuenta: Caja + valor de mercado de las posiciones en Bitcoin.",
+        "Valor total atual da conta: Caixa + valor de mercado das posições em Bitcoin.",
       grossResult: "Resultado bruto",
       grossResultTip:
-        "Ganancia o pérdida acumulada de las operaciones realizadas y en curso en esta sesión simulada.",
-      cash: "Caja",
+        "Lucro ou prejuízo acumulado das operações realizadas e em andamento nesta sessão simulada.",
+      cash: "Caixa",
       cashTip:
-        "Dinero disponible en reales, listo para nuevas compras en el simulador.",
+        "Dinheiro disponível em reais, pronto para novas compras no simulador.",
       btcLabel: "BTC",
       btcTip:
-        "Cantidad total de Bitcoins actualmente en la cartera simulada.",
-      statsHoverHint: "Pasa el mouse sobre cada ítem para ver los detalles",
-      resetAll: "REINICIAR TODO",
-      backToChat: "Volver al chat",
+        "Quantidade total de Bitcoins atualmente na carteira simulada.",
+      statsHoverHint: "Passe o mouse sobre cada item para entender os detalhes",
+      resetAll: "ZERAR TUDO",
+      backToChat: "Voltar ao chat",
       tourCta:
-        "¿Nuevo en el terminal? Pide un tour guiado de la boleta, el gráfico y los indicadores.",
-      requestTour: "Solicitar tutoría",
-      closeFlash: "Cerrar aviso",
-      time: "Tiempo",
+        "Novo no terminal? Peça um tour guiado da boleta, do gráfico e dos indicadores.",
+      requestTour: "Solicitar tutoria",
+      closeFlash: "Fechar aviso",
+      time: "Tempo",
       tf1m: "1 minuto",
       tf5m: "5 minutos",
       tf15m: "15 minutos",
       tf1h: "1 hora",
-      chartAria: "Gráfico de velas {asset}",
+      chartAria: "Gráfico candlestick {asset}",
       orderTicket: "Boleta",
-      orderTicketAria: "Boleta de órdenes",
-      asset: "Activo",
+      orderTicketAria: "Boleta de ordens",
+      asset: "Ativo",
       buy: "Compra",
-      sell: "Venta",
+      sell: "Venda",
       type: "Tipo",
       market: "Mercado",
       limit: "Limitada",
-      validity: "Validez",
-      today: "Hoy",
-      gtc: "Hasta ejecutar",
-      qtyBtc: "Cantidad (BTC)",
-      priceBrl: "Precio (R$)",
+      validity: "Validade",
+      today: "Hoje",
+      gtc: "Até executar",
+      qtyBtc: "Quantidade (BTC)",
+      priceBrl: "Preço (R$)",
       takeProfit: "Objetivo",
       takeProfitPh: "Take profit",
       stopLoss: "Stop loss",
       stopLossPh: "Stop",
-      clear: "LIMPIAR",
+      clear: "LIMPAR",
       buyAction: "COMPRAR",
       sellAction: "VENDER",
-      assetsAria: "Lista de activos",
-      assetCodePh: "Código del activo",
-      featuredAssets: "Activos destacados",
-      hint: "Entorno 100% simulado · patrimonio inicial R$ {cash} · sin sats reales.",
-      stepOf: "Paso {current} de {total}",
-      skipTour: "Saltar tutorial",
-      next: "Siguiente",
-      finish: "Finalizar",
-      flashReset: "Posición y caja reiniciadas en el simulador.",
-      flashTourDone: "Tutorial completado — ¡buena práctica en el simulador!",
-      flashBadQty: "Introduce una cantidad válida.",
-      flashBadPrice: "Introduce un precio válido.",
-      flashNoCash: "Saldo insuficiente en el simulador.",
-      flashNoBtc: "No tienes suficiente BTC para vender.",
+      assetsAria: "Lista de ativos",
+      assetCodePh: "Código do ativo",
+      featuredAssets: "Ativos em destaque",
+      hint: "Ambiente 100% simulado · patrimônio inicial R$ {cash} · sem sats reais.",
+      stepOf: "Passo {current} de {total}",
+      skipTour: "Pular tutorial",
+      next: "Avançar",
+      finish: "Concluir",
+      flashReset: "Posição e caixa zerados no simulador.",
+      flashTourDone: "Tutorial concluído — boa prática no simulador!",
+      flashBadQty: "Informe uma quantidade válida.",
+      flashBadPrice: "Informe um preço válido.",
+      flashNoCash: "Saldo insuficiente no simulador.",
+      flashNoBtc: "Você não tem BTC suficiente para vender.",
       flashBuy:
-        "Compra: invertiste R$ {notional} ({qty} BTC @ R$ {price}). Salida de caja. Caja ahora: R$ {cashAfter}. BTC: {btcAfter}.",
+        "Compra: investiu R$ {notional} ({qty} BTC @ R$ {price}). Saída do caixa. Caixa agora: R$ {cashAfter}. BTC: {btcAfter}.",
       flashSell:
-        "Venta: entraron R$ {notional} a la caja ({qty} BTC @ R$ {price}). Caja ahora: R$ {cashAfter}. BTC: {btcAfter}.",
-      requiredLegend: "* Campos obligatorios para enviar la orden",
+        "Venda: entrou R$ {notional} no caixa ({qty} BTC @ R$ {price}). Caixa agora: R$ {cashAfter}. BTC: {btcAfter}.",
+      requiredLegend: "* Campos obrigatórios para enviar a ordem",
       requiredMark: "*",
       optionalNote: "Opcional",
       tour: {
         mode: {
           title: "Modo Simulador",
-          body: "Estás en una cuenta simulada — no se mueve ningún sat real. El selector deja claro que esto no es la cartera real.",
+          body: "Você está em conta simulada — nenhum sat real é movido. O seletor deixa claro que isto não é a carteira real.",
         },
         stats: {
-          title: "Patrimonio y resultado",
-          body: "Sigue la caja en R$, el BTC en posición, el patrimonio total y el resultado bruto de esta sesión ficticia. Pasa el mouse por los títulos para ver el significado de cada indicador.",
+          title: "Patrimônio e resultado",
+          body: "Acompanhe caixa em R$, BTC na posição, patrimônio total e o resultado bruto desta sessão fictícia. Passe o mouse nos títulos para ver o significado de cada indicador.",
         },
         chart: {
-          title: "Gráfico de velas",
-          body: "Las velas muestran apertura, máxima, mínima y cierre del BTC. Azul sube; naranja baja. Úsalas para leer el movimiento antes de operar.",
+          title: "Gráfico candlestick",
+          body: "As velas mostram abertura, máxima, mínima e fechamento do BTC. Azul sobe; laranja desce. Use para ler o movimento antes de operar.",
         },
         timeframe: {
-          title: "Tiempo del gráfico",
-          body: "Elige la granularidad (1m, 5m, 15m, 1h). Intervalos menores reaccionan más rápido; mayores suavizan el ruido.",
+          title: "Tempo do gráfico",
+          body: "Escolha a granularidade (1m, 5m, 15m, 1h). Intervalos menores reagem mais rápido; maiores suavizam o ruído.",
         },
         ativos: {
-          title: "Lista de activos",
-          body: "Aquí cambias el par destacado (BTC/BRL, sats, etc.). El precio y la variación ayudan a elegir qué observar.",
+          title: "Lista de ativos",
+          body: "Aqui você alterna o par em destaque (BTC/BRL, sats, etc.). O preço e a variação ajudam a escolher o que observar.",
         },
         side: {
-          title: "Compra o venta",
-          body: "En la boleta, elige Compra para adquirir BTC con la caja simulada, o Venta para liquidar una posición que ya tengas.",
+          title: "Compra ou venda",
+          body: "Na boleta, escolha Compra para adquirir BTC com o caixa simulado, ou Venda para liquidar uma posição que você já tem.",
         },
         tipo: {
-          title: "Tipo de orden",
-          body: "Mercado ejecuta ya al precio actual. Limitada solo entra si el mercado alcanza el precio que defines.",
+          title: "Tipo de ordem",
+          body: "Mercado executa já no preço atual. Limitada só entra se o mercado atingir o preço que você definir.",
         },
         qty: {
-          title: "Cantidad",
-          body: "Indica cuánto BTC quieres negociar. Empieza con valores pequeños (p. ej. 0,01) para entender el impacto en la caja.",
+          title: "Quantidade",
+          body: "Informe quanto BTC deseja negociar. Comece com valores pequenos (ex.: 0,01) para entender o impacto no caixa.",
         },
         price: {
-          title: "Precio",
-          body: "En orden a mercado el precio es el último trade. En limitada, escribe el valor en R$ que aceptas pagar o recibir.",
+          title: "Preço",
+          body: "Em ordem a mercado o preço é o último trade. Em limitada, digite o valor em R$ que você aceita pagar ou receber.",
         },
         risk: {
-          title: "Objetivo y stop",
-          body: "Campos de gestión de riesgo: objetivo (take profit) y stop loss. En el simulador sirven para practicar el hábito — anota tus metas.",
+          title: "Objetivo e stop",
+          body: "Campos de gestão de risco: objetivo (take profit) e stop loss. No simulador servem para praticar o hábito — anote suas metas.",
         },
         order: {
-          title: "Confirmar orden",
-          body: "LIMPIAR vacía la boleta. COMPRAR / VENDER ejecuta la orden simulada y actualiza caja, BTC y resultado bruto.",
+          title: "Confirmar ordem",
+          body: "LIMPAR zera a boleta. COMPRAR / VENDER executa a ordem simulada e atualiza caixa, BTC e resultado bruto.",
         },
       },
     },
     nagai: {
-      titleM1: "NagAI · Primeros pasos",
-      titleM2: "NagAI · Billetera y Lightning",
+      titleM1: "NagAI · Primeiros passos",
+      titleM2: "NagAI · Carteira e Lightning",
       introM1:
-        "¡Hola! Soy NagAI de SatVantage. Pregúntame sobre Bitcoin, satoshis, Lightning y autocustodia. Cuando quieras probar lo aprendido, toca Test de conocimientos.",
+        "Oi! Eu sou a NagAI, do SatVantage. Pode me perguntar sobre Bitcoin, satoshis, Lightning e autocustódia. Quando quiser testar o que aprendeu, toque em Teste de Conhecimento.",
       introM2:
-        "¡Hola! Aquí hablamos de billetera, frase de recuperación y Lightning en el día a día. Pregunta lo que quieras — o usa Test de conocimientos para practicar.",
-      opening: "Abriendo NagAI…",
-      knowledgeTest: "Test de conocimientos",
-      backToChat: "Volver al chat NagAI",
+        "Oi! Aqui a gente fala de carteira, frase de recuperação e Lightning no dia a dia. Pergunte o que quiser — ou use Teste de Conhecimento para praticar.",
+      opening: "Abrindo NagAI…",
+      knowledgeTest: "Teste de Conhecimento",
+      backToChat: "Voltar ao chat NagAI",
       dashboard: "Dashboard",
-      practiceMode: "Modo práctica · sin nuevos sats",
-      simTag: "Terminal simulado · patrimonio ficticio · sin saldo real",
-      simTitle: "Simulador · Test práctico",
-      askPlaceholder: "Escribe tu duda sobre Bitcoin aquí...",
-      skipQuestion: "Saltar pregunta",
-      skipTest: "Saltar test",
-      voiceHint: "Toca el micrófono para responder por voz",
-      voiceListening: "Escuchando… di la respuesta o el número de la opción (1–4)",
-      thisTest: "En este test: +{sats} sats",
-      accountBalance: "Saldo en la cuenta: ⚡ {sats}",
-      pickTestTitle: "¿Cómo quieres probar tus conocimientos?",
+      practiceMode: "Modo prática · sem novos sats",
+      simTag: "Terminal simulado · patrimônio fictício · sem saldo real",
+      simTitle: "Simulador · Teste Prático",
+      askPlaceholder: "Digite sua dúvida sobre Bitcoin aqui...",
+      skipQuestion: "Pular pergunta",
+      skipTest: "Pular teste",
+      voiceHint: "Toque no microfone para responder por voz",
+      voiceListening: "Ouvindo… diga a resposta ou o número da opção (1–4)",
+      thisTest: "Neste teste: +{sats} sats",
+      accountBalance: "Saldo na conta: ⚡ {sats}",
+      pickTestTitle: "Como quer testar seus conhecimentos?",
       pickTestDesc:
-        "Teórico: una pregunta estratégica. Práctico abre el simulador de trade Bitcoin.",
+        "Teórico: uma pergunta estratégica. Prático abre o terminal de simulação de trade Bitcoin.",
       theoretical: "Teórica",
-      theoreticalDesc: "Una pregunta estratégica · acierto 5 sats · error 3 · saltar 0.",
-      practical: "Práctica",
-      practicalDesc: "Simulador de trade Bitcoin con tutorial guiado.",
+      theoreticalDesc: "Uma pergunta estratégica · acerto 5 sats · erro 3 · pular 0.",
+      practical: "Prática",
+      practicalDesc: "Simulador de trade Bitcoin com tutorial guiado.",
       cancel: "Cancelar",
       agentError:
-        "No pude hablar con el mentor ahora. Intenta de nuevo en un momento — o usa Test de conocimientos.",
+        "Não consegui falar com o mentor agora. Tente de novo em instantes — ou use Teste de Conhecimento.",
       skipAllAgent:
-        "Está bien. Puedes volver al dashboard o seguir en el chat libre.",
-      wantTheoretical: "Quiero el test teórico",
+        "Tudo bem. Você pode voltar ao dashboard ou continuar no chat livre.",
+      wantTheoretical: "Quero o teste teórico",
       quizIntroEarn:
-        "¡Perfecto! Vamos a probar tu conocimiento con una pregunta rápida. Si aciertas ganas 5 sats; aunque lo intentes garantizas 3 sats de participación.",
+        "Perfeito! Vamos testar seu conhecimento com uma pergunta rápida. Acertando você fatura 5 sats, mas mesmo tentando garante 3 sats de participação.",
       quizIntroPractice:
-        "¡Perfecto! Vamos a revisar con una pregunta rápida — en esta cuenta es solo práctica, sin nuevos sats.",
-      quizGateBodyBefore: "En esta cuenta los sats de este test",
-      quizGateBodyStrong: "ya fueron acreditados",
+        "Perfeito! Vamos revisar com uma pergunta rápida — nesta conta é só prática, sem novos sats.",
+      quizGateBodyBefore: "Nesta conta os sats deste teste",
+      quizGateBodyStrong: "já foram creditados",
       quizGateBodyAfter:
-        ". Puedes rehacerlo para practicar, pero no ganas de nuevo.",
-      quizGateRetry: "Rehacer sin nuevos sats",
-      quizGateBackChat: "Volver al chat",
-      quizEmpty: "Aún no hay preguntas en esta ruta. Puedes seguir en el chat libre.",
-      reformulate: "¿Puedes reformular? Solo hablo de Bitcoin y autocustodia.",
-      backToDashboard: "Volver al Dashboard",
-      hitSats: "¡Acertaste — +{sats} sats!",
-      trySats: "Participación registrada — +{sats} sats por intentarlo.",
-      practiceNoSats: "Práctica — sin nuevos sats en esta cuenta.",
-      skipThisQuestion: "Saltar esta pregunta",
-      zeroSatsTest: "Ganaste 0 sats en este test.",
-      zeroSatsClosed: "Test cerrado. Ganaste 0 sats esta vez.",
-      zeroSatsQuestion: "Sin problema. Ganaste 0 sats en esta pregunta.",
-      helpTitle: "¿En qué puedo ayudarte?",
-      withNagai: "Con NagAI",
-      satsAlready: "(ya acreditados en esta cuenta)",
-      askNagai: "Resolver dudas con NagAI",
-      earnSats: "Ganar sats respondiendo",
-      testKnowledge: "Probar conocimientos",
+        ". Você pode refazer para praticar, mas não ganha de novo.",
+      quizGateRetry: "Refazer sem novos sats",
+      quizGateBackChat: "Voltar ao chat",
+      quizEmpty: "Ainda não há perguntas nesta trilha. Pode continuar no chat livre.",
+      reformulate: "Pode reformular? Falo só de Bitcoin e autocustódia.",
+      backToDashboard: "Voltar para Dashboard",
+      hitSats: "Você acertou — +{sats} sats!",
+      trySats: "Participação registrada — +{sats} sats por tentar.",
+      practiceNoSats: "Prática — sem novos sats nesta conta.",
+      skipThisQuestion: "Pular esta pergunta",
+      zeroSatsTest: "Você ganhou 0 sats neste teste.",
+      zeroSatsClosed: "Teste encerrado. Você ganhou 0 sats desta vez.",
+      zeroSatsQuestion: "Sem problema. Você ganhou 0 sats nesta pergunta.",
+      helpTitle: "Em que posso te ajudar?",
+      withNagai: "Com NagAI",
+      satsAlready: "(já creditados nesta conta)",
+      askNagai: "Tirar Dúvidas com NagAI",
+      earnSats: "Ganhar sats respondendo",
+      testKnowledge: "Testar conhecimentos",
       tradeSim: "Simulador de Trade",
-      openFullscreen: "Abrir en pantalla grande",
-      earnTitle: "Retoma el quiz y gana sats (5 al acertar · 3 al intentar)",
+      openFullscreen: "Abrir em tela grande",
+      earnTitle: "Retome o quiz e conquiste sats (5 no acerto · 3 na tentativa)",
       practiceTitle:
-        "Revisa el test de conocimientos — práctica sin nuevos sats en esta cuenta",
-      titleM1Short: "Primeros pasos en Bitcoin",
-      titleM2Short: "Billetera y Lightning",
-      historyTitle: "Historial NagAI",
+        "Revise o teste de conhecimentos — prática sem novos sats nesta conta",
+      titleM1Short: "Primeiros passos no Bitcoin",
+      titleM2Short: "Carteira e Lightning",
+      historyTitle: "Histórico NagAI",
       historyDesc:
-        "Conversaciones anteriores en este idioma. La lista muestra solo un resumen; los mensajes completos se cargan al elegir una.",
-      historyEmpty: "Aún no hay conversaciones guardadas en este idioma.",
-      historyMessages: "{n} mensajes",
-      historyDelete: "Borrar conversación",
-      historyOpen: "Historial",
-      historyNew: "Nueva conversación",
+        "Conversas anteriores neste idioma. Abrimos só o resumo na lista; as mensagens completas carregam quando você escolhe uma.",
+      historyEmpty: "Nenhuma conversa salva ainda neste idioma.",
+      historyMessages: "{n} mensagens",
+      historyDelete: "Apagar conversa",
+      historyOpen: "Histórico",
+      historyNew: "Nova conversa",
+    },
+    auth: {
+      back: "Volver",
+      titleCreate: "Crear cuenta",
+      titleLogin: "Entrar",
+      titleRecover: "Recuperar acceso",
+      ledeCreate:
+        "Usuario y contraseña. Por debajo, una identidad Nostr real — la clave queda cifrada con tu contraseña.",
+      ledeLogin: "Abre la bóveda de tu cuenta SatVantage.",
+      ledeRecover: "Dos pruebas: pregunta de seguridad y las 12 palabras de recuperación.",
+      usernamePh: "usuario",
+      passwordPh: "contraseña",
+      passwordMinPh: "contraseña (mínimo 8 caracteres)",
+      questionPh: "pregunta de seguridad (solo tú sabes la respuesta)",
+      answerPh: "respuesta",
+      answerYourPh: "tu respuesta",
+      hintSocial: "Evita respuestas que estén en tus redes sociales.",
+      createBtn: "Crear cuenta",
+      creating: "Creando bóveda…",
+      loginBtn: "Entrar",
+      opening: "Abriendo bóveda…",
+      forgotPassword: "Olvidé mi contraseña",
+      foot: "Tu cuenta es una identidad Nostr. Guardamos la bóveda, nunca la clave.",
+      checkingUser: "Verificando usuario…",
+      userAvailable: "Usuario disponible.",
+      userTaken: "Ese usuario ya está en uso. Elige otro nombre.",
+      userInvalid: "Usuario inválido (3-20 caracteres: minúsculas, números, _).",
+      questionShort: "Escribe una pregunta de seguridad (mínimo 8 caracteres).",
+      answerShort: "Escribe la respuesta de tu pregunta.",
+      createFail: "Error al crear la cuenta",
+      loginFail: "Error al iniciar sesión",
+      recoverFail: "Error en la recuperación",
+      sessionWarn:
+        "Ya estás conectado como {npub}. Crear una cuenta nueva genera una identidad Nostr distinta — el saldo y el progreso de la cuenta actual se quedan en ella, no pasan a la nueva.",
+      goMyAccount: "Ir a mi cuenta",
+      createAnyway: "Crear cuenta nueva de todos modos",
+      recoverHint:
+        "Vamos a verificar la posesión de la cuenta: pregunta de seguridad y las 12 palabras de recuperación.",
+      continue: "Continuar",
+      searching: "Buscando…",
+      mnemonicPh: "12 palabras de recuperación (separadas por espacio)",
+      newPasswordPh: "contraseña nueva (mínimo 8 caracteres)",
+      resetPassword: "Restablecer contraseña",
+      verifying: "Verificando posesión…",
+      backupTitle: "Guarda tus 12 palabras",
+      backupBody:
+        "Esta frase es el documento de posesión de tu cuenta. No la usarás en el día a día — solo si olvidas la contraseña (junto con la pregunta de seguridad). Anótala fuera del ordenador. No se mostrará de nuevo.",
+      copyWords: "Copiar palabras",
+      copied: "Copiada",
+      alreadyNoted: "Ya las anoté, continuar",
+      confirmTitle: "Confirma que las anotaste",
+      confirmBody:
+        "Completa los huecos en orden (1 → 2 → 3) tocando las palabras de abajo. Los huecos no cambian si vuelves a ver la frase.",
+      backToWords: "Volver a ver las palabras",
+      confirmContinue: "Continuar a SatVantage",
+      wrongOrder: "Orden incorrecto — revisa las palabras e inténtalo de nuevo",
+      gapsLabel: "Frase con huecos",
+      missingWordsLabel: "Palabras que faltan",
+      phraseLabel: "Frase de recuperación",
+      loading: "Cargando…",
+      claimTitle: "Saldo SatVantage",
+      claimMentorTitle: "Recibir sats de la mentoría",
+      claimCopyBefore: "Genera en la cartera MutinyNet un cobro de exactamente",
+      claimCopyAfter: "sats (empieza con lntbs) y pégalo abajo.",
+      claimConfirm: "Confirmar recepción",
+      claimBusy: "Recibiendo…",
+      claimOk: "Listo: ⚡ {n} sats fueron a tu cartera.",
+      claimFail: "fallo en el canje",
+      claimBalance: "Saldo SatVantage",
+      claimEmpty: "Sin saldo para recibir ahora.",
+      inactivityWarning:
+        "Por inactividad, serás desconectado en instantes — toca la pantalla para seguir conectado.",
+      scanQr: "Leer código QR",
+      pointCamera: "Apunta la cámara al QR",
+      scanToPay: "Escanea para pagar (MutinyNet)",
     },
   },
 };
@@ -1850,20 +2548,15 @@ type I18nCtx = {
 
 const I18nContext = createContext<I18nCtx | null>(null);
 
-/** Alias explícito do contexto de idioma (mesma API). */
-export const LanguageContext = I18nContext;
-
 const LOCALE_EVENT = "sv-locale-change";
-
-function isLocale(v: unknown): v is Locale {
-  return v === "pt" || v === "en" || v === "es";
-}
 
 function readLocale(): Locale {
   if (typeof window === "undefined") return "pt";
   try {
+    const boot = (window as Window & { __SV_LOCALE__?: string }).__SV_LOCALE__;
+    if (boot === "pt" || boot === "en" || boot === "es") return boot;
     const saved = localStorage.getItem(STORAGE_KEY);
-    if (isLocale(saved)) return saved;
+    if (saved === "pt" || saved === "en" || saved === "es") return saved;
   } catch {
     /* ignore */
   }
@@ -1874,64 +2567,29 @@ function htmlLang(locale: Locale) {
   return locale === "pt" ? "pt-BR" : locale;
 }
 
-function persistLocale(next: Locale) {
-  document.documentElement.lang = htmlLang(next);
-  try {
-    localStorage.setItem(STORAGE_KEY, next);
-  } catch {
-    /* ignore */
-  }
-  try {
-    window.dispatchEvent(
-      new CustomEvent(LOCALE_EVENT, { detail: { locale: next } }),
-    );
-  } catch {
-    /* ignore */
-  }
-}
-
-/**
- * Contexto global de idioma (pt | en | es).
- * Persistido em localStorage (`sv_locale`) e sincronizado entre abas / telas.
- */
 export function I18nProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>(() => readLocale());
+  const [locale, setLocaleState] = useState<Locale>("pt");
 
   useEffect(() => {
     const next = readLocale();
     setLocaleState(next);
     document.documentElement.lang = htmlLang(next);
-
-    function onStorage(e: StorageEvent) {
-      if (e.key !== STORAGE_KEY || e.newValue == null) return;
-      if (isLocale(e.newValue)) {
-        setLocaleState(e.newValue);
-        document.documentElement.lang = htmlLang(e.newValue);
-      }
-    }
-
-    function onCustom(e: Event) {
-      const detail = (e as CustomEvent<{ locale?: Locale }>).detail;
-      if (detail?.locale && isLocale(detail.locale)) {
-        setLocaleState((prev) =>
-          prev === detail.locale ? prev : (detail.locale as Locale),
-        );
-        document.documentElement.lang = htmlLang(detail.locale);
-      }
-    }
-
-    window.addEventListener("storage", onStorage);
-    window.addEventListener(LOCALE_EVENT, onCustom as EventListener);
-    return () => {
-      window.removeEventListener("storage", onStorage);
-      window.removeEventListener(LOCALE_EVENT, onCustom as EventListener);
-    };
+    document.documentElement.setAttribute("translate", "no");
+    document.documentElement.classList.add("notranslate");
   }, []);
 
   const setLocale = useCallback((next: Locale) => {
-    if (!isLocale(next)) return;
     setLocaleState(next);
-    persistLocale(next);
+    document.documentElement.lang = htmlLang(next);
+    document.documentElement.setAttribute("translate", "no");
+    document.documentElement.classList.add("notranslate");
+    try {
+      localStorage.setItem(STORAGE_KEY, next);
+      (window as Window & { __SV_LOCALE__?: string }).__SV_LOCALE__ = next;
+      window.dispatchEvent(new CustomEvent(LOCALE_EVENT, { detail: { locale: next } }));
+    } catch {
+      /* ignore */
+    }
   }, []);
 
   const value = useMemo(
@@ -1939,27 +2597,28 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     [locale, setLocale],
   );
 
-  return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
+  // Remonta NÃO — key={locale} derrubava a mentoria ao trocar idioma.
+  return (
+    <I18nContext.Provider value={value}>
+      <div className="notranslate sv-i18n-root" lang={htmlLang(locale)} translate="no">
+        {children}
+      </div>
+    </I18nContext.Provider>
+  );
+}
+
+export function useI18n(): I18nCtx {
+  const ctx = useContext(I18nContext);
+  if (!ctx) {
+    return { locale: "pt", setLocale: () => {}, t: dictionaries.pt };
+  }
+  return ctx;
 }
 
 /** Dicionário de um locale específico (útil para textos alinhados a um idioma fixo). */
 export function dictFor(locale: Locale): Dict {
   return dictionaries[locale] ?? dictionaries.pt;
 }
-
-/** @deprecated use I18nProvider — alias para clareza de “LanguageContext” */
-export const LanguageProvider = I18nProvider;
-
-export function useI18n(): I18nCtx {
-  const ctx = useContext(I18nContext);
-  if (!ctx) {
-    throw new Error("useI18n deve ser usado dentro de I18nProvider / LanguageProvider");
-  }
-  return ctx;
-}
-
-/** Alias semântico do hook de idioma. */
-export const useLanguage = useI18n;
 
 export const LOCALE_OPTIONS: { value: Locale; label: string }[] = [
   { value: "pt", label: "PT" },

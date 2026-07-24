@@ -6,6 +6,7 @@ import { supabaseAdmin } from "@/lib/supabase";
 import { getSession } from "@/lib/session";
 import { payInvoiceFromTreasury } from "@/lib/voltage";
 import { MISSION_1_SLUG } from "@/lib/quiz";
+import { recordSatsMovement } from "@/lib/sats-ledger";
 
 export async function POST(req: NextRequest) {
   const session = await getSession();
@@ -97,6 +98,16 @@ export async function POST(req: NextRequest) {
       .eq("user_id", session.userId)
       .eq("mission_id", mission.id);
   }
+
+  await recordSatsMovement({
+    userId: session.userId,
+    kind: "out",
+    amountSats: balance,
+    source: "voucher",
+    label: "Saque para carteira Lightning",
+    refKey: result.paymentId ? `voucher:${result.paymentId}` : null,
+    meta: { paymentId: result.paymentId ?? null, sats: balance },
+  });
 
   return NextResponse.json({
     ok: true,

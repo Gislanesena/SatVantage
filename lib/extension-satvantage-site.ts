@@ -1,15 +1,16 @@
 // lib/extension-satvantage-site.ts
 // Site oficial SatVantage — reconhecimento + mapa + tom empático/comercial.
 
-/** Hosts oficiais (produção + local). */
+/** Hosts oficiais (produção + preview antigo + local). */
 export const SATVANTAGE_OFFICIAL_HOSTS = [
+  "sat-vantage-gislanesena.vercel.app",
   "sat-vantage-iau60jdhv-gislanesena.vercel.app",
   "localhost",
   "127.0.0.1",
 ] as const;
 
 export const SATVANTAGE_OFFICIAL_URL =
-  "https://sat-vantage-iau60jdhv-gislanesena.vercel.app/";
+  "https://sat-vantage-gislanesena.vercel.app/";
 
 export function isSatVantageOfficialUrl(url?: string | null): boolean {
   if (!url) return false;
@@ -176,7 +177,7 @@ export function respostaSiteOficial(
         "créditos da jornada e até herança digital sem custodiar suas chaves. " +
         "Foi feito para quem quer aprender com segurança e carinho — não para te apressar nem pedir seed.",
       proximosPassos: [
-        "Confira o cadeado e o domínio sat-vantage-iau60jdhv-gislanesena.vercel.app na barra.",
+        "Confira o cadeado e o domínio sat-vantage-gislanesena.vercel.app na barra.",
         "Crie ou acesse sua conta Nostr e explore o dashboard no seu ritmo.",
         "Conecte uma carteira MutinyNet (NWC) quando quiser enviar/receber sats de teste.",
         "No menu ⚙️, conheça Herança e Modo emergência — proteção de verdade, linguagem clara.",

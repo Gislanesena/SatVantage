@@ -1,5 +1,5 @@
-"use client";
-// Chat educativo de tópico livre — SEM sats de missão.
+﻿"use client";
+// Chat educativo de t├│pico livre ÔÇö SEM sats de miss├úo.
 import { useCallback, useEffect, useRef, useState } from "react";
 import SiteNav from "@/components/SiteNav";
 import type { OptionalTopic } from "@/lib/optional-topics";
@@ -69,7 +69,7 @@ export default function FreeTopicChat({
 
     (async () => {
       await typeAgent(
-        "Esse assunto é só aprendizado — sem sats de missão. Vamos com calma.",
+        "Esse assunto ├® s├│ aprendizado ÔÇö sem sats de miss├úo. Vamos com calma.",
         runId,
       );
       if (runIdRef.current !== runId) return;
@@ -108,8 +108,8 @@ export default function FreeTopicChat({
     await sleep(200);
     await typeAgent(
       embedded
-        ? "Pode fechar o chat ou abrir outro assunto no mentor — o dashboard continua aí. Se quiser, digite outra dúvida abaixo."
-        : "Pode voltar ao dashboard quando quiser — ou digite outra dúvida abaixo.",
+        ? "Pode fechar o chat ou abrir outro assunto no mentor ÔÇö o dashboard continua a├¡. Se quiser, digite outra d├║vida abaixo."
+        : "Pode voltar ao dashboard quando quiser ÔÇö ou digite outra d├║vida abaixo.",
       runId,
     );
     if (runIdRef.current !== runId) return;
@@ -126,7 +126,7 @@ export default function FreeTopicChat({
     stickToBottom();
     setLines((p) => [...p, { kind: "user", text }]);
     await typeAgent(
-      "Boa pergunta. Neste assunto livre não creditamos sats — anote a ideia e, se quiser recompensa, use o Teste de Conhecimento na mentoria principal.",
+      "Boa pergunta. Neste assunto livre n├úo creditamos sats ÔÇö anote a ideia e, se quiser recompensa, use o Teste de Conhecimento na mentoria principal.",
       runId,
     );
     if (runIdRef.current === runId) setBusy(false);
@@ -160,11 +160,11 @@ export default function FreeTopicChat({
               />
               <h1>{topic.label}</h1>
             </div>
-            <p className="sv-mentor-practice-tag">Assunto livre · sem sats de missão</p>
+            <p className="sv-mentor-practice-tag">Assunto livre ┬À sem sats de miss├úo</p>
           </header>
         )}
         {embedded && (
-          <p className="sv-mentor-practice-tag">Assunto livre · sem sats de missão</p>
+          <p className="sv-mentor-practice-tag">Assunto livre ┬À sem sats de miss├úo</p>
         )}
 
         <div className="sv-chat-panel">

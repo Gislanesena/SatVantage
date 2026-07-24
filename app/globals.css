@@ -517,6 +517,22 @@ code {
   padding: 0;
 }
 
+.sv-auth-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+}
+
+.sv-auth-top-spacer {
+  flex: 1;
+}
+
+.sv-auth-top .sv-back {
+  justify-self: unset;
+}
+
 .sv-auth h2 {
   margin: 4px 0 0;
   font-family: var(--font-display);
