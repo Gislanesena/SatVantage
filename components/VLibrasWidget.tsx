@@ -40,13 +40,23 @@ function findAccessButton(): HTMLElement | null {
 function pinAccessButton() {
   const btn = findAccessButton();
   if (!btn) return false;
+
+  // Esconde o marcador vazio [vw-access-button] se o plugin criou .access-button separado
+  document.querySelectorAll("[vw-access-button]").forEach((el) => {
+    if (el === btn || el.contains(btn)) return;
+    const node = el as HTMLElement;
+    node.style.setProperty("display", "none", "important");
+    node.style.setProperty("pointer-events", "none", "important");
+  });
+
   const mobile = window.matchMedia("(max-width: 640px)").matches;
   btn.classList.add("active");
   btn.style.setProperty("position", "fixed", "important");
   btn.style.setProperty("right", mobile ? "12px" : "18px", "important");
-  btn.style.setProperty("bottom", mobile ? "128px" : "140px", "important");
+  btn.style.setProperty("top", "50%", "important");
+  btn.style.setProperty("bottom", "auto", "important");
   btn.style.setProperty("left", "auto", "important");
-  btn.style.setProperty("top", "auto", "important");
+  btn.style.setProperty("transform", "translateY(-50%)", "important");
   btn.style.setProperty("z-index", "2147483000", "important");
   btn.style.setProperty("opacity", "1", "important");
   btn.style.setProperty("visibility", "visible", "important");

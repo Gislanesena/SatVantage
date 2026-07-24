@@ -633,12 +633,21 @@
   z-index: 82;
   pointer-events: auto;
   box-sizing: border-box;
+  max-height: min(42vh, 280px);
+  overflow-y: auto;
   padding: 14px 14px 12px;
   border-radius: 12px;
   background: #f8c838;
   border: 1px solid #eebb39;
   color: #0f172a;
   box-shadow: 0 14px 36px rgba(0, 0, 0, 0.45);
+}
+
+.sv-tsim-tour-tip .sv-tsim-tour-actions {
+  position: sticky;
+  bottom: 0;
+  padding-top: 4px;
+  background: linear-gradient(to bottom, transparent, #f8c838 30%);
 }
 
 .sv-tsim-tour-tip h3 {
